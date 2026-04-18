@@ -572,11 +572,14 @@ export function TtsApp() {
                   </div>
                 </CardHeader>
                 <CardContent className="flex min-h-0 flex-1 flex-col p-0 pt-0">
-                  <div className="hidden h-[min(58dvh,560px)] min-h-[280px] flex-1 lg:block lg:h-[min(72dvh,780px)] xl:h-[min(78dvh,880px)]">
+                  <div className="hidden min-h-0 flex-1 flex-col lg:flex lg:h-[min(72dvh,780px)] lg:min-h-[280px] xl:h-[min(78dvh,880px)]">
                     {runs.length === 0 ? (
-                      <EmptyDetail className="h-full border-t border-border" />
+                      <EmptyDetail className="min-h-0 flex-1 border-t border-border" />
                     ) : (
-                      <ResizablePanelGroup direction="horizontal" className="h-full rounded-none">
+                      <ResizablePanelGroup
+                        direction="horizontal"
+                        className="h-full min-h-0 flex-1 rounded-none"
+                      >
                         <ResizablePanel
                           defaultSize={22}
                           minSize={16}
@@ -592,7 +595,7 @@ export function TtsApp() {
                         </ResizablePanel>
                         <ResizableHandle withHandle />
                         <ResizablePanel defaultSize={78} minSize={55} className="min-w-0 flex-1">
-                          <RunDetail run={selectedRun} className="h-full border-t border-border" />
+                          <RunDetail run={selectedRun} className="h-full" />
                         </ResizablePanel>
                       </ResizablePanelGroup>
                     )}
@@ -618,7 +621,10 @@ export function TtsApp() {
                           상세
                         </TabsTrigger>
                       </TabsList>
-                      <TabsContent value="list" className="mt-0 flex-1 overflow-hidden px-0 pb-0">
+                      <TabsContent
+                        value="list"
+                        className="mt-0 flex min-h-0 flex-1 flex-col overflow-hidden px-0 pb-0"
+                      >
                         <RunList
                           runs={runs}
                           selectedId={selectedId}
@@ -631,12 +637,12 @@ export function TtsApp() {
                       </TabsContent>
                       <TabsContent
                         value="detail"
-                        className="mt-0 flex-1 overflow-hidden px-0 pb-0"
+                        className="mt-0 flex min-h-0 flex-1 flex-col overflow-hidden px-0 pb-0"
                       >
                         <RunDetail
                           run={selectedRun}
-                          className="h-full border-t border-border"
-                          emptyClassName="h-full"
+                          className="h-full min-h-0 flex-1"
+                          emptyClassName="min-h-0 flex-1"
                         />
                       </TabsContent>
                     </Tabs>
@@ -663,7 +669,7 @@ function EmptyDetail({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-2 text-muted-foreground",
+        "flex min-h-0 w-full flex-1 flex-col items-center justify-center gap-2 text-muted-foreground",
         className,
       )}
     >
@@ -748,7 +754,7 @@ function RunDetail({
   const audioSrc = run.playUrl ?? run.blobUrl;
 
   return (
-    <ScrollArea className={cn("h-full", className)}>
+    <ScrollArea className={cn("h-full min-h-0", className)}>
       <div className="space-y-3 p-3 sm:space-y-4 sm:p-4 md:p-5">
         <div className="min-w-0">
           <p className="text-xs text-muted-foreground">Bundle</p>
@@ -761,13 +767,6 @@ function RunDetail({
             {run.originalText}
           </p>
         </div>
-        <div className="min-w-0">
-          <p className="text-xs text-muted-foreground">Prompt</p>
-          <div className="max-h-[min(42dvh,360px)] overflow-y-auto whitespace-pre-wrap break-words rounded-md bg-muted/50 p-2.5 text-xs leading-relaxed text-foreground sm:max-h-[min(48dvh,480px)] sm:p-3 sm:text-sm lg:max-h-[min(50dvh,520px)]">
-            {run.prompt}
-          </div>
-        </div>
-        <Separator />
         {run.status === "loading" ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -808,6 +807,13 @@ function RunDetail({
             </Button>
           </div>
         ) : null}
+        <Separator />
+        <div className="min-w-0">
+          <p className="text-xs text-muted-foreground">Prompt</p>
+          <div className="h-[4.9rem] overflow-y-auto whitespace-pre-wrap break-words rounded-md bg-muted/50 p-2.5 text-xs leading-relaxed text-foreground sm:h-[5.75rem] sm:p-3 sm:text-sm sm:leading-relaxed">
+            {run.prompt}
+          </div>
+        </div>
       </div>
     </ScrollArea>
   );
