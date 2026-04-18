@@ -121,8 +121,14 @@ export function TtsApp() {
 
   useEffect(() => {
     const ids = new Set(bundlePresets.map((p) => p.id));
-    if (activePresetKey && !ids.has(activePresetKey)) {
-      setActivePresetKey(null);
+    const latest = bundlePresets[0];
+    if (!latest) {
+      if (activePresetKey != null) setActivePresetKey(null);
+      return;
+    }
+    if (activePresetKey == null || !ids.has(activePresetKey)) {
+      setActivePresetKey(latest.id);
+      setPrompt(latest.long);
     }
   }, [bundlePresets, activePresetKey]);
 
