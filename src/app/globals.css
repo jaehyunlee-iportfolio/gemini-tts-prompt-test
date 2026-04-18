@@ -3,7 +3,31 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
+  /* :root보다 html.dark가 이기도록 라이트는 html, 다크는 html.dark */
+  html {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 9.8%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 9.8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 9.8%;
+    --primary: 263 70% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 6% 12%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;
+    --accent: 240 5% 96%;
+    --accent-foreground: 240 6% 12%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 263 70% 50%;
+    --radius: 0.5rem;
+  }
+
+  html.dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
     --card: 240 10% 5.9%;
@@ -23,7 +47,6 @@
     --border: 240 6% 18%;
     --input: 240 6% 18%;
     --ring: 263 70% 58%;
-    --radius: 0.5rem;
   }
 }
 
