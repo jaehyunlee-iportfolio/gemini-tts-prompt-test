@@ -39,8 +39,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { FALLBACK_PRESETS, DEFAULT_PROMPT } from "@/lib/presets";
-import { buildPresetsFromRegistry, sortRevisionsDesc } from "@/lib/registry-utils";
+import { listBundlePresets } from "@/lib/bundle-presets";
+import { DEFAULT_PROMPT } from "@/lib/presets";
+import { sortRevisionsDesc } from "@/lib/registry-utils";
 import { proxyPlayUrl, streamTtsSse } from "@/lib/tts-sse";
 import { cn } from "@/lib/utils";
 import type { PromptRegistryJson, RegistryGroup, RegistryPrompt } from "@/types/registry";
@@ -57,18 +58,6 @@ import { ChevronDown, Loader2, Volume2 } from "lucide-react";
 const API_BASE = "/api";
 
 const HISTORY_OPTIONS = [10, 30, 50] as const;
-
-function generateCacheBustToken() {
-  const chars = "\u200B\u200C\u200D\uFEFF";
-  const ts = Date.now().toString(36);
-  const rand = Math.random().toString(36).substring(2, 6);
-  const id = ts + rand;
-  let token = "";
-  for (const c of id) {
-    token += chars[c.charCodeAt(0) % chars.length];
-  }
-  return ` ${token}`;
-}
 
 function trimRuns(runs: TtsRun[], max: number): TtsRun[] {
   if (runs.length <= max) return runs;
@@ -93,14 +82,14 @@ export function TtsApp() {
   const [runs, setRuns] = useState<TtsRun[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mobileResultTab, setMobileResultTab] = useState<"list" | "detail">("list");
-  const [presetMap, setPresetMap] = useState(FALLBACK_PRESETS);
+  const [registryJson, setRegistryJson] = useState<PromptRegistryJson | null>(null);
   const [activePresetKey, setActivePresetKey] = useState<string | null>(null);
   const [registryLoadError, setRegistryLoadError] = useState<string | null>(null);
   const runsRef = useRef(runs);
   runsRef.current = runs;
 
   const handleRegistryLoaded = useCallback((reg: PromptRegistryJson) => {
-    setPresetMap(buildPresetsFromRegistry(reg));
+    setRegistryJson(reg);
     setRegistryLoadError(null);
   }, []);
 
@@ -110,11 +99,11 @@ export function TtsApp() {
         const res = await fetch(`${API_BASE}/prompt-registry`);
         if (!res.ok) throw new Error(await res.text());
         const reg = (await res.json()) as PromptRegistryJson;
-        setPresetMap(buildPresetsFromRegistry(reg));
+        setRegistryJson(reg);
         setRegistryLoadError(null);
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
-        setPresetMap(FALLBACK_PRESETS);
+        setRegistryJson(null);
         setRegistryLoadError(
           `레지스트리를 불러오지 못했습니다. 기본 프리셋을 사용합니다. (${msg})`,
         );
@@ -125,6 +114,18 @@ export function TtsApp() {
 
   const bundleName = useMemo(() => bundleNameFromVoiceStyle(voice, style), [voice, style]);
 
+  const bundlePresets = useMemo(
+    () => listBundlePresets(registryJson, voice, style),
+    [registryJson, voice, style],
+  );
+
+  useEffect(() => {
+    const ids = new Set(bundlePresets.map((p) => p.id));
+    if (activePresetKey && !ids.has(activePresetKey)) {
+      setActivePresetKey(null);
+    }
+  }, [bundlePresets, activePresetKey]);
+
   const selectedRun = runs.find((r) => r.id === selectedId) ?? null;
 
   const updateRun = useCallback((id: string, patch: Partial<TtsRun>) => {
@@ -133,17 +134,10 @@ export function TtsApp() {
 
   const anyLoading = runs.some((r) => r.status === "loading");
 
-  const getActualText = useCallback(() => {
-    const t = text.trim();
-    if (cacheBust) return t + generateCacheBustToken();
-    return t;
-  }, [text, cacheBust]);
-
   const startGeneration = useCallback(async () => {
     if (anyLoading) return;
 
     const originalText = text.trim();
-    const actualText = getActualText();
     const promptVal = prompt;
     const uid = parseInt(userId, 10);
     if (!originalText) return;
@@ -171,7 +165,8 @@ export function TtsApp() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          text: actualText,
+          text: originalText,
+          cacheBust,
           bundleName,
           viseme: false,
           prompt: promptVal,
@@ -249,7 +244,7 @@ export function TtsApp() {
   }, [
     anyLoading,
     text,
-    getActualText,
+    cacheBust,
     prompt,
     userId,
     bundleName,
@@ -283,25 +278,37 @@ export function TtsApp() {
   }, [maxHistory]);
 
   return (
-    <TooltipProvider>
-      <div className="mx-auto max-w-6xl px-4 py-8">
-        <header className="mb-8 flex flex-wrap items-center gap-4 border-b border-border pb-6">
-          <h1 className="bg-gradient-to-r from-primary to-violet-300 bg-clip-text text-2xl font-bold text-transparent">
+    <TooltipProvider delayDuration={300}>
+      <div className="mx-auto min-h-0 w-full min-w-0 max-w-[min(100%,1920px)] overflow-x-hidden px-3 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.5rem,env(safe-area-inset-top,0px))] sm:px-5 sm:py-8 lg:px-8 xl:px-10">
+        <header className="mb-6 flex min-w-0 flex-col gap-3 border-b border-border pb-5 sm:mb-8 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4 sm:pb-6">
+          <h1 className="min-w-0 bg-gradient-to-r from-primary to-violet-300 bg-clip-text text-xl font-bold leading-tight text-transparent sm:text-2xl lg:text-3xl">
             Gemini TTS Prompt Tester
           </h1>
-          <Badge variant="secondary">LAURA TTS Stage</Badge>
+          <Badge variant="secondary" className="w-fit shrink-0 self-start sm:self-center">
+            LAURA TTS Stage
+          </Badge>
         </header>
 
-        <Tabs value={mainTab} onValueChange={setMainTab} className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="generate">음성 생성</TabsTrigger>
-            <TabsTrigger value="registry">프롬프트 레지스트리</TabsTrigger>
+        <Tabs value={mainTab} onValueChange={setMainTab} className="space-y-4 sm:space-y-6">
+          <TabsList className="grid h-auto w-full grid-cols-2 gap-1 p-1 sm:inline-flex sm:w-auto sm:max-w-none">
+            <TabsTrigger
+              value="generate"
+              className="touch-manipulation px-2 py-2.5 text-xs sm:flex-initial sm:px-3 sm:py-2 sm:text-sm"
+            >
+              음성 생성
+            </TabsTrigger>
+            <TabsTrigger
+              value="registry"
+              className="touch-manipulation px-2 py-2.5 text-xs sm:flex-initial sm:px-3 sm:py-2 sm:text-sm"
+            >
+              프롬프트 레지스트리
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="generate" className="space-y-4">
-            <Alert>
-              <AlertTitle>Cache 주의</AlertTitle>
-              <AlertDescription>
+          <TabsContent value="generate" className="mt-0 space-y-3 sm:space-y-4">
+            <Alert className="text-sm">
+              <AlertTitle className="text-sm sm:text-base">Cache 주의</AlertTitle>
+              <AlertDescription className="text-xs leading-relaxed sm:text-sm [&_a]:break-all">
                 동일한 bundleName + text 조합은 서버에서 캐싱된 음성을 반환합니다. 프롬프트만
                 변경하면 동일 음성이 나올 수 있습니다. &quot;캐시 우회&quot;를 켜면 텍스트 끝에
                 보이지 않는 토큰이 추가됩니다.
@@ -309,24 +316,28 @@ export function TtsApp() {
             </Alert>
 
             {registryLoadError ? (
-              <Alert variant="destructive">
-                <AlertTitle>레지스트리 로드 실패</AlertTitle>
-                <AlertDescription>{registryLoadError}</AlertDescription>
+              <Alert variant="destructive" className="text-sm">
+                <AlertTitle className="text-sm sm:text-base">레지스트리 로드 실패</AlertTitle>
+                <AlertDescription className="break-words text-xs sm:text-sm">
+                  {registryLoadError}
+                </AlertDescription>
               </Alert>
             ) : null}
 
-            <div className="grid gap-6 lg:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>요청</CardTitle>
-                  <CardDescription>Voice·Style을 고르면 bundleName이 조합됩니다.</CardDescription>
+            <div className="grid grid-cols-1 items-start gap-4 sm:gap-6 lg:grid-cols-[minmax(280px,34rem)_minmax(0,1fr)] lg:gap-8 2xl:grid-cols-[minmax(300px,36rem)_minmax(0,1fr)]">
+              <Card className="w-full min-w-0 max-w-full lg:max-w-[34rem] 2xl:max-w-[36rem]">
+                <CardHeader className="space-y-1 px-4 pb-3 pt-4 sm:px-6 sm:pb-4 sm:pt-6">
+                  <CardTitle className="text-lg sm:text-xl">요청</CardTitle>
+                  <CardDescription className="text-xs sm:text-sm">
+                    Voice·Style을 고르면 bundleName이 조합됩니다.
+                  </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid gap-4 sm:grid-cols-2">
+                <CardContent className="space-y-3 px-4 sm:space-y-4 sm:px-6">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                     <div className="space-y-2">
-                      <Label>Voice</Label>
+                      <Label className="text-sm">Voice</Label>
                       <Select value={voice} onValueChange={(v) => setVoice(v as VoiceId)}>
-                        <SelectTrigger>
+                        <SelectTrigger className="h-11 w-full touch-manipulation sm:h-10">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -339,9 +350,9 @@ export function TtsApp() {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label>Style</Label>
+                      <Label className="text-sm">Style</Label>
                       <Select value={style} onValueChange={(s) => setStyle(s as StyleTone)}>
-                        <SelectTrigger>
+                        <SelectTrigger className="h-11 w-full touch-manipulation sm:h-10">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -354,66 +365,83 @@ export function TtsApp() {
                       </Select>
                     </div>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm text-muted-foreground">API bundleName</span>
-                    <Badge variant="outline" className="font-mono text-xs">
+                  <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+                    <span className="shrink-0 text-xs text-muted-foreground sm:text-sm">
+                      API bundleName
+                    </span>
+                    <Badge
+                      variant="outline"
+                      className="w-fit max-w-full break-all font-mono text-[10px] leading-snug sm:text-xs"
+                    >
                       {bundleName}
                     </Badge>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="tts-text">Text (발화 텍스트)</Label>
+                    <Label htmlFor="tts-text" className="text-sm">
+                      Text (발화 텍스트)
+                    </Label>
                     <Textarea
                       id="tts-text"
                       rows={3}
+                      className="min-h-[5.5rem] resize-y text-sm sm:min-h-[6rem] sm:text-base"
                       value={text}
                       onChange={(e) => setText(e.target.value)}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label>프리셋</Label>
-                    <ScrollArea className="h-[120px] rounded-md border border-border p-2">
-                      <div className="flex flex-wrap gap-2">
-                        {Object.entries(presetMap).flatMap(([group, presets]) =>
-                          Object.keys(presets).map((name) => {
-                            const key = `${group}::${name}`;
-                            const active = activePresetKey === key;
-                            return (
-                              <Tooltip key={key}>
-                                <TooltipTrigger asChild>
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setActivePresetKey(key);
-                                      setPrompt(presetMap[group][name] ?? "");
-                                    }}
-                                    className={cn(
-                                      "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
-                                      active
-                                        ? "border-primary bg-primary/15 text-primary"
-                                        : "border-border bg-secondary/40 text-muted-foreground hover:border-primary/50",
-                                    )}
-                                  >
-                                    {name}
-                                  </button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p className="max-w-xs text-xs">{group}</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            );
-                          }),
-                        )}
+                    <div className="flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-baseline sm:justify-between sm:gap-2">
+                      <Label className="text-sm">프리셋</Label>
+                      <span className="text-[10px] leading-snug text-muted-foreground sm:text-[11px]">
+                        {bundleName} · {style} 리비전만
+                      </span>
+                    </div>
+                    <ScrollArea className="h-[min(28svh,140px)] rounded-md border border-border p-2 sm:h-[120px] sm:max-h-[160px]">
+                      <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
+                        {bundlePresets.map((preset) => {
+                          const active = activePresetKey === preset.id;
+                          return (
+                            <Tooltip key={preset.id}>
+                              <TooltipTrigger asChild>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setActivePresetKey(preset.id);
+                                    setPrompt(preset.long);
+                                  }}
+                                  className={cn(
+                                    "touch-manipulation min-h-10 w-full max-w-full rounded-lg border px-3 py-2 text-left text-[11px] font-medium transition-colors active:scale-[0.99] sm:w-auto sm:max-w-[calc(100%-0.5rem)] sm:rounded-full sm:py-1.5 sm:text-xs",
+                                    active
+                                      ? "border-primary bg-primary/15 text-primary"
+                                      : "border-border bg-secondary/40 text-muted-foreground hover:border-primary/50",
+                                  )}
+                                >
+                                  <span className="line-clamp-3 font-mono sm:line-clamp-2">
+                                    {preset.chipLabel}
+                                  </span>
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent
+                                side="top"
+                                className="max-w-[min(90vw,20rem)] sm:max-w-xs"
+                              >
+                                <p className="text-xs">{preset.detail ?? preset.chipLabel}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          );
+                        })}
                       </div>
                     </ScrollArea>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="tts-prompt">Prompt (음성 스타일 지시)</Label>
+                    <Label htmlFor="tts-prompt" className="text-sm">
+                      Prompt (음성 스타일 지시)
+                    </Label>
                     <Textarea
                       id="tts-prompt"
-                      className="min-h-[160px] font-mono text-sm"
+                      className="min-h-[10rem] resize-y font-mono text-xs leading-relaxed sm:min-h-[11rem] sm:text-sm md:min-h-[12rem]"
                       value={prompt}
                       onChange={(e) => {
                         setActivePresetKey(null);
@@ -424,10 +452,14 @@ export function TtsApp() {
 
                   <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
                     <CollapsibleTrigger asChild>
-                      <Button variant="ghost" size="sm" className="gap-1 px-0">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-11 touch-manipulation gap-1 px-0 text-sm sm:h-9"
+                      >
                         <ChevronDown
                           className={cn(
-                            "h-4 w-4 transition-transform",
+                            "h-4 w-4 shrink-0 transition-transform",
                             advancedOpen && "rotate-180",
                           )}
                         />
@@ -435,11 +467,11 @@ export function TtsApp() {
                       </Button>
                     </CollapsibleTrigger>
                     <CollapsibleContent className="space-y-4 pt-2">
-                      <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-2">
                           <Label>Platform</Label>
                           <Select value={platform} onValueChange={setPlatform}>
-                            <SelectTrigger>
+                            <SelectTrigger className="h-11 touch-manipulation sm:h-10">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -453,6 +485,7 @@ export function TtsApp() {
                           <Input
                             id="user-id"
                             type="number"
+                            className="h-11 text-base sm:h-10 sm:text-sm"
                             value={userId}
                             onChange={(e) => setUserId(e.target.value)}
                           />
@@ -461,21 +494,26 @@ export function TtsApp() {
                     </CollapsibleContent>
                   </Collapsible>
 
-                  <div className="flex items-center justify-between rounded-lg border border-border px-3 py-2">
-                    <Label htmlFor="cache-bust" className="cursor-pointer">
+                  <div className="flex min-h-11 items-center justify-between gap-3 rounded-lg border border-border px-3 py-2.5 sm:min-h-0 sm:py-2">
+                    <Label htmlFor="cache-bust" className="cursor-pointer text-sm leading-snug">
                       캐시 우회
                     </Label>
-                    <Switch id="cache-bust" checked={cacheBust} onCheckedChange={setCacheBust} />
+                    <Switch
+                      id="cache-bust"
+                      className="shrink-0 scale-110 sm:scale-100"
+                      checked={cacheBust}
+                      onCheckedChange={setCacheBust}
+                    />
                   </div>
                   {cacheBust ? (
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
                       활성: 텍스트 끝에 보이지 않는 유니코드 문자가 자동 추가됩니다.
                     </p>
                   ) : null}
                 </CardContent>
-                <CardFooter>
+                <CardFooter className="px-4 pb-4 pt-0 sm:px-6 sm:pb-6">
                   <Button
-                    className="w-full"
+                    className="h-12 w-full touch-manipulation text-base sm:h-11 sm:text-sm"
                     size="lg"
                     onClick={() => void startGeneration()}
                     disabled={anyLoading || !text.trim()}
@@ -492,22 +530,27 @@ export function TtsApp() {
                 </CardFooter>
               </Card>
 
-              <Card className="flex flex-col">
-                <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0">
-                  <div>
-                    <CardTitle>결과</CardTitle>
-                    <CardDescription className="mt-1">
-                      목록에서 항목을 선택하면 오른쪽(또는 아래)에만 상세가 표시됩니다.
+              <Card className="flex min-h-0 w-full min-w-0 flex-col lg:min-h-[min(72dvh,800px)] xl:min-h-[min(78dvh,880px)]">
+                <CardHeader className="flex flex-col gap-3 space-y-0 px-4 pb-3 pt-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between sm:gap-4 sm:px-6 sm:pb-4 sm:pt-6">
+                  <div className="min-w-0">
+                    <CardTitle className="text-lg sm:text-xl">결과</CardTitle>
+                    <CardDescription className="mt-1 text-xs sm:text-sm">
+                      <span className="hidden lg:inline">
+                        목록에서 항목을 선택하면 오른쪽에 상세가 표시됩니다.
+                      </span>
+                      <span className="lg:hidden">
+                        아래 탭에서 목록·상세를 전환합니다.
+                      </span>
                     </CardDescription>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
                     <Select
                       value={String(maxHistory)}
                       onValueChange={(v) =>
                         setMaxHistory(parseInt(v, 10) as (typeof HISTORY_OPTIONS)[number])
                       }
                     >
-                      <SelectTrigger className="w-[100px]">
+                      <SelectTrigger className="h-11 w-full min-w-[7.5rem] touch-manipulation sm:h-10 sm:w-[112px]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -518,18 +561,28 @@ export function TtsApp() {
                         ))}
                       </SelectContent>
                     </Select>
-                    <Button variant="outline" size="sm" onClick={clearResults}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-11 w-full touch-manipulation sm:h-9 sm:w-auto"
+                      onClick={clearResults}
+                    >
                       전체 비우기
                     </Button>
                   </div>
                 </CardHeader>
                 <CardContent className="flex min-h-0 flex-1 flex-col p-0 pt-0">
-                  <div className="hidden h-[min(70vh,720px)] min-h-[360px] flex-1 md:block">
+                  <div className="hidden h-[min(58dvh,560px)] min-h-[280px] flex-1 lg:block lg:h-[min(72dvh,780px)] xl:h-[min(78dvh,880px)]">
                     {runs.length === 0 ? (
                       <EmptyDetail className="h-full border-t border-border" />
                     ) : (
                       <ResizablePanelGroup direction="horizontal" className="h-full rounded-none">
-                        <ResizablePanel defaultSize={32} minSize={22} className="min-w-0">
+                        <ResizablePanel
+                          defaultSize={22}
+                          minSize={16}
+                          maxSize={32}
+                          className="min-w-[200px] max-w-[320px]"
+                        >
                           <RunList
                             runs={runs}
                             selectedId={selectedId}
@@ -538,22 +591,32 @@ export function TtsApp() {
                           />
                         </ResizablePanel>
                         <ResizableHandle withHandle />
-                        <ResizablePanel defaultSize={68} minSize={35} className="min-w-0">
+                        <ResizablePanel defaultSize={78} minSize={55} className="min-w-0 flex-1">
                           <RunDetail run={selectedRun} className="h-full border-t border-border" />
                         </ResizablePanel>
                       </ResizablePanelGroup>
                     )}
                   </div>
 
-                  <div className="flex h-[min(70vh,720px)] min-h-[360px] flex-col md:hidden">
+                  <div className="flex h-[min(52dvh,520px)] min-h-[260px] flex-col sm:min-h-[300px] lg:hidden">
                     <Tabs
                       value={mobileResultTab}
                       onValueChange={(v) => setMobileResultTab(v as "list" | "detail")}
-                      className="flex h-full flex-col"
+                      className="flex h-full min-h-0 flex-col"
                     >
-                      <TabsList className="mx-4 mt-2 grid w-auto grid-cols-2">
-                        <TabsTrigger value="list">목록</TabsTrigger>
-                        <TabsTrigger value="detail">상세</TabsTrigger>
+                      <TabsList className="mx-3 mt-2 grid h-auto w-auto grid-cols-2 gap-1 p-1 sm:mx-4">
+                        <TabsTrigger
+                          value="list"
+                          className="touch-manipulation py-2.5 text-xs sm:text-sm"
+                        >
+                          목록
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="detail"
+                          className="touch-manipulation py-2.5 text-xs sm:text-sm"
+                        >
+                          상세
+                        </TabsTrigger>
                       </TabsList>
                       <TabsContent value="list" className="mt-0 flex-1 overflow-hidden px-0 pb-0">
                         <RunList
@@ -588,7 +651,7 @@ export function TtsApp() {
           </TabsContent>
         </Tabs>
 
-        <p className="mt-10 text-center text-xs text-muted-foreground">
+        <p className="mt-8 px-1 text-center text-[11px] leading-relaxed text-muted-foreground sm:mt-10 sm:text-xs">
           LAURA TTS Prompt Stability Tester · Stage Environment
         </p>
       </div>
@@ -604,8 +667,10 @@ function EmptyDetail({ className }: { className?: string }) {
         className,
       )}
     >
-      <Volume2 className="h-10 w-10 opacity-40" />
-      <p className="text-sm">생성 결과를 선택하면 여기에 재생됩니다.</p>
+      <Volume2 className="h-9 w-9 opacity-40 sm:h-10 sm:w-10" />
+      <p className="max-w-[20rem] px-4 text-center text-xs sm:text-sm">
+        생성 결과를 선택하면 여기에 재생됩니다.
+      </p>
     </div>
   );
 }
@@ -623,14 +688,14 @@ function RunList({
 }) {
   return (
     <ScrollArea className={cn("h-full", className)}>
-      <div className="space-y-1 p-3 pr-4">
+      <div className="space-y-1.5 p-2 pr-3 sm:p-3 sm:pr-4">
         {runs.map((r) => (
           <button
             key={r.id}
             type="button"
             onClick={() => onSelect(r.id)}
             className={cn(
-              "flex w-full flex-col gap-1 rounded-md border px-3 py-2 text-left text-sm transition-colors",
+              "flex w-full min-w-0 touch-manipulation flex-col gap-1.5 rounded-md border px-3 py-2.5 text-left text-sm transition-colors active:bg-secondary/80 sm:py-2",
               selectedId === r.id
                 ? "border-primary bg-primary/10"
                 : "border-transparent bg-secondary/30 hover:bg-secondary/60",
@@ -644,7 +709,9 @@ function RunList({
                 {new Date(r.createdAt).toLocaleTimeString("ko-KR")}
               </span>
             </div>
-            <p className="line-clamp-2 text-xs text-muted-foreground">{r.originalText}</p>
+            <p className="line-clamp-3 break-words text-xs text-muted-foreground sm:line-clamp-2">
+              {r.originalText}
+            </p>
             <div className="flex items-center gap-2">
               {r.status === "loading" ? (
                 <Skeleton className="h-5 w-16" />
@@ -682,21 +749,23 @@ function RunDetail({
 
   return (
     <ScrollArea className={cn("h-full", className)}>
-      <div className="space-y-4 p-4">
-        <div>
+      <div className="space-y-3 p-3 sm:space-y-4 sm:p-4 md:p-5">
+        <div className="min-w-0">
           <p className="text-xs text-muted-foreground">Bundle</p>
-          <p className="font-mono text-sm">{run.bundleName}</p>
+          <p className="break-all font-mono text-xs leading-snug sm:text-sm">{run.bundleName}</p>
         </div>
         <Separator />
-        <div>
+        <div className="min-w-0">
           <p className="text-xs text-muted-foreground">Text</p>
-          <p className="whitespace-pre-wrap text-sm">{run.originalText}</p>
+          <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+            {run.originalText}
+          </p>
         </div>
-        <div>
+        <div className="min-w-0">
           <p className="text-xs text-muted-foreground">Prompt</p>
-          <pre className="max-h-40 overflow-auto rounded-md bg-muted/50 p-2 text-xs">
+          <div className="max-h-[min(42dvh,360px)] overflow-y-auto whitespace-pre-wrap break-words rounded-md bg-muted/50 p-2.5 text-xs leading-relaxed text-foreground sm:max-h-[min(48dvh,480px)] sm:p-3 sm:text-sm lg:max-h-[min(50dvh,520px)]">
             {run.prompt}
-          </pre>
+          </div>
         </div>
         <Separator />
         {run.status === "loading" ? (
@@ -715,10 +784,14 @@ function RunDetail({
             <Badge variant="secondary" className="text-xs">
               재생
             </Badge>
-            <audio controls className="w-full" src={audioSrc} />
+            <audio
+              controls
+              className="h-12 w-full min-h-[44px] max-w-full sm:h-11"
+              src={audioSrc}
+            />
             {run.meta &&
             (run.meta.firstChunkLatencyMs != null || run.meta.audioDurationMs != null) ? (
-              <p className="text-xs text-muted-foreground">
+              <p className="break-words text-[11px] text-muted-foreground sm:text-xs">
                 {run.meta.firstChunkLatencyMs != null
                   ? `첫 청크 지연: ${run.meta.firstChunkLatencyMs} ms`
                   : ""}
@@ -728,7 +801,7 @@ function RunDetail({
                 {run.meta.audioDurationMs != null ? `길이: ${run.meta.audioDurationMs} ms` : ""}
               </p>
             ) : null}
-            <Button variant="outline" size="sm" asChild>
+            <Button variant="outline" size="sm" className="h-10 touch-manipulation sm:h-9" asChild>
               <a href={audioSrc} download={`tts-${run.id.slice(0, 8)}.mp3`}>
                 다운로드
               </a>
@@ -887,40 +960,52 @@ function RegistryPanel({
   ]);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>프롬프트 레지스트리 &amp; GitHub docs 동기화</CardTitle>
-        <CardDescription>
+    <Card className="min-w-0 overflow-hidden">
+      <CardHeader className="space-y-2 px-4 pb-3 pt-4 sm:px-6 sm:pb-4 sm:pt-6">
+        <CardTitle className="text-lg leading-snug sm:text-xl">
+          프롬프트 레지스트리 &amp; GitHub docs 동기화
+        </CardTitle>
+        <CardDescription className="text-xs leading-relaxed sm:text-sm">
           저장 시 docs/prompt-registry.json과 docs/LAURA-TTS-프롬프트-버전-가이드.md가 함께
           갱신됩니다. 새 리비전 버전은 자동 증가합니다.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="min-w-0 space-y-4 px-4 pb-4 sm:px-6 sm:pb-6">
         {panelLoadError ? (
           <Alert variant="destructive">
-            <AlertDescription>레지스트리를 불러오지 못했습니다: {panelLoadError}</AlertDescription>
+            <AlertDescription className="break-words text-xs sm:text-sm">
+              레지스트리를 불러오지 못했습니다: {panelLoadError}
+            </AlertDescription>
           </Alert>
         ) : null}
         {data ? (
-          <p className="text-sm text-green-400/90">
+          <p className="break-words text-xs text-green-400/90 sm:text-sm">
             registry v{data.registryVersion ?? 0} · 마지막 갱신 {data.updatedAt ?? "(unknown)"}
           </p>
         ) : null}
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="admin-secret">Admin secret (PROMPT_ADMIN_SECRET)</Label>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="min-w-0 space-y-2">
+            <Label htmlFor="admin-secret" className="text-sm">
+              Admin secret (PROMPT_ADMIN_SECRET)
+            </Label>
             <Input
               id="admin-secret"
               type="password"
               autoComplete="off"
+              className="h-11 text-base sm:h-10 sm:text-sm"
               value={adminSecret}
               onChange={(e) => setAdminSecret(e.target.value)}
               placeholder="GitHub 반영 시 필요"
             />
           </div>
-          <div className="flex items-end">
-            <Button type="button" variant="secondary" className="w-full" onClick={reloadRegistry}>
+          <div className="flex items-stretch sm:items-end">
+            <Button
+              type="button"
+              variant="secondary"
+              className="h-11 w-full touch-manipulation sm:h-10"
+              onClick={reloadRegistry}
+            >
               레지스트리 다시 로드
             </Button>
           </div>
@@ -929,11 +1014,11 @@ function RegistryPanel({
         {!data ? (
           <p className="text-sm text-muted-foreground">레지스트리를 불러오는 중…</p>
         ) : (
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="space-y-2">
-              <Label>그룹</Label>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="min-w-0 space-y-2">
+              <Label className="text-sm">그룹</Label>
               <Select value={groupId} onValueChange={setGroupId}>
-                <SelectTrigger>
+                <SelectTrigger className="h-11 w-full touch-manipulation sm:h-10">
                   <SelectValue placeholder="그룹" />
                 </SelectTrigger>
                 <SelectContent>
@@ -945,10 +1030,10 @@ function RegistryPanel({
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label>프롬프트</Label>
+            <div className="min-w-0 space-y-2">
+              <Label className="text-sm">프롬프트</Label>
               <Select value={promptId} onValueChange={setPromptId}>
-                <SelectTrigger>
+                <SelectTrigger className="h-11 w-full touch-manipulation sm:h-10">
                   <SelectValue placeholder="프롬프트" />
                 </SelectTrigger>
                 <SelectContent>
@@ -960,10 +1045,10 @@ function RegistryPanel({
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label>리비전 (참고)</Label>
+            <div className="min-w-0 space-y-2">
+              <Label className="text-sm">리비전 (참고)</Label>
               <Select value={revisionVer} onValueChange={setRevisionVer}>
-                <SelectTrigger>
+                <SelectTrigger className="h-11 w-full touch-manipulation sm:h-10">
                   <SelectValue placeholder="리비전" />
                 </SelectTrigger>
                 <SelectContent>
@@ -978,41 +1063,67 @@ function RegistryPanel({
           </div>
         )}
 
-        <Button type="button" variant="outline" size="sm" onClick={loadRegSelection}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-10 w-full touch-manipulation sm:w-auto"
+          onClick={loadRegSelection}
+        >
           선택 리비전 불러오기
         </Button>
 
-        <div className="space-y-2">
-          <Label>LONG</Label>
-          <Textarea rows={5} value={regLong} onChange={(e) => setRegLong(e.target.value)} />
+        <div className="min-w-0 space-y-2">
+          <Label className="text-sm">LONG</Label>
+          <Textarea
+            rows={5}
+            className="min-h-[8rem] resize-y text-sm sm:min-h-[9rem]"
+            value={regLong}
+            onChange={(e) => setRegLong(e.target.value)}
+          />
         </div>
-        <div className="space-y-2">
-          <Label>SHORT</Label>
-          <Textarea rows={3} value={regShort} onChange={(e) => setRegShort(e.target.value)} />
+        <div className="min-w-0 space-y-2">
+          <Label className="text-sm">SHORT</Label>
+          <Textarea
+            rows={3}
+            className="min-h-[5rem] resize-y text-sm"
+            value={regShort}
+            onChange={(e) => setRegShort(e.target.value)}
+          />
         </div>
-        <div className="space-y-2">
-          <Label>변경사항 요약</Label>
+        <div className="min-w-0 space-y-2">
+          <Label className="text-sm">변경사항 요약</Label>
           <Input
+            className="h-11 text-base sm:h-10 sm:text-sm"
             value={regChangelog}
             onChange={(e) => setRegChangelog(e.target.value)}
             placeholder="예: 애드리브 금지 문구 강화"
           />
         </div>
 
-        <Button type="button" onClick={() => void saveNewRevision()}>
+        <Button
+          type="button"
+          className="h-12 w-full touch-manipulation text-base sm:h-11 sm:w-auto sm:text-sm"
+          onClick={() => void saveNewRevision()}
+        >
           새 리비전으로 저장 → GitHub
         </Button>
 
         <Alert>
-          <AlertTitle>새 프롬프트 / 새 그룹</AlertTitle>
-          <AlertDescription>
+          <AlertTitle className="text-sm sm:text-base">새 프롬프트 / 새 그룹</AlertTitle>
+          <AlertDescription className="text-xs leading-relaxed sm:text-sm">
             웹에서 생성은 중단되었습니다. GitHub에서 docs/prompt-registry.json을 직접 수정한 뒤
             커밋하세요.
           </AlertDescription>
         </Alert>
 
         {saveMsg ? (
-          <p className={cn("text-sm", saveMsg.ok ? "text-green-400" : "text-destructive")}>
+          <p
+            className={cn(
+              "break-words text-xs sm:text-sm",
+              saveMsg.ok ? "text-green-400" : "text-destructive",
+            )}
+          >
             {saveMsg.text}
           </p>
         ) : null}
