@@ -36,6 +36,7 @@ npm start
 ## 문서 구조
 
 ```
+├── public/                             ← 정적 자산(빈 폴더라도 Vercel/Next 관례용)
 ├── src/
 │   ├── app/
 │   │   ├── page.tsx                    ← 메인 UI
@@ -54,6 +55,8 @@ npm start
 ## Vercel 배포
 
 프로젝트를 **Next.js**로 연결하면 빌드 커맨드는 `npm run build`, 출력은 Next 기본입니다. API 타임아웃은 `src/app/api/**/route.ts`의 `export const maxDuration`으로 설정합니다(Vercel의 루트 `api/`용 `vercel.json` `functions` 패턴은 Next 라우트에 맞지 않습니다).
+
+**Vercel 배포 오류**: `No Output Directory named "public"`이면 대시보드 **Settings → General → Framework Preset**을 **Next.js**로 두고, **Output Directory**는 비워 두세요(Next는 `.next`를 쓰며 `public/`은 정적 자산용 소스 폴더입니다). 레포 루트의 [`vercel.json`](vercel.json)에 `"framework": "nextjs"`를 넣어 두었고, 빌드 후에도 존재하는 `public/` 디렉터리(`.gitkeep`)를 포함합니다.
 
 ### 환경 변수
 
