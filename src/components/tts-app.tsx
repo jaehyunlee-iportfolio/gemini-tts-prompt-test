@@ -61,6 +61,22 @@ const API_BASE = "/api";
 
 const HISTORY_OPTIONS = [10, 30, 50] as const;
 
+const BULK_REPEAT_MIN = 1;
+const BULK_REPEAT_MAX = 30;
+
+/** 편집 중 빈 칸은 허용하고, 최종(생성·blur)에서만 1로 해석 */
+function parsedBulkRepeatN(input: string): number {
+  const raw = input.trim();
+  if (raw === "") return 1;
+  const v = parseInt(raw, 10);
+  if (!Number.isFinite(v) || Number.isNaN(v)) return 1;
+  return Math.min(BULK_REPEAT_MAX, Math.max(BULK_REPEAT_MIN, Math.floor(v)));
+}
+
+function committedBulkRepeatDisplay(input: string): string {
+  return String(parsedBulkRepeatN(input));
+}
+
 function revokeRunMediaUrls(r: TtsRun) {
   if (r.blobUrl) URL.revokeObjectURL(r.blobUrl);
   for (const s of r.bulkSlots ?? []) {
@@ -104,8 +120,8 @@ export function TtsApp() {
   const [platform, setPlatform] = useState("PLAYGROUND");
   const [userId, setUserId] = useState("2");
   const [cacheBust, setCacheBust] = useState(true);
-  /** 1 = 기존 단일 요청; 2+ = 목록 1행 · 상세에 플레이어 N개 (순차 SSE) */
-  const [bulkRepeatCount, setBulkRepeatCount] = useState(1);
+  /** 연속 요청 횟수 — 편집 중 빈 문자열 허용, blur·생성 시 1~30으로 확정 */
+  const [bulkRepeatInput, setBulkRepeatInput] = useState("1");
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [maxHistory, setMaxHistory] = useState<(typeof HISTORY_OPTIONS)[number]>(30);
   const [runs, setRuns] = useState<TtsRun[]>([]);
@@ -183,6 +199,10 @@ export function TtsApp() {
   const startGeneration = useCallback(async () => {
     if (anyLoading) return;
 
+    const bulkDisplay = committedBulkRepeatDisplay(bulkRepeatInput);
+    setBulkRepeatInput(bulkDisplay);
+    const n = parsedBulkRepeatN(bulkDisplay);
+
     const originalText = text.trim();
     const promptVal = prompt;
     const uid = parseInt(userId, 10);
@@ -199,8 +219,6 @@ export function TtsApp() {
       originalText,
       prompt: promptVal,
     };
-
-    const n = Math.min(30, Math.max(1, Math.floor(bulkRepeatCount) || 1));
 
     const runStreamForSlot = async (slotIndex: number | null) => {
       const startResp = await fetch(`${API_BASE}/tts-start`, {
@@ -409,7 +427,7 @@ export function TtsApp() {
     style,
     platform,
     maxHistory,
-    bulkRepeatCount,
+    bulkRepeatInput,
     updateRun,
     patchBulkSlots,
   ]);
@@ -435,6 +453,8 @@ export function TtsApp() {
   useEffect(() => {
     setRuns((prev) => trimRuns(prev, maxHistory));
   }, [maxHistory]);
+
+  const bulkRepeatPreviewN = parsedBulkRepeatN(bulkRepeatInput);
 
   return (
     <TooltipProvider delayDuration={300}>
@@ -684,16 +704,23 @@ export function TtsApp() {
                     </div>
                     <Input
                       id="bulk-repeat"
-                      type="number"
-                      min={1}
-                      max={30}
+                      type="text"
                       inputMode="numeric"
+                      autoComplete="off"
+                      aria-label={`연속 요청 횟수 ${BULK_REPEAT_MIN}~${BULK_REPEAT_MAX}`}
                       className="h-11 text-base sm:h-10 sm:text-sm"
-                      value={Number.isFinite(bulkRepeatCount) ? bulkRepeatCount : 1}
+                      value={bulkRepeatInput}
                       onChange={(e) => {
-                        const v = parseInt(e.target.value, 10);
-                        if (Number.isNaN(v)) setBulkRepeatCount(1);
-                        else setBulkRepeatCount(Math.min(30, Math.max(1, v)));
+                        const raw = e.target.value;
+                        if (raw === "") {
+                          setBulkRepeatInput("");
+                          return;
+                        }
+                        const digits = raw.replace(/\D/g, "");
+                        setBulkRepeatInput(digits);
+                      }}
+                      onBlur={() => {
+                        setBulkRepeatInput((prev) => committedBulkRepeatDisplay(prev));
                       }}
                     />
                   </div>
@@ -710,8 +737,8 @@ export function TtsApp() {
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         생성 중...
                       </>
-                    ) : bulkRepeatCount > 1 ? (
-                      `벌크 생성 (${bulkRepeatCount}회)`
+                    ) : bulkRepeatPreviewN > 1 ? (
+                      `벌크 생성 (${bulkRepeatPreviewN}회)`
                     ) : (
                       "음성 생성"
                     )}
