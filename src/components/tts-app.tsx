@@ -1167,15 +1167,16 @@ function RegistryPanel({
     if (p && p.id !== promptId) setPromptId(p.id);
   }, [group, promptId]);
 
+  /** 그룹·프롬프트가 바뀌거나 레지스트리가 갱신되면 항상 최신 리비전으로 맞춤 */
   useEffect(() => {
     if (!prompt?.revisions?.length) {
       setRevisionVer("");
       return;
     }
     const sorted = sortRevisionsDesc(prompt.revisions);
-    const has = sorted.some((r) => r.version === revisionVer);
-    if (!has && sorted[0]) setRevisionVer(sorted[0].version);
-  }, [prompt, revisionVer]);
+    const latest = sorted[0]?.version ?? "";
+    if (latest) setRevisionVer(latest);
+  }, [prompt]);
 
   const loadRegSelection = useCallback(() => {
     if (!prompt) return;
