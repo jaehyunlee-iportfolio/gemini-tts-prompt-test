@@ -582,9 +582,9 @@ export function TtsApp() {
                       >
                         <ResizablePanel
                           defaultSize={22}
-                          minSize={16}
-                          maxSize={32}
-                          className="min-w-[200px] max-w-[320px]"
+                          minSize={34}
+                          maxSize={40}
+                          className="max-w-[380px]"
                         >
                           <RunList
                             runs={runs}
@@ -594,7 +594,7 @@ export function TtsApp() {
                           />
                         </ResizablePanel>
                         <ResizableHandle withHandle />
-                        <ResizablePanel defaultSize={78} minSize={55} className="min-w-0 flex-1">
+                        <ResizablePanel defaultSize={78} minSize={48} className="min-w-0 flex-1">
                           <RunDetail run={selectedRun} className="h-full" />
                         </ResizablePanel>
                       </ResizablePanelGroup>
