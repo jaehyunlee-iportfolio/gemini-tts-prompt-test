@@ -1109,14 +1109,6 @@ function RegistryPanel({
           새 리비전으로 저장 → GitHub
         </Button>
 
-        <Alert>
-          <AlertTitle className="text-sm sm:text-base">새 프롬프트 / 새 그룹</AlertTitle>
-          <AlertDescription className="text-xs leading-relaxed sm:text-sm">
-            웹에서 생성은 중단되었습니다. GitHub에서 docs/prompt-registry.json을 직접 수정한 뒤
-            커밋하세요.
-          </AlertDescription>
-        </Alert>
-
         {saveMsg ? (
           <p
             className={cn(
