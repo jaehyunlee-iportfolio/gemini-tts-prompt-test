@@ -561,45 +561,22 @@
 
       <hr style="border:0;border-top:1px solid var(--border);margin:24px 0;">
 
-      <div class="panel-title" style="margin-bottom:12px;">새 프롬프트 (v1.0)</div>
-      <div class="row">
-        <div class="field">
-          <label>슬러그 id (영문·숫자·하이픈)</label>
-          <input id="newPromptId" placeholder="예: excited">
-        </div>
-        <div class="field">
-          <label>표시 이름</label>
-          <input id="newPromptTitle" placeholder="예: Excited">
-        </div>
+      <div
+        class="registry-deprecated-note"
+        style="
+          padding: 12px 14px;
+          border: 1px dashed var(--border);
+          border-radius: 8px;
+          background: rgba(127, 127, 127, 0.08);
+          font-size: 13px;
+          color: var(--text-dim);
+          line-height: 1.55;
+        "
+      >
+        <strong style="color: var(--text);">새 프롬프트 (v1.0) · 새 그룹 (빈 그룹)</strong>
+        — 웹에서 사용 중단(deprecated). GitHub에서 <code>docs/prompt-registry.json</code>을 직접 수정한 뒤 커밋하세요.
+        가이드 MD는 Actions/스크립트로 동기화됩니다.
       </div>
-      <div class="field">
-        <label>LONG</label>
-        <textarea id="newPromptLong" rows="4" placeholder="LONG 프롬프트"></textarea>
-      </div>
-      <div class="field">
-        <label>SHORT (선택)</label>
-        <textarea id="newPromptShort" rows="2"></textarea>
-      </div>
-      <div class="field">
-        <label>변경사항 (선택)</label>
-        <input id="newPromptChangelog" placeholder="기본값: 초기 리비전">
-      </div>
-      <button type="button" class="btn btn-secondary" onclick="createNewPrompt()">새 프롬프트 생성 → GitHub</button>
-
-      <hr style="border:0;border-top:1px solid var(--border);margin:24px 0;">
-
-      <div class="panel-title" style="margin-bottom:12px;">새 그룹 (빈 그룹)</div>
-      <div class="row">
-        <div class="field">
-          <label>그룹 id</label>
-          <input id="newGroupId" placeholder="예: teen-voice">
-        </div>
-        <div class="field">
-          <label>그룹 제목</label>
-          <input id="newGroupTitle" placeholder="표시 제목">
-        </div>
-      </div>
-      <button type="button" class="btn btn-secondary" onclick="createNewGroup()">새 그룹 생성 → GitHub</button>
 
       <div id="registrySaveMsg" style="margin-top:14px;font-size:13px;color:var(--text-dim);"></div>
     </div>
@@ -793,58 +770,6 @@
         await reloadRegistry();
         msg.innerHTML =
           '<span style="color:var(--success)">반영 완료. GitHub <code>main</code>에 커밋되었고, Actions가 Confluence 동기화를 실행합니다.</span>';
-      } catch (e) {
-        msg.innerHTML = `<span style="color:var(--danger)">${escapeHtml(e.message)}</span>`;
-      }
-    }
-
-    async function createNewPrompt() {
-      const msg = document.getElementById('registrySaveMsg');
-      msg.textContent = '';
-      try {
-        const g = getSelectedGroup();
-        if (!g) throw new Error('그룹을 선택하세요.');
-        const id = document.getElementById('newPromptId').value.trim();
-        const title = document.getElementById('newPromptTitle').value.trim();
-        const long = document.getElementById('newPromptLong').value.trim();
-        if (!id || !title || !long) throw new Error('슬러그, 표시 이름, LONG은 필수입니다.');
-        await postPromptSave({
-          action: 'createPrompt',
-          groupId: g.id,
-          newPrompt: { id, title },
-          revision: {
-            long,
-            short: document.getElementById('newPromptShort').value,
-            changelog: document.getElementById('newPromptChangelog').value,
-          },
-        });
-        document.getElementById('newPromptId').value = '';
-        document.getElementById('newPromptTitle').value = '';
-        document.getElementById('newPromptLong').value = '';
-        document.getElementById('newPromptShort').value = '';
-        document.getElementById('newPromptChangelog').value = '';
-        await reloadRegistry();
-        msg.innerHTML = '<span style="color:var(--success)">새 프롬프트가 추가되었습니다.</span>';
-      } catch (e) {
-        msg.innerHTML = `<span style="color:var(--danger)">${escapeHtml(e.message)}</span>`;
-      }
-    }
-
-    async function createNewGroup() {
-      const msg = document.getElementById('registrySaveMsg');
-      msg.textContent = '';
-      try {
-        const id = document.getElementById('newGroupId').value.trim();
-        const title = document.getElementById('newGroupTitle').value.trim();
-        if (!id || !title) throw new Error('그룹 id와 제목은 필수입니다.');
-        await postPromptSave({
-          action: 'createGroup',
-          newGroup: { id, title },
-        });
-        document.getElementById('newGroupId').value = '';
-        document.getElementById('newGroupTitle').value = '';
-        await reloadRegistry();
-        msg.innerHTML = '<span style="color:var(--success)">새 그룹이 추가되었습니다.</span>';
       } catch (e) {
         msg.innerHTML = `<span style="color:var(--danger)">${escapeHtml(e.message)}</span>`;
       }

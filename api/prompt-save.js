@@ -25,14 +25,6 @@ function parseBody(req) {
   return null;
 }
 
-function slugifyId(id) {
-  return String(id || '')
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9-]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
 function findGroup(registry, groupId) {
   const g = registry.groups.find((x) => x.id === groupId);
   if (!g) {
@@ -68,7 +60,14 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: 'Invalid JSON body' });
   }
 
-  const { action, groupId, promptId, revision, newPrompt, newGroup } = body;
+  const { action, groupId, promptId, revision } = body;
+
+  if (action === 'createPrompt' || action === 'createGroup') {
+    return res.status(410).json({
+      error:
+        'createPrompt/createGroup는 사용 중단되었습니다. GitHub에서 docs/prompt-registry.json을 직접 수정한 뒤 커밋하세요.',
+    });
+  }
 
   try {
     const regFile = await getFileContent(REGISTRY_PATH);
@@ -99,55 +98,9 @@ module.exports = async (req, res) => {
         changelog: (revision.changelog || '').trim(),
         createdAt: new Date().toISOString(),
       });
-    } else if (action === 'createPrompt') {
-      if (!groupId || !newPrompt?.id || !newPrompt?.title) {
-        return res
-          .status(400)
-          .json({ error: 'groupId, newPrompt.id, and newPrompt.title are required' });
-      }
-      if (!revision?.long?.trim()) {
-        return res.status(400).json({ error: 'revision.long is required' });
-      }
-      const slug = slugifyId(newPrompt.id);
-      if (!slug) {
-        return res.status(400).json({ error: 'newPrompt.id must contain letters or numbers' });
-      }
-      const g = findGroup(registry, groupId);
-      if (g.prompts.some((x) => x.id === slug)) {
-        return res.status(409).json({ error: `prompt id already exists: ${slug}` });
-      }
-      g.prompts.push({
-        id: slug,
-        title: String(newPrompt.title).trim(),
-        revisions: [
-          {
-            version: 'v1.0',
-            long: revision.long.trim(),
-            short: (revision.short || '').trim(),
-            changelog: (revision.changelog || '').trim() || '초기 리비전',
-            createdAt: new Date().toISOString(),
-          },
-        ],
-      });
-    } else if (action === 'createGroup') {
-      if (!newGroup?.id || !newGroup?.title) {
-        return res.status(400).json({ error: 'newGroup.id and newGroup.title are required' });
-      }
-      const gid = slugifyId(newGroup.id);
-      if (!gid) {
-        return res.status(400).json({ error: 'newGroup.id must contain letters or numbers' });
-      }
-      if (registry.groups.some((x) => x.id === gid)) {
-        return res.status(409).json({ error: `group id already exists: ${gid}` });
-      }
-      registry.groups.push({
-        id: gid,
-        title: String(newGroup.title).trim(),
-        prompts: [],
-      });
     } else {
       return res.status(400).json({
-        error: 'Unknown action. Use createRevision, createPrompt, or createGroup.',
+        error: 'Unknown action. Use createRevision.',
       });
     }
 
@@ -155,7 +108,7 @@ module.exports = async (req, res) => {
     const md = registryToMarkdown(registry);
     const outReg = `${JSON.stringify(registry, null, 2)}\n`;
 
-    const msgReg = `docs(prompts): ${action} ${groupId || newGroup?.id || ''} (registry v${registry.registryVersion})`;
+    const msgReg = `docs(prompts): ${action} ${groupId || ''} (registry v${registry.registryVersion})`;
     const msgMd = `docs: sync LAURA TTS guide (registry v${registry.registryVersion})`;
 
     const putReg = await putFile(REGISTRY_PATH, outReg, msgReg, regFile.sha);
