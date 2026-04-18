@@ -48,13 +48,12 @@ npm start
 │   └── LAURA-TTS-프롬프트-버전-가이드.md  ← 레지스트리에서 생성 (Confluence 동기화)
 ├── scripts/
 │   └── bootstrap-prompt-registry.mjs   ← 초기 JSON 재생성용 (선택)
-├── vercel.json                         ← 일부 route maxDuration 등
 └── .github/workflows/confluence-sync.yml
 ```
 
 ## Vercel 배포
 
-프로젝트를 **Next.js**로 연결하면 빌드 커맨드는 `npm run build`, 출력은 Next 기본입니다. 루트의 `vercel.json`은 `src/app/api/...` 함수에 대한 `maxDuration` 등을 설정합니다.
+프로젝트를 **Next.js**로 연결하면 빌드 커맨드는 `npm run build`, 출력은 Next 기본입니다. API 타임아웃은 `src/app/api/**/route.ts`의 `export const maxDuration`으로 설정합니다(Vercel의 루트 `api/`용 `vercel.json` `functions` 패턴은 Next 라우트에 맞지 않습니다).
 
 ### 환경 변수
 
