@@ -4,6 +4,7 @@ import {
   putFile,
   REGISTRY_PATH,
   MARKDOWN_PATH,
+  resolveGithubPat,
 } from "@/lib/server/github-repo";
 import {
   nextRevisionVersion,
@@ -69,9 +70,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!process.env.GITHUB_TOKEN) {
+  if (!resolveGithubPat()) {
     return NextResponse.json(
-      { error: "GITHUB_TOKEN is not configured on the server" },
+      {
+        error:
+          "GitHub PAT가 서버에 없습니다. Vercel(또는 호스팅) 프로젝트 Settings → Environment Variables에 GITHUB_TOKEN 또는 GH_TOKEN, 그리고 GITHUB_OWNER·GITHUB_REPO를 추가한 뒤 재배포하세요.",
+      },
       { status: 503 },
     );
   }

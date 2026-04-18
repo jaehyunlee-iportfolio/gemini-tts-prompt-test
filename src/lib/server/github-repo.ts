@@ -1,14 +1,20 @@
 export const REGISTRY_PATH = "docs/prompt-registry.json";
 export const MARKDOWN_PATH = "docs/LAURA-TTS-프롬프트-버전-가이드.md";
 
+/** PAT for GitHub Contents API (Vercel / local). `GH_TOKEN` is a common alias (e.g. GitHub CLI). */
+export function resolveGithubPat(): string | undefined {
+  const t = process.env.GITHUB_TOKEN?.trim() || process.env.GH_TOKEN?.trim();
+  return t || undefined;
+}
+
 function getRepoConfig() {
-  const owner = process.env.GITHUB_OWNER;
-  const repo = process.env.GITHUB_REPO;
-  const token = process.env.GITHUB_TOKEN;
-  const branch = process.env.GITHUB_BRANCH || "main";
+  const owner = process.env.GITHUB_OWNER?.trim();
+  const repo = process.env.GITHUB_REPO?.trim();
+  const token = resolveGithubPat();
+  const branch = process.env.GITHUB_BRANCH?.trim() || "main";
   if (!owner || !repo || !token) {
     throw new Error(
-      "Missing GITHUB_OWNER, GITHUB_REPO, or GITHUB_TOKEN environment variables",
+      "Missing GITHUB_OWNER, GITHUB_REPO, or GITHUB_TOKEN (or GH_TOKEN) environment variables",
     );
   }
   return { owner, repo, token, branch };

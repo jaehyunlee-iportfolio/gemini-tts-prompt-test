@@ -63,7 +63,7 @@ npm start
 | 변수 | 설명 |
 |------|------|
 | `TTS_AUTH_TOKEN` | TTS API `X-SS-Authorization` 값 |
-| `GITHUB_TOKEN` | `repo` Contents 읽기/쓰기 권한의 PAT (또는 Fine-grained: 이 저장소 contents write) |
+| `GITHUB_TOKEN` 또는 `GH_TOKEN` | 동일 PAT 하나면 됨. `repo` Contents 읽기/쓰기 (Fine-grained면 이 저장소 contents write). Vercel **Production/Preview** 환경에 모두 넣고 재배포해야 웹 저장이 동작합니다. |
 | `GITHUB_OWNER` | 예: `jaehyunlee-iportfolio` |
 | `GITHUB_REPO` | 예: `gemini-tts-prompt-test` |
 | `GITHUB_BRANCH` | 선택, 기본 `main` |
