@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gemini TTS Prompt Tester</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface-hover: #22263a;
+      --border: #2a2e3e;
+      --text: #e4e6eb;
+      --text-dim: #8b8fa3;
+      --accent: #6c5ce7;
+      --accent-hover: #7c6df7;
+      --danger: #e74c3c;
+      --success: #2ecc71;
+      --warning: #f39c12;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 32px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    header .badge {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .panel-title {
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 10px 14px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    textarea.prompt-input {
+      min-height: 160px;
+    }
+
+    .field { margin-bottom: 16px; }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      width: 100%;
+    }
+
+    .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-secondary {
+      background: var(--surface-hover);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover { background: var(--border); }
+
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    .cache-notice {
+      background: rgba(243, 156, 18, 0.1);
+      border: 1px solid rgba(243, 156, 18, 0.3);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--warning);
+      margin-bottom: 16px;
+    }
+
+    .cache-notice strong { color: #f1c40f; }
+
+    .cache-bust-info {
+      background: rgba(46, 204, 113, 0.1);
+      border: 1px solid rgba(46, 204, 113, 0.3);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--success);
+      margin-bottom: 16px;
+    }
+
+    .preset-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .preset-chip {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text-dim);
+      transition: all 0.2s;
+    }
+
+    .preset-chip:hover, .preset-chip.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(108, 92, 231, 0.1);
+    }
+
+    .results-area { margin-top: 20px; }
+
+    .result-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .result-card .meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .result-card .meta .idx {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--accent);
+    }
+
+    .result-card .meta .timestamp {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .result-card .prompt-preview {
+      font-size: 12px;
+      color: var(--text-dim);
+      background: var(--surface);
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      max-height: 60px;
+      overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .result-card .text-preview {
+      font-size: 12px;
+      color: var(--text);
+      background: var(--surface);
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    .result-card audio {
+      width: 100%;
+      height: 40px;
+      border-radius: 6px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .status-badge.loading {
+      background: rgba(108, 92, 231, 0.2);
+      color: var(--accent);
+    }
+
+    .status-badge.success {
+      background: rgba(46, 204, 113, 0.2);
+      color: var(--success);
+    }
+
+    .status-badge.error {
+      background: rgba(231, 76, 60, 0.2);
+      color: var(--danger);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-dim);
+    }
+
+    .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+    }
+
+    .toggle-row label {
+      margin-bottom: 0;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+
+    .switch input { opacity: 0; width: 0; height: 0; }
+
+    .switch .slider {
+      position: absolute;
+      inset: 0;
+      background: var(--border);
+      border-radius: 24px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .switch .slider::before {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      left: 3px;
+      top: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+
+    .switch input:checked + .slider { background: var(--accent); }
+    .switch input:checked + .slider::before { transform: translateX(20px); }
+
+    .clear-btn {
+      background: none;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 12px;
+      padding: 4px 8px;
+    }
+
+    .clear-btn:hover { text-decoration: underline; }
+
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .comparison-view {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .comparison-view { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Gemini TTS Prompt Tester</h1>
+      <span class="badge">LAURA TTS Stage</span>
+    </header>
+
+    <div class="cache-notice">
+      <strong>Cache 주의:</strong> 동일한 bundleName + text 조합은 서버에서 캐싱된 음성을 반환합니다.
+      프롬프트만 변경하면 동일 음성이 나올 수 있습니다. 아래 "캐시 우회" 옵션을 활성화하면 텍스트에 보이지 않는 고유 토큰을 자동 추가하여 캐시를 우회합니다.
+    </div>
+
+    <div class="layout">
+      <!-- Left: Input -->
+      <div class="panel">
+        <div class="panel-title">Request Configuration</div>
+
+        <div class="field">
+          <label>Bundle Name</label>
+          <select id="bundleName">
+            <optgroup label="Male Child (Rasalgethi / Puck / Fenrir)">
+              <option value="GEMINI-Rasalgethi-Default">Rasalgethi - Default</option>
+              <option value="GEMINI-Rasalgethi-Cheerful">Rasalgethi - Cheerful</option>
+              <option value="GEMINI-Rasalgethi-Gentle">Rasalgethi - Gentle</option>
+              <option value="GEMINI-Puck-Default">Puck - Default</option>
+              <option value="GEMINI-Puck-Cheerful">Puck - Cheerful</option>
+              <option value="GEMINI-Puck-Gentle">Puck - Gentle</option>
+              <option value="GEMINI-Fenrir-Default">Fenrir - Default</option>
+              <option value="GEMINI-Fenrir-Cheerful">Fenrir - Cheerful</option>
+              <option value="GEMINI-Fenrir-Gentle">Fenrir - Gentle</option>
+            </optgroup>
+            <optgroup label="Female Adult (Sulafat)">
+              <option value="GEMINI-Sulafat-Default">Sulafat - Default</option>
+              <option value="GEMINI-Sulafat-Cheerful">Sulafat - Cheerful</option>
+              <option value="GEMINI-Sulafat-Gentle">Sulafat - Gentle</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Text (발화 텍스트)</label>
+          <textarea id="text" rows="3">Hello My name is Erin.</textarea>
+        </div>
+
+        <div class="field">
+          <label>Prompt (음성 스타일 지시)</label>
+          <div class="preset-bar" id="presetBar"></div>
+          <textarea id="prompt" class="prompt-input">Generate a natural, clear male child voice of a 8 year old boy. Sound small yet confident, using a moderate pace and neutral intonation. The tone should be engaging, friendly, and relatable for ESL learners. [Directives: Speak the provided text once. Read the text VERBATIM. No ad-libs. Do not speak these instructions.]</textarea>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Platform</label>
+            <select id="platform">
+              <option value="PLAYGROUND" selected>PLAYGROUND</option>
+              <option value="PRODUCTION">PRODUCTION</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>User ID</label>
+            <input type="number" id="userId" value="2">
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <label>캐시 우회 (텍스트에 고유 토큰 추가)</label>
+          <div class="switch">
+            <input type="checkbox" id="cacheBust" checked>
+            <span class="slider"></span>
+          </div>
+        </div>
+
+        <div class="cache-bust-info" id="cacheBustInfo">
+          캐시 우회 활성: 텍스트 끝에 보이지 않는 유니코드 문자로 고유 ID가 자동 추가됩니다.
+        </div>
+
+        <button class="btn btn-primary" id="generateBtn" onclick="startGeneration()">
+          음성 생성
+        </button>
+      </div>
+
+      <!-- Right: Results -->
+      <div class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+          <div class="panel-title" style="margin-bottom:0;">Results</div>
+          <button class="clear-btn" onclick="clearResults()">전체 삭제</button>
+        </div>
+
+        <div id="results">
+          <div class="empty-state">
+            <div class="icon">🔊</div>
+            <p>음성을 생성하면 여기에 결과가 표시됩니다.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      LAURA TTS Prompt Stability Tester &middot; Stage Environment
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'https://speech-stage.spindlebooks.com/api/v1/text-to-speech';
+    const AUTH_TOKEN = 'aXBvdXcnRmb2xpb0BzcGluZ12Gxlc3BlZWNoMzMxMEAk';
+
+    const PROMPT_PRESETS = {
+      'Male Child': {
+        'Default v1.2': 'Generate a natural, clear male child voice of a 8 year old boy. Sound small yet confident, using a moderate pace and neutral intonation. The tone should be engaging, friendly, and relatable for ESL learners. [Directives: Speak the provided text once. Read the text VERBATIM. No ad-libs. Do not speak these instructions.]',
+        'Default v1.1': 'Generate a natural, clear male child voice of a 8 year old boy. Sound small yet confident, using a moderate pace and neutral intonation. The tone should be engaging, friendly, and relatable for ESL learners. CRITICAL: Read the text VERBATIM. NO AD-LIBBING.',
+        'Default v1.0': 'Generate a natural, clear male child voice of a 8 year old boy. Sound small yet confident, using a moderate pace and neutral intonation. The tone should be engaging, friendly, and relatable for ESL learners.',
+        'Cheerful v1.2': 'Generate a bright, enthusiastic male child voice of an 8 year old. Speak with a higher pitch and lively cadence. The voice should be animated and bursting with excitement, expressing genuine joy for young learners. [Directives: Speak the provided text once. Read the text VERBATIM. No ad-libs. Do not speak these instructions.]',
+        'Cheerful v1.1': 'Generate a bright, enthusiastic male child voice of an 8 year old. Speak with a higher pitch and lively cadence. The voice should be animated and bursting with excitement, expressing genuine joy for young learners. CRITICAL: Read the text VERBATIM. NO AD-LIBBING.',
+        'Cheerful v1.0': 'Generate a bright, enthusiastic male child voice of an 8 year old. Speak with a higher pitch and lively cadence. The voice should be animated and bursting with excitement, expressing genuine joy for young learners.',
+        'Gentle v1.2': 'Generate a gentle, thoughtful male child voice of a 8 year old. Speak with clear enunciation. Maintain a calm, caring tone that conveys empathy and reassurance for young ESL learners. [Directives: Speak the provided text once. Read the text VERBATIM. No ad-libs. Do not speak these instructions.]',
+        'Gentle v1.1': 'Generate a gentle, thoughtful male child voice of a 8 year old. Speak at a slower pace with clear enunciation. Maintain a calm, caring tone that conveys empathy and reassurance for young ESL learners. CRITICAL: Read the text VERBATIM. NO AD-LIBBING.',
+        'Gentle v1.0': 'Generate a gentle, thoughtful male child voice of a 8 year old. Speak at a slower pace with clear enunciation. Maintain a calm, caring tone that conveys empathy and reassurance for young ESL learners.',
+      },
+      'Female Adult (Sulafat)': {
+        'Default v1.2': 'Generate a warm, clear adult female voice with a professional tone. Speak with the clarity and sound encouraging and knowledgeable to guide young ESL learners. [Directives: Speak the provided text once. Read the text VERBATIM. No ad-libs. Do not speak these instructions.]',
+        'Default v1.1': 'Generate a warm, clear adult female voice with a professional tone. Speak with the clarity and sound encouraging and knowledgeable to guide young ESL learners. CRITICAL: Read the text VERBATIM. NO AD-LIBBING.',
+        'Default v1.0': 'Generate a warm, clear adult female voice with a professional tone. Speak with the clarity and patience of a teacher at a steady pace. Sound encouraging and knowledgeable to guide young ESL learners.',
+        'Cheerful v1.2': 'Generate a bright, cheerful adult female voice with an uplifting tone. Speak with enthusiasm and a lively cadence. Sound encouraging and genuinely excited to inspire young learners while maintaining clarity. [Directives: Speak the provided text once. Read the text VERBATIM. No ad-libs. Do not speak these instructions.]',
+        'Cheerful v1.1': 'Generate a bright, cheerful adult female voice with an uplifting tone. Speak with enthusiasm and a lively cadence. Sound encouraging and genuinely excited to inspire young learners while maintaining clarity. CRITICAL: Read the text VERBATIM. NO AD-LIBBING.',
+        'Cheerful v1.0': 'Generate a bright, cheerful adult female voice with an uplifting tone. Speak with enthusiasm and a lively cadence. Sound encouraging and genuinely excited to inspire young learners while maintaining clarity.',
+        'Gentle v1.2': 'Generate a soft, nurturing adult female voice with a maternal quality. Use a gentle tone to convey kindness and empathy. The voice should be calming and reassuring for language learners. [Directives: Speak the provided text once. Read the text VERBATIM. No ad-libs. Do not speak these instructions.]',
+        'Gentle v1.1': 'Generate a soft, nurturing adult female voice with a maternal quality. Use a gentle tone to convey kindness and empathy. The voice should be calming and reassuring for language learners. CRITICAL: Read the text VERBATIM. NO AD-LIBBING.',
+        'Gentle v1.0': 'Generate a soft, nurturing adult female voice with a maternal quality. Use a slower pace and gentle tone to convey kindness and empathy. The voice should be calming and reassuring for language learners.',
+      }
+    };
+
+    let resultCount = 0;
+
+    function initPresets() {
+      const bar = document.getElementById('presetBar');
+      bar.innerHTML = '';
+      for (const [group, presets] of Object.entries(PROMPT_PRESETS)) {
+        for (const [name] of Object.entries(presets)) {
+          const chip = document.createElement('button');
+          chip.className = 'preset-chip';
+          chip.textContent = name;
+          chip.title = group;
+          chip.onclick = () => {
+            document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            document.getElementById('prompt').value = PROMPT_PRESETS[group][name];
+          };
+          bar.appendChild(chip);
+        }
+      }
+    }
+
+    function generateCacheBustToken() {
+      const chars = '\u200B\u200C\u200D\uFEFF';
+      const ts = Date.now().toString(36);
+      const rand = Math.random().toString(36).substring(2, 6);
+      const id = ts + rand;
+      let token = '';
+      for (const c of id) {
+        token += chars[c.charCodeAt(0) % chars.length];
+      }
+      return ` ${token}`;
+    }
+
+    function getActualText() {
+      const text = document.getElementById('text').value.trim();
+      const bustEnabled = document.getElementById('cacheBust').checked;
+      if (bustEnabled) {
+        return text + generateCacheBustToken();
+      }
+      return text;
+    }
+
+    async function startGeneration() {
+      const btn = document.getElementById('generateBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> 생성 중...';
+
+      resultCount++;
+      const idx = resultCount;
+      const prompt = document.getElementById('prompt').value;
+      const originalText = document.getElementById('text').value.trim();
+      const actualText = getActualText();
+      const bundleName = document.getElementById('bundleName').value;
+      const platform = document.getElementById('platform').value;
+      const userId = parseInt(document.getElementById('userId').value);
+
+      const resultsDiv = document.getElementById('results');
+      if (resultsDiv.querySelector('.empty-state')) {
+        resultsDiv.innerHTML = '';
+      }
+
+      const card = document.createElement('div');
+      card.className = 'result-card';
+      card.id = `result-${idx}`;
+      card.innerHTML = `
+        <div class="meta">
+          <span class="idx">#${idx} — ${bundleName}</span>
+          <span class="timestamp">${new Date().toLocaleTimeString('ko-KR')}</span>
+        </div>
+        <div class="text-preview"><strong>Text:</strong> ${escapeHtml(originalText)}</div>
+        <div class="prompt-preview">${escapeHtml(prompt)}</div>
+        <div class="status"><span class="status-badge loading"><span class="spinner"></span> SSE 연결 대기 중...</span></div>
+      `;
+      resultsDiv.prepend(card);
+
+      try {
+        const startResp = await fetch(`${API_BASE}/stream/start`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-SS-Authorization': AUTH_TOKEN,
+          },
+          body: JSON.stringify({
+            text: actualText,
+            bundleName,
+            viseme: false,
+            prompt,
+            platform,
+            userId,
+          }),
+        });
+
+        if (!startResp.ok) {
+          const errText = await startResp.text();
+          throw new Error(`Start API failed (${startResp.status}): ${errText}`);
+        }
+
+        const startData = await startResp.json();
+        const sseId = startData.sseId || startData.id || startData.streamId;
+
+        if (!sseId) {
+          throw new Error('SSE ID not found in response: ' + JSON.stringify(startData));
+        }
+
+        updateCardStatus(idx, 'loading', `SSE 스트림 수신 중 (ID: ${sseId})...`);
+
+        await streamAudio(idx, sseId);
+
+      } catch (err) {
+        updateCardStatus(idx, 'error', `오류: ${err.message}`);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '음성 생성';
+      }
+    }
+
+    async function streamAudio(idx, sseId) {
+      const audioChunks = [];
+
+      return new Promise((resolve, reject) => {
+        const url = `${API_BASE}/streams/${sseId}`;
+        const eventSource = new EventSource(url);
+
+        let headersSent = false;
+
+        eventSource.onopen = () => {
+          updateCardStatus(idx, 'loading', '스트림 연결됨, 오디오 수신 중...');
+        };
+
+        eventSource.addEventListener('audio', (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.audio) {
+              const binaryStr = atob(data.audio);
+              const bytes = new Uint8Array(binaryStr.length);
+              for (let i = 0; i < binaryStr.length; i++) {
+                bytes[i] = binaryStr.charCodeAt(i);
+              }
+              audioChunks.push(bytes);
+            }
+          } catch (e) {
+            // raw base64
+            if (event.data) {
+              try {
+                const binaryStr = atob(event.data);
+                const bytes = new Uint8Array(binaryStr.length);
+                for (let i = 0; i < binaryStr.length; i++) {
+                  bytes[i] = binaryStr.charCodeAt(i);
+                }
+                audioChunks.push(bytes);
+              } catch (e2) {}
+            }
+          }
+        });
+
+        eventSource.addEventListener('complete', () => {
+          eventSource.close();
+          finishAudio(idx, audioChunks);
+          resolve();
+        });
+
+        eventSource.addEventListener('done', () => {
+          eventSource.close();
+          finishAudio(idx, audioChunks);
+          resolve();
+        });
+
+        eventSource.addEventListener('end', () => {
+          eventSource.close();
+          finishAudio(idx, audioChunks);
+          resolve();
+        });
+
+        eventSource.addEventListener('error', (event) => {
+          if (eventSource.readyState === EventSource.CLOSED) {
+            eventSource.close();
+            if (audioChunks.length > 0) {
+              finishAudio(idx, audioChunks);
+              resolve();
+            } else {
+              fallbackFetch(idx, sseId).then(resolve).catch(reject);
+            }
+            return;
+          }
+        });
+
+        eventSource.onerror = (err) => {
+          eventSource.close();
+          if (audioChunks.length > 0) {
+            finishAudio(idx, audioChunks);
+            resolve();
+          } else {
+            fallbackFetch(idx, sseId).then(resolve).catch(reject);
+          }
+        };
+
+        setTimeout(() => {
+          if (audioChunks.length === 0) {
+            eventSource.close();
+            fallbackFetch(idx, sseId).then(resolve).catch(reject);
+          }
+        }, 30000);
+      });
+    }
+
+    async function fallbackFetch(idx, sseId) {
+      updateCardStatus(idx, 'loading', 'SSE 실패, fetch로 재시도...');
+      try {
+        const resp = await fetch(`${API_BASE}/streams/${sseId}`, {
+          headers: {
+            'Accept': 'text/event-stream',
+            'X-SS-Authorization': AUTH_TOKEN,
+          }
+        });
+
+        if (!resp.ok) throw new Error(`Stream fetch failed: ${resp.status}`);
+
+        const reader = resp.body.getReader();
+        const decoder = new TextDecoder();
+        const audioChunks = [];
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            if (line.startsWith('data:')) {
+              const data = line.substring(5).trim();
+              if (!data || data === '[DONE]') continue;
+              try {
+                const parsed = JSON.parse(data);
+                if (parsed.audio) {
+                  const binaryStr = atob(parsed.audio);
+                  const bytes = new Uint8Array(binaryStr.length);
+                  for (let i = 0; i < binaryStr.length; i++) {
+                    bytes[i] = binaryStr.charCodeAt(i);
+                  }
+                  audioChunks.push(bytes);
+                }
+              } catch (e) {}
+            }
+          }
+        }
+
+        if (audioChunks.length > 0) {
+          finishAudio(idx, audioChunks);
+        } else {
+          updateCardStatus(idx, 'error', '오디오 데이터를 수신하지 못했습니다.');
+        }
+      } catch (err) {
+        updateCardStatus(idx, 'error', `Fallback 실패: ${err.message}`);
+      }
+    }
+
+    function finishAudio(idx, audioChunks) {
+      if (audioChunks.length === 0) {
+        updateCardStatus(idx, 'error', '오디오 데이터가 비어있습니다.');
+        return;
+      }
+
+      const totalLen = audioChunks.reduce((sum, chunk) => sum + chunk.length, 0);
+      const merged = new Uint8Array(totalLen);
+      let offset = 0;
+      for (const chunk of audioChunks) {
+        merged.set(chunk, offset);
+        offset += chunk.length;
+      }
+
+      const blob = new Blob([merged], { type: 'audio/mp3' });
+      const url = URL.createObjectURL(blob);
+
+      const card = document.getElementById(`result-${idx}`);
+      const statusDiv = card.querySelector('.status');
+      statusDiv.innerHTML = `
+        <span class="status-badge success">완료 (${(totalLen / 1024).toFixed(1)} KB)</span>
+        <audio controls src="${url}" style="margin-top: 10px;"></audio>
+        <div style="margin-top: 8px;">
+          <a href="${url}" download="tts-result-${idx}.mp3" class="btn btn-secondary btn-sm">다운로드</a>
+        </div>
+      `;
+    }
+
+    function updateCardStatus(idx, type, message) {
+      const card = document.getElementById(`result-${idx}`);
+      if (!card) return;
+      const statusDiv = card.querySelector('.status');
+      const spinnerHtml = type === 'loading' ? '<span class="spinner"></span> ' : '';
+      statusDiv.innerHTML = `<span class="status-badge ${type}">${spinnerHtml}${escapeHtml(message)}</span>`;
+    }
+
+    function clearResults() {
+      document.getElementById('results').innerHTML = `
+        <div class="empty-state">
+          <div class="icon">🔊</div>
+          <p>음성을 생성하면 여기에 결과가 표시됩니다.</p>
+        </div>
+      `;
+      resultCount = 0;
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    document.getElementById('cacheBust').addEventListener('change', function () {
+      document.getElementById('cacheBustInfo').style.display = this.checked ? 'block' : 'none';
+    });
+
+    initPresets();
+  </script>
+</body>
+</html>
