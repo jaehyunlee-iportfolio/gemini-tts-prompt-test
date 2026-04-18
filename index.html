@@ -390,6 +390,26 @@
     @media (max-width: 600px) {
       .comparison-view { grid-template-columns: 1fr; }
     }
+
+    .registry-panel { margin-top: 24px; }
+    .reg-help {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .reg-help code {
+      background: var(--bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    .reg-meta {
+      font-size: 12px;
+      color: var(--success);
+      margin-bottom: 14px;
+    }
+    #registrySaveMsg a { color: var(--accent); }
   </style>
 </head>
 <body>
@@ -403,6 +423,8 @@
       <strong>Cache 주의:</strong> 동일한 bundleName + text 조합은 서버에서 캐싱된 음성을 반환합니다.
       프롬프트만 변경하면 동일 음성이 나올 수 있습니다. 아래 "캐시 우회" 옵션을 활성화하면 텍스트에 보이지 않는 고유 토큰을 자동 추가하여 캐시를 우회합니다.
     </div>
+
+    <div id="registryLoadError" class="cache-notice" style="display:none;border-color:rgba(231,76,60,0.35);color:var(--danger);background:rgba(231,76,60,0.08);"></div>
 
     <div class="layout">
       <!-- Left: Input -->
@@ -489,6 +511,99 @@
       </div>
     </div>
 
+    <div class="panel registry-panel">
+      <div class="panel-title">프롬프트 레지스트리 &amp; GitHub docs 동기화</div>
+      <p class="reg-help">
+        편집 후 저장하면 <code>docs/prompt-registry.json</code>과 Confluence 동기화용
+        <code>docs/LAURA-TTS-프롬프트-버전-가이드.md</code>가 같은 커밋 플로우로 갱신됩니다.
+        새 리비전은 최신 <code>vX.Y</code>에서 <code>Y</code>가 자동으로 +1 됩니다.
+      </p>
+      <div id="registryMeta" class="reg-meta"></div>
+      <div class="row">
+        <div class="field">
+          <label>Admin secret (<code>PROMPT_ADMIN_SECRET</code>)</label>
+          <input type="password" id="adminSecret" placeholder="GitHub 반영 시 필요" autocomplete="off">
+        </div>
+        <div class="field" style="display:flex;align-items:flex-end;">
+          <button type="button" class="btn btn-secondary" style="width:100%;" onclick="reloadRegistry()">레지스트리 다시 로드</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>그룹</label>
+          <select id="regGroup"></select>
+        </div>
+        <div class="field">
+          <label>프롬프트</label>
+          <select id="regPrompt"></select>
+        </div>
+        <div class="field">
+          <label>리비전 (참고)</label>
+          <select id="regRevision"></select>
+        </div>
+      </div>
+      <div class="field">
+        <button type="button" class="btn btn-secondary" onclick="loadRegSelection()">선택 리비전 불러오기</button>
+      </div>
+      <div class="field">
+        <label>LONG (일반 프롬프트)</label>
+        <textarea id="regLong" rows="5"></textarea>
+      </div>
+      <div class="field">
+        <label>SHORT (키워드)</label>
+        <textarea id="regShort" rows="3"></textarea>
+      </div>
+      <div class="field">
+        <label>변경사항 요약</label>
+        <input id="regChangelog" placeholder="예: 애드리브 금지 문구 강화">
+      </div>
+      <button type="button" class="btn btn-primary" onclick="saveNewRevision()">새 리비전으로 저장 → GitHub</button>
+
+      <hr style="border:0;border-top:1px solid var(--border);margin:24px 0;">
+
+      <div class="panel-title" style="margin-bottom:12px;">새 프롬프트 (v1.0)</div>
+      <div class="row">
+        <div class="field">
+          <label>슬러그 id (영문·숫자·하이픈)</label>
+          <input id="newPromptId" placeholder="예: excited">
+        </div>
+        <div class="field">
+          <label>표시 이름</label>
+          <input id="newPromptTitle" placeholder="예: Excited">
+        </div>
+      </div>
+      <div class="field">
+        <label>LONG</label>
+        <textarea id="newPromptLong" rows="4" placeholder="LONG 프롬프트"></textarea>
+      </div>
+      <div class="field">
+        <label>SHORT (선택)</label>
+        <textarea id="newPromptShort" rows="2"></textarea>
+      </div>
+      <div class="field">
+        <label>변경사항 (선택)</label>
+        <input id="newPromptChangelog" placeholder="기본값: 초기 리비전">
+      </div>
+      <button type="button" class="btn btn-secondary" onclick="createNewPrompt()">새 프롬프트 생성 → GitHub</button>
+
+      <hr style="border:0;border-top:1px solid var(--border);margin:24px 0;">
+
+      <div class="panel-title" style="margin-bottom:12px;">새 그룹 (빈 그룹)</div>
+      <div class="row">
+        <div class="field">
+          <label>그룹 id</label>
+          <input id="newGroupId" placeholder="예: teen-voice">
+        </div>
+        <div class="field">
+          <label>그룹 제목</label>
+          <input id="newGroupTitle" placeholder="표시 제목">
+        </div>
+      </div>
+      <button type="button" class="btn btn-secondary" onclick="createNewGroup()">새 그룹 생성 → GitHub</button>
+
+      <div id="registrySaveMsg" style="margin-top:14px;font-size:13px;color:var(--text-dim);"></div>
+    </div>
+
     <div class="footer">
       LAURA TTS Prompt Stability Tester &middot; Stage Environment
     </div>
@@ -497,7 +612,7 @@
   <script>
     const API_BASE = '/api';
 
-    const PROMPT_PRESETS = {
+    const FALLBACK_PRESETS = {
       'Male Child': {
         'Default v1.2': 'Generate a natural, clear male child voice of a 8 year old boy. Sound small yet confident, using a moderate pace and neutral intonation. The tone should be engaging, friendly, and relatable for ESL learners. [Directives: Speak the provided text once. Read the text VERBATIM. No ad-libs. Do not speak these instructions.]',
         'Default v1.1': 'Generate a natural, clear male child voice of a 8 year old boy. Sound small yet confident, using a moderate pace and neutral intonation. The tone should be engaging, friendly, and relatable for ESL learners. CRITICAL: Read the text VERBATIM. NO AD-LIBBING.',
@@ -521,6 +636,243 @@
         'Gentle v1.0': 'Generate a soft, nurturing adult female voice with a maternal quality. Use a slower pace and gentle tone to convey kindness and empathy. The voice should be calming and reassuring for language learners.',
       }
     };
+
+    let PROMPT_PRESETS = FALLBACK_PRESETS;
+    let REGISTRY_DATA = null;
+
+    function sortRevisionsDesc(revisions) {
+      return [...(revisions || [])].sort((a, b) => {
+        const pa = String(a.version).match(/^v?(\d+)\.(\d+)$/i);
+        const pb = String(b.version).match(/^v?(\d+)\.(\d+)$/i);
+        if (!pa) return 1;
+        if (!pb) return -1;
+        const ma = parseInt(pa[1], 10) * 100 + parseInt(pa[2], 10);
+        const mb = parseInt(pb[1], 10) * 100 + parseInt(pb[2], 10);
+        return mb - ma;
+      });
+    }
+
+    function buildPresetsFromRegistry(reg) {
+      const out = {};
+      for (const g of reg.groups || []) {
+        out[g.title] = {};
+        for (const p of g.prompts || []) {
+          for (const r of sortRevisionsDesc(p.revisions)) {
+            const key = `${p.title} ${r.version}`;
+            out[g.title][key] = r.long;
+          }
+        }
+      }
+      return out;
+    }
+
+    function updateRegistryMeta() {
+      const el = document.getElementById('registryMeta');
+      if (!REGISTRY_DATA) {
+        el.textContent = '';
+        return;
+      }
+      el.textContent = `registry v${REGISTRY_DATA.registryVersion || 0} · 마지막 갱신 ${REGISTRY_DATA.updatedAt || '(unknown)'}`;
+    }
+
+    function getSelectedGroup() {
+      const id = document.getElementById('regGroup').value;
+      return (REGISTRY_DATA.groups || []).find((g) => g.id === id);
+    }
+
+    function getSelectedPrompt() {
+      const g = getSelectedGroup();
+      if (!g) return null;
+      const id = document.getElementById('regPrompt').value;
+      return (g.prompts || []).find((p) => p.id === id);
+    }
+
+    function populateRegGroupSelect() {
+      if (!REGISTRY_DATA || !(REGISTRY_DATA.groups || []).length) return;
+      const sel = document.getElementById('regGroup');
+      sel.innerHTML = '';
+      for (const g of REGISTRY_DATA.groups || []) {
+        const o = document.createElement('option');
+        o.value = g.id;
+        o.textContent = g.title;
+        sel.appendChild(o);
+      }
+      sel.onchange = () => {
+        populateRegPromptSelect();
+      };
+      populateRegPromptSelect();
+    }
+
+    function populateRegPromptSelect() {
+      const g = getSelectedGroup();
+      const sel = document.getElementById('regPrompt');
+      sel.innerHTML = '';
+      if (!g) return;
+      for (const p of g.prompts || []) {
+        const o = document.createElement('option');
+        o.value = p.id;
+        o.textContent = p.title;
+        sel.appendChild(o);
+      }
+      sel.onchange = () => {
+        populateRegRevisionSelect();
+      };
+      populateRegRevisionSelect();
+    }
+
+    function populateRegRevisionSelect() {
+      const p = getSelectedPrompt();
+      const sel = document.getElementById('regRevision');
+      sel.innerHTML = '';
+      if (!p) return;
+      for (const r of sortRevisionsDesc(p.revisions)) {
+        const o = document.createElement('option');
+        o.value = r.version;
+        o.textContent = `${r.version} (${r.createdAt || ''})`;
+        sel.appendChild(o);
+      }
+      sel.onchange = loadRegSelection;
+    }
+
+    function loadRegSelection() {
+      const p = getSelectedPrompt();
+      if (!p) return;
+      const ver = document.getElementById('regRevision').value;
+      const r = (p.revisions || []).find((x) => x.version === ver);
+      if (!r) return;
+      document.getElementById('regLong').value = r.long || '';
+      document.getElementById('regShort').value = r.short || '';
+      document.getElementById('regChangelog').value = '';
+    }
+
+    function getAdminSecret() {
+      return document.getElementById('adminSecret').value.trim();
+    }
+
+    async function postPromptSave(payload) {
+      const secret = getAdminSecret();
+      if (!secret) {
+        throw new Error('Admin secret를 입력하세요.');
+      }
+      sessionStorage.setItem('prompt_admin_secret', secret);
+      const res = await fetch(`${API_BASE}/prompt-save`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Prompt-Admin-Secret': secret,
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || res.statusText);
+      }
+      return data;
+    }
+
+    async function saveNewRevision() {
+      const msg = document.getElementById('registrySaveMsg');
+      msg.textContent = '';
+      try {
+        const g = getSelectedGroup();
+        const p = getSelectedPrompt();
+        if (!g || !p) throw new Error('그룹/프롬프트를 선택하세요.');
+        const long = document.getElementById('regLong').value.trim();
+        if (!long) throw new Error('LONG 내용이 비어 있습니다.');
+        await postPromptSave({
+          action: 'createRevision',
+          groupId: g.id,
+          promptId: p.id,
+          revision: {
+            long,
+            short: document.getElementById('regShort').value,
+            changelog: document.getElementById('regChangelog').value,
+          },
+        });
+        msg.innerHTML = '<span style="color:var(--success)">저장 완료. 레지스트리를 다시 로드합니다…</span>';
+        await reloadRegistry();
+        msg.innerHTML =
+          '<span style="color:var(--success)">반영 완료. GitHub <code>main</code>에 커밋되었고, Actions가 Confluence 동기화를 실행합니다.</span>';
+      } catch (e) {
+        msg.innerHTML = `<span style="color:var(--danger)">${escapeHtml(e.message)}</span>`;
+      }
+    }
+
+    async function createNewPrompt() {
+      const msg = document.getElementById('registrySaveMsg');
+      msg.textContent = '';
+      try {
+        const g = getSelectedGroup();
+        if (!g) throw new Error('그룹을 선택하세요.');
+        const id = document.getElementById('newPromptId').value.trim();
+        const title = document.getElementById('newPromptTitle').value.trim();
+        const long = document.getElementById('newPromptLong').value.trim();
+        if (!id || !title || !long) throw new Error('슬러그, 표시 이름, LONG은 필수입니다.');
+        await postPromptSave({
+          action: 'createPrompt',
+          groupId: g.id,
+          newPrompt: { id, title },
+          revision: {
+            long,
+            short: document.getElementById('newPromptShort').value,
+            changelog: document.getElementById('newPromptChangelog').value,
+          },
+        });
+        document.getElementById('newPromptId').value = '';
+        document.getElementById('newPromptTitle').value = '';
+        document.getElementById('newPromptLong').value = '';
+        document.getElementById('newPromptShort').value = '';
+        document.getElementById('newPromptChangelog').value = '';
+        await reloadRegistry();
+        msg.innerHTML = '<span style="color:var(--success)">새 프롬프트가 추가되었습니다.</span>';
+      } catch (e) {
+        msg.innerHTML = `<span style="color:var(--danger)">${escapeHtml(e.message)}</span>`;
+      }
+    }
+
+    async function createNewGroup() {
+      const msg = document.getElementById('registrySaveMsg');
+      msg.textContent = '';
+      try {
+        const id = document.getElementById('newGroupId').value.trim();
+        const title = document.getElementById('newGroupTitle').value.trim();
+        if (!id || !title) throw new Error('그룹 id와 제목은 필수입니다.');
+        await postPromptSave({
+          action: 'createGroup',
+          newGroup: { id, title },
+        });
+        document.getElementById('newGroupId').value = '';
+        document.getElementById('newGroupTitle').value = '';
+        await reloadRegistry();
+        msg.innerHTML = '<span style="color:var(--success)">새 그룹이 추가되었습니다.</span>';
+      } catch (e) {
+        msg.innerHTML = `<span style="color:var(--danger)">${escapeHtml(e.message)}</span>`;
+      }
+    }
+
+    async function reloadRegistry() {
+      const errEl = document.getElementById('registryLoadError');
+      errEl.style.display = 'none';
+      try {
+        const res = await fetch(`${API_BASE}/prompt-registry`);
+        if (!res.ok) throw new Error(await res.text());
+        REGISTRY_DATA = await res.json();
+        PROMPT_PRESETS = buildPresetsFromRegistry(REGISTRY_DATA);
+        initPresets();
+        populateRegGroupSelect();
+        loadRegSelection();
+        updateRegistryMeta();
+      } catch (e) {
+        REGISTRY_DATA = null;
+        PROMPT_PRESETS = FALLBACK_PRESETS;
+        initPresets();
+        errEl.style.display = 'block';
+        errEl.textContent =
+          '레지스트리를 불러오지 못했습니다. 오프라인/로컬 파일 모드로 기본 프리셋을 사용합니다. (' +
+          e.message +
+          ')';
+      }
+    }
 
     let resultCount = 0;
 
@@ -832,7 +1184,11 @@
       document.getElementById('cacheBustInfo').style.display = this.checked ? 'block' : 'none';
     });
 
-    initPresets();
+    (function () {
+      const saved = sessionStorage.getItem('prompt_admin_secret');
+      if (saved) document.getElementById('adminSecret').value = saved;
+    })();
+    reloadRegistry();
   </script>
 </body>
 </html>
