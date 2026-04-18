@@ -1,15 +1,15 @@
 {
   "functions": {
-    "api/tts-stream.js": {
+    "src/app/api/tts-stream/route.ts": {
       "maxDuration": 60
     },
-    "api/tts-audio.js": {
+    "src/app/api/tts-audio/route.ts": {
       "maxDuration": 60
     },
-    "api/prompt-save.js": {
+    "src/app/api/prompt-save/route.ts": {
       "maxDuration": 60
     },
-    "api/prompt-registry.js": {
+    "src/app/api/prompt-registry/route.ts": {
       "maxDuration": 30,
       "includeFiles": "docs/prompt-registry.json"
     }

@@ -1,0 +1,19 @@
+import type { Metadata } from "next";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "Gemini TTS Prompt Tester",
+  description: "LAURA TTS stage prompt and voice tester",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="ko" className="dark">
+      <body className="min-h-screen">{children}</body>
+    </html>
+  );
+}
