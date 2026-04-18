@@ -1,43 +1,61 @@
-import fs from 'fs';
-import path from 'path';
-import { createRequire } from 'module';
-import { fileURLToPath } from 'url';
-
-const require = createRequire(import.meta.url);
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const fs = require('fs');
+const path = require('path');
 const { getFileContent, REGISTRY_PATH } = require('./_lib/github-repo.js');
 
 function readRegistryFromDisk() {
-  const p = path.join(__dirname, '..', 'docs', 'prompt-registry.json');
-  const text = fs.readFileSync(p, 'utf8');
-  return JSON.parse(text);
+  const candidates = [
+    path.join(process.cwd(), 'docs', 'prompt-registry.json'),
+    path.join(__dirname, '..', 'docs', 'prompt-registry.json'),
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) {
+      return JSON.parse(fs.readFileSync(p, 'utf8'));
+    }
+  }
+  throw new Error('docs/prompt-registry.json not found on server');
 }
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    let registry;
-    try {
-      if (!process.env.GITHUB_TOKEN) {
-        registry = readRegistryFromDisk();
-      } else {
+    let registry = null;
+    let lastErr = null;
+
+    if (process.env.GITHUB_TOKEN) {
+      try {
         const { text } = await getFileContent(REGISTRY_PATH);
         registry = JSON.parse(text);
+      } catch (e) {
+        lastErr = e;
+        console.error('[prompt-registry] GitHub:', e.message);
       }
-    } catch (e) {
-      if (process.env.GITHUB_TOKEN) {
-        throw e;
+    }
+
+    if (!registry) {
+      try {
+        registry = readRegistryFromDisk();
+      } catch (e) {
+        lastErr = e;
+        console.error('[prompt-registry] disk:', e.message);
       }
-      registry = readRegistryFromDisk();
+    }
+
+    if (!registry) {
+      return res.status(503).json({
+        error:
+          lastErr?.message ||
+          'Could not load prompt registry (GitHub and local file both failed)',
+      });
     }
 
     res.setHeader('Cache-Control', 'no-store');
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     return res.status(200).send(JSON.stringify(registry));
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    console.error('[prompt-registry]', err);
+    return res.status(500).json({ error: err.message || 'Internal error' });
   }
-}
+};

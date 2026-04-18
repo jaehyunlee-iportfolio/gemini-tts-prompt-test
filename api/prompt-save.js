@@ -1,6 +1,3 @@
-import { createRequire } from 'module';
-
-const require = createRequire(import.meta.url);
 const {
   getFileContent,
   putFile,
@@ -52,7 +49,7 @@ function findPrompt(group, promptId) {
   return p;
 }
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -170,6 +167,7 @@ export default async function handler(req, res) {
       commits: [putReg.commit?.html_url, putMd.commit?.html_url].filter(Boolean),
     });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    console.error('[prompt-save]', err);
+    return res.status(500).json({ error: err.message || 'Internal error' });
   }
-}
+};

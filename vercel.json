@@ -5,6 +5,10 @@
     },
     "api/prompt-save.js": {
       "maxDuration": 60
+    },
+    "api/prompt-registry.js": {
+      "maxDuration": 30,
+      "includeFiles": "docs/prompt-registry.json"
     }
   }
 }
