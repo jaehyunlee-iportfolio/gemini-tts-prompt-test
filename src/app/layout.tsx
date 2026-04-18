@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "Gemini TTS Prompt Tester",
   description: "LAURA TTS stage prompt and voice tester",
   icons: {
-    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    icon: [{ url: "/favicon.png", type: "image/png" }],
   },
 };
 
