@@ -48,6 +48,7 @@ import type { PromptRegistryJson, RegistryGroup, RegistryPrompt } from "@/types/
 import {
   bundleNameFromVoiceStyle,
   type StyleTone,
+  type TtsBulkSlot,
   type TtsRun,
   type VoiceId,
   VOICE_IDS,
@@ -59,13 +60,38 @@ const API_BASE = "/api";
 
 const HISTORY_OPTIONS = [10, 30, 50] as const;
 
+function revokeRunMediaUrls(r: TtsRun) {
+  if (r.blobUrl) URL.revokeObjectURL(r.blobUrl);
+  for (const s of r.bulkSlots ?? []) {
+    if (s.blobUrl) URL.revokeObjectURL(s.blobUrl);
+  }
+}
+
 function trimRuns(runs: TtsRun[], max: number): TtsRun[] {
   if (runs.length <= max) return runs;
   const dropped = runs.slice(max);
   for (const r of dropped) {
-    if (r.blobUrl) URL.revokeObjectURL(r.blobUrl);
+    revokeRunMediaUrls(r);
   }
   return runs.slice(0, max);
+}
+
+function aggregateBulkStatus(slots: TtsBulkSlot[]): Pick<TtsRun, "status" | "statusMessage"> {
+  const loading = slots.some((s) => s.status === "loading");
+  if (loading) {
+    const settled = slots.filter((s) => s.status === "success" || s.status === "error").length;
+    return { status: "loading", statusMessage: `${settled}/${slots.length} 처리 중` };
+  }
+  const ok = slots.filter((s) => s.status === "success").length;
+  const bad = slots.filter((s) => s.status === "error").length;
+  if (ok === 0) {
+    const firstErr = slots.find((s) => s.status === "error")?.statusMessage;
+    return { status: "error", statusMessage: firstErr ?? `${bad}건 실패` };
+  }
+  return {
+    status: "success",
+    statusMessage: bad > 0 ? `${ok}건 성공 · ${bad}건 실패` : undefined,
+  };
 }
 
 export function TtsApp() {
@@ -77,6 +103,8 @@ export function TtsApp() {
   const [platform, setPlatform] = useState("PLAYGROUND");
   const [userId, setUserId] = useState("2");
   const [cacheBust, setCacheBust] = useState(true);
+  /** 1 = 기존 단일 요청; 2+ = 목록 1행 · 상세에 플레이어 N개 (순차 SSE) */
+  const [bulkRepeatCount, setBulkRepeatCount] = useState(1);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [maxHistory, setMaxHistory] = useState<(typeof HISTORY_OPTIONS)[number]>(30);
   const [runs, setRuns] = useState<TtsRun[]>([]);
@@ -138,6 +166,17 @@ export function TtsApp() {
     setRuns((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
   }, []);
 
+  const patchBulkSlots = useCallback((runId: string, updater: (slots: TtsBulkSlot[]) => TtsBulkSlot[]) => {
+    setRuns((prev) =>
+      prev.map((r) => {
+        if (r.id !== runId || !r.bulkSlots) return r;
+        const slots = updater(r.bulkSlots);
+        const agg = aggregateBulkStatus(slots);
+        return { ...r, bulkSlots: slots, status: agg.status, statusMessage: agg.statusMessage };
+      }),
+    );
+  }, []);
+
   const anyLoading = runs.some((r) => r.status === "loading");
 
   const startGeneration = useCallback(async () => {
@@ -150,7 +189,7 @@ export function TtsApp() {
 
     const id = crypto.randomUUID();
     const now = Date.now();
-    const newRun: TtsRun = {
+    const base = {
       id,
       createdAt: now,
       bundleName,
@@ -158,15 +197,11 @@ export function TtsApp() {
       style,
       originalText,
       prompt: promptVal,
-      status: "loading",
-      statusMessage: "SSE 연결 대기 중...",
     };
 
-    setRuns((prev) => trimRuns([newRun, ...prev], maxHistory));
-    setSelectedId(id);
-    setMobileResultTab("detail");
+    const n = Math.min(30, Math.max(1, Math.floor(bulkRepeatCount) || 1));
 
-    try {
+    const runStreamForSlot = async (slotIndex: number | null) => {
       const startResp = await fetch(`${API_BASE}/tts-start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -195,32 +230,80 @@ export function TtsApp() {
         throw new Error("SSE ID not found in response: " + JSON.stringify(startData));
       }
 
-      updateRun(id, { statusMessage: `SSE 스트림 수신 중 (ID: ${sseId})...` });
+      if (slotIndex == null) {
+        updateRun(id, { statusMessage: `SSE 스트림 수신 중 (ID: ${sseId})...` });
+      } else {
+        patchBulkSlots(id, (slots) =>
+          slots.map((s, j) =>
+            j === slotIndex
+              ? { ...s, status: "loading" as const, statusMessage: `SSE 수신 (${sseId})...` }
+              : s,
+          ),
+        );
+      }
 
       await streamTtsSse(sseId, {
-        onLoading: (message) => updateRun(id, { status: "loading", statusMessage: message }),
+        onLoading: (message) => {
+          if (slotIndex == null) {
+            updateRun(id, { status: "loading", statusMessage: message });
+          } else {
+            patchBulkSlots(id, (slots) =>
+              slots.map((s, j) =>
+                j === slotIndex ? { ...s, status: "loading" as const, statusMessage: message } : s,
+              ),
+            );
+          }
+        },
         finishFromUrl: (upstreamUrl, meta) => {
           const playUrl = proxyPlayUrl(upstreamUrl);
           const m = meta as { firstChunkLatencyMs?: number; audioDurationMs?: number } | null;
-          updateRun(id, {
-            status: "success",
-            statusMessage: undefined,
-            playUrl,
-            blobUrl: undefined,
-            meta: m
-              ? {
-                  firstChunkLatencyMs: m.firstChunkLatencyMs,
-                  audioDurationMs: m.audioDurationMs,
-                }
-              : undefined,
-          });
+          const metaOut = m
+            ? {
+                firstChunkLatencyMs: m.firstChunkLatencyMs,
+                audioDurationMs: m.audioDurationMs,
+              }
+            : undefined;
+          if (slotIndex == null) {
+            updateRun(id, {
+              status: "success",
+              statusMessage: undefined,
+              playUrl,
+              blobUrl: undefined,
+              meta: metaOut,
+            });
+          } else {
+            patchBulkSlots(id, (slots) =>
+              slots.map((s, j) =>
+                j === slotIndex
+                  ? {
+                      ...s,
+                      status: "success" as const,
+                      statusMessage: undefined,
+                      playUrl,
+                      blobUrl: undefined,
+                      meta: metaOut,
+                    }
+                  : s,
+              ),
+            );
+          }
         },
         finishFromChunks: (chunks) => {
           if (chunks.length === 0) {
-            updateRun(id, {
-              status: "error",
-              statusMessage: "오디오 데이터가 비어있습니다.",
-            });
+            if (slotIndex == null) {
+              updateRun(id, {
+                status: "error",
+                statusMessage: "오디오 데이터가 비어있습니다.",
+              });
+            } else {
+              patchBulkSlots(id, (slots) =>
+                slots.map((s, j) =>
+                  j === slotIndex
+                    ? { ...s, status: "error" as const, statusMessage: "오디오 데이터가 비어있습니다." }
+                    : s,
+                ),
+              );
+            }
             return;
           }
           const totalLen = chunks.reduce((sum, c) => sum + c.length, 0);
@@ -232,20 +315,87 @@ export function TtsApp() {
           }
           const blob = new Blob([merged], { type: "audio/mp3" });
           const blobUrl = URL.createObjectURL(blob);
-          updateRun(id, {
-            status: "success",
-            statusMessage: undefined,
-            blobUrl,
-            playUrl: undefined,
-          });
+          if (slotIndex == null) {
+            updateRun(id, {
+              status: "success",
+              statusMessage: undefined,
+              blobUrl,
+              playUrl: undefined,
+            });
+          } else {
+            patchBulkSlots(id, (slots) =>
+              slots.map((s, j) =>
+                j === slotIndex
+                  ? {
+                      ...s,
+                      status: "success" as const,
+                      statusMessage: undefined,
+                      blobUrl,
+                      playUrl: undefined,
+                    }
+                  : s,
+              ),
+            );
+          }
         },
         onError: (message) => {
-          updateRun(id, { status: "error", statusMessage: message });
+          if (slotIndex == null) {
+            updateRun(id, { status: "error", statusMessage: message });
+          } else {
+            patchBulkSlots(id, (slots) =>
+              slots.map((s, j) =>
+                j === slotIndex ? { ...s, status: "error" as const, statusMessage: message } : s,
+              ),
+            );
+          }
         },
       });
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      updateRun(id, { status: "error", statusMessage: `오류: ${message}` });
+    };
+
+    if (n <= 1) {
+      const newRun: TtsRun = {
+        ...base,
+        status: "loading",
+        statusMessage: "SSE 연결 대기 중...",
+      };
+      setRuns((prev) => trimRuns([newRun, ...prev], maxHistory));
+      setSelectedId(id);
+      setMobileResultTab("detail");
+      try {
+        await runStreamForSlot(null);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        updateRun(id, { status: "error", statusMessage: `오류: ${message}` });
+      }
+      return;
+    }
+
+    const bulkSlots: TtsBulkSlot[] = Array.from({ length: n }, () => ({
+      status: "loading" as const,
+      statusMessage: "대기...",
+    }));
+    const newRun: TtsRun = {
+      ...base,
+      status: "loading",
+      statusMessage: `0/${n} 처리 중`,
+      bulkCount: n,
+      bulkSlots,
+    };
+    setRuns((prev) => trimRuns([newRun, ...prev], maxHistory));
+    setSelectedId(id);
+    setMobileResultTab("detail");
+
+    for (let i = 0; i < n; i++) {
+      try {
+        await runStreamForSlot(i);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        patchBulkSlots(id, (slots) =>
+          slots.map((s, j) =>
+            j === i ? { ...s, status: "error" as const, statusMessage: `오류: ${message}` } : s,
+          ),
+        );
+      }
     }
   }, [
     anyLoading,
@@ -258,13 +408,15 @@ export function TtsApp() {
     style,
     platform,
     maxHistory,
+    bulkRepeatCount,
     updateRun,
+    patchBulkSlots,
   ]);
 
   const clearResults = useCallback(() => {
     setRuns((prev) => {
       for (const r of prev) {
-        if (r.blobUrl) URL.revokeObjectURL(r.blobUrl);
+        revokeRunMediaUrls(r);
       }
       return [];
     });
@@ -274,7 +426,7 @@ export function TtsApp() {
   useEffect(() => {
     return () => {
       for (const r of runsRef.current) {
-        if (r.blobUrl) URL.revokeObjectURL(r.blobUrl);
+        revokeRunMediaUrls(r);
       }
     };
   }, []);
@@ -516,6 +668,31 @@ export function TtsApp() {
                       활성: 텍스트 끝에 보이지 않는 유니코드 문자가 자동 추가됩니다.
                     </p>
                   ) : null}
+
+                  <div className="space-y-2 rounded-lg border border-border px-3 py-2.5">
+                    <div className="flex flex-col gap-0.5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-2">
+                      <Label htmlFor="bulk-repeat" className="text-sm">
+                        연속 요청 (벌크)
+                      </Label>
+                      <span className="text-[10px] leading-snug text-muted-foreground sm:text-xs">
+                        목록 1건 · 상세에 N개 플레이어 · 순차 요청
+                      </span>
+                    </div>
+                    <Input
+                      id="bulk-repeat"
+                      type="number"
+                      min={1}
+                      max={30}
+                      inputMode="numeric"
+                      className="h-11 text-base sm:h-10 sm:text-sm"
+                      value={Number.isFinite(bulkRepeatCount) ? bulkRepeatCount : 1}
+                      onChange={(e) => {
+                        const v = parseInt(e.target.value, 10);
+                        if (Number.isNaN(v)) setBulkRepeatCount(1);
+                        else setBulkRepeatCount(Math.min(30, Math.max(1, v)));
+                      }}
+                    />
+                  </div>
                 </CardContent>
                 <CardFooter className="px-4 pb-4 pt-0 sm:px-6 sm:pb-6">
                   <Button
@@ -529,6 +706,8 @@ export function TtsApp() {
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         생성 중...
                       </>
+                    ) : bulkRepeatCount > 1 ? (
+                      `벌크 생성 (${bulkRepeatCount}회)`
                     ) : (
                       "음성 생성"
                     )}
@@ -724,12 +903,15 @@ function RunList({
             <p className="line-clamp-3 break-words text-xs text-muted-foreground sm:line-clamp-2">
               {r.originalText}
             </p>
-            <div className="flex items-center gap-2">
+            {r.bulkCount != null && r.bulkCount > 1 ? (
+              <p className="text-[10px] text-muted-foreground">벌크 ×{r.bulkCount}</p>
+            ) : null}
+            <div className="flex flex-wrap items-center gap-2">
               {r.status === "loading" ? (
                 <Skeleton className="h-5 w-16" />
               ) : r.status === "success" ? (
                 <Badge variant="outline" className="text-[10px] text-green-400">
-                  완료
+                  {r.bulkCount != null && r.bulkCount > 1 ? `완료 (${r.bulkCount})` : "완료"}
                 </Badge>
               ) : (
                 <Badge variant="destructive" className="text-[10px]">
@@ -758,6 +940,7 @@ function RunDetail({
   }
 
   const audioSrc = run.playUrl ?? run.blobUrl;
+  const bulk = run.bulkSlots && run.bulkSlots.length > 0 ? run.bulkSlots : null;
 
   return (
     <ScrollArea className={cn("h-full min-h-0", className)}>
@@ -773,50 +956,135 @@ function RunDetail({
             {run.originalText}
           </p>
         </div>
-        {run.status === "loading" ? (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            {run.statusMessage ?? "처리 중..."}
-          </div>
-        ) : null}
-        {run.status === "error" ? (
-          <Alert variant="destructive">
-            <AlertDescription>{run.statusMessage ?? "오류"}</AlertDescription>
-          </Alert>
-        ) : null}
-        {run.status === "success" && audioSrc ? (
-          <div className="space-y-1.5">
-            <div className="flex min-w-0 items-center gap-2">
-              <audio
-                controls
-                className="h-10 min-h-10 w-0 min-w-0 flex-1 sm:h-9 sm:min-h-9"
-                src={audioSrc}
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-10 shrink-0 touch-manipulation whitespace-nowrap px-3 sm:h-9"
-                asChild
-              >
-                <a href={audioSrc} download={`tts-${run.id.slice(0, 8)}.mp3`}>
-                  다운로드
-                </a>
-              </Button>
-            </div>
-            {run.meta &&
-            (run.meta.firstChunkLatencyMs != null || run.meta.audioDurationMs != null) ? (
-              <p className="break-words text-[11px] leading-snug text-muted-foreground sm:text-xs">
-                {run.meta.firstChunkLatencyMs != null
-                  ? `첫 청크 지연: ${run.meta.firstChunkLatencyMs} ms`
-                  : ""}
-                {run.meta.firstChunkLatencyMs != null && run.meta.audioDurationMs != null
-                  ? " · "
-                  : ""}
-                {run.meta.audioDurationMs != null ? `길이: ${run.meta.audioDurationMs} ms` : ""}
+        {bulk ? (
+          <div className="space-y-2">
+            {run.status === "loading" ? (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground sm:text-sm">
+                <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+                {run.statusMessage ?? "처리 중..."}
+              </div>
+            ) : null}
+            {run.status === "error" && run.statusMessage ? (
+              <Alert variant="destructive">
+                <AlertDescription>{run.statusMessage}</AlertDescription>
+              </Alert>
+            ) : null}
+            {run.status === "success" && run.statusMessage ? (
+              <p className="text-[11px] text-amber-700 dark:text-amber-400/95 sm:text-xs">
+                {run.statusMessage}
               </p>
             ) : null}
+            {bulk.map((slot, i) => {
+              const src = slot.playUrl ?? slot.blobUrl;
+              return (
+                <div
+                  key={i}
+                  className="space-y-1.5 rounded-md border border-border/70 bg-muted/15 p-2.5 sm:p-3"
+                >
+                  <p className="text-[11px] font-medium text-muted-foreground sm:text-xs">
+                    요청 #{i + 1}
+                  </p>
+                  {slot.status === "loading" ? (
+                    <div className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
+                      <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />
+                      <span className="min-w-0 truncate">{slot.statusMessage ?? "대기…"}</span>
+                    </div>
+                  ) : slot.status === "error" ? (
+                    <p className="break-words text-xs text-destructive">
+                      {slot.statusMessage ?? "오류"}
+                    </p>
+                  ) : src ? (
+                    <>
+                      <div className="flex min-w-0 items-center gap-2">
+                        <audio
+                          controls
+                          className="h-10 min-h-10 w-0 min-w-0 flex-1 sm:h-9 sm:min-h-9"
+                          src={src}
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-10 shrink-0 touch-manipulation whitespace-nowrap px-3 sm:h-9"
+                          asChild
+                        >
+                          <a
+                            href={src}
+                            download={`tts-${run.id.replace(/-/g, "").slice(0, 12)}-${i + 1}.mp3`}
+                          >
+                            다운로드
+                          </a>
+                        </Button>
+                      </div>
+                      {slot.meta &&
+                      (slot.meta.firstChunkLatencyMs != null ||
+                        slot.meta.audioDurationMs != null) ? (
+                        <p className="break-words text-[11px] leading-snug text-muted-foreground sm:text-xs">
+                          {slot.meta.firstChunkLatencyMs != null
+                            ? `첫 청크 지연: ${slot.meta.firstChunkLatencyMs} ms`
+                            : ""}
+                          {slot.meta.firstChunkLatencyMs != null &&
+                          slot.meta.audioDurationMs != null
+                            ? " · "
+                            : ""}
+                          {slot.meta.audioDurationMs != null
+                            ? `길이: ${slot.meta.audioDurationMs} ms`
+                            : ""}
+                        </p>
+                      ) : null}
+                    </>
+                  ) : null}
+                </div>
+              );
+            })}
           </div>
-        ) : null}
+        ) : (
+          <>
+            {run.status === "loading" ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {run.statusMessage ?? "처리 중..."}
+              </div>
+            ) : null}
+            {run.status === "error" ? (
+              <Alert variant="destructive">
+                <AlertDescription>{run.statusMessage ?? "오류"}</AlertDescription>
+              </Alert>
+            ) : null}
+            {run.status === "success" && audioSrc ? (
+              <div className="space-y-1.5">
+                <div className="flex min-w-0 items-center gap-2">
+                  <audio
+                    controls
+                    className="h-10 min-h-10 w-0 min-w-0 flex-1 sm:h-9 sm:min-h-9"
+                    src={audioSrc}
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-10 shrink-0 touch-manipulation whitespace-nowrap px-3 sm:h-9"
+                    asChild
+                  >
+                    <a href={audioSrc} download={`tts-${run.id.slice(0, 8)}.mp3`}>
+                      다운로드
+                    </a>
+                  </Button>
+                </div>
+                {run.meta &&
+                (run.meta.firstChunkLatencyMs != null || run.meta.audioDurationMs != null) ? (
+                  <p className="break-words text-[11px] leading-snug text-muted-foreground sm:text-xs">
+                    {run.meta.firstChunkLatencyMs != null
+                      ? `첫 청크 지연: ${run.meta.firstChunkLatencyMs} ms`
+                      : ""}
+                    {run.meta.firstChunkLatencyMs != null && run.meta.audioDurationMs != null
+                      ? " · "
+                      : ""}
+                    {run.meta.audioDurationMs != null ? `길이: ${run.meta.audioDurationMs} ms` : ""}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+          </>
+        )}
         <Separator />
         <div className="min-w-0">
           <p className="text-xs text-muted-foreground">Prompt</p>
