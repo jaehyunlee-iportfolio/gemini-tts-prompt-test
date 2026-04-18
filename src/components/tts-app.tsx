@@ -675,7 +675,7 @@ export function TtsApp() {
                         연속 요청 (벌크)
                       </Label>
                       <span className="text-[10px] leading-snug text-muted-foreground sm:text-xs">
-                        목록 1건 · 상세에 N개 플레이어 · 순차 요청
+                        목록 1건 · 순차 요청 · 상세는 전부 끝난 뒤에만 N개 플레이어 표시
                       </span>
                     </div>
                     <Input
@@ -959,9 +959,25 @@ function RunDetail({
         {bulk ? (
           <div className="space-y-2">
             {run.status === "loading" ? (
-              <div className="flex items-center gap-2 text-xs text-muted-foreground sm:text-sm">
-                <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
-                {run.statusMessage ?? "처리 중..."}
+              <div className="space-y-2 rounded-md border border-border/60 bg-muted/20 p-3">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground sm:text-sm">
+                  <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+                  <span className="min-w-0">{run.statusMessage ?? "처리 중..."}</span>
+                </div>
+                <p className="text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
+                  벌크 요청은 전부 끝난 뒤에만 재생 플레이어가 한꺼번에 표시됩니다. 완료 전에는 재생할 수
+                  없습니다.
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {bulk.map((_, i) => (
+                    <span
+                      key={i}
+                      className="rounded border border-border/80 bg-background/60 px-2 py-0.5 font-mono text-[10px] text-muted-foreground"
+                    >
+                      #{i + 1}
+                    </span>
+                  ))}
+                </div>
               </div>
             ) : null}
             {run.status === "error" && run.statusMessage ? (
@@ -974,68 +990,67 @@ function RunDetail({
                 {run.statusMessage}
               </p>
             ) : null}
-            {bulk.map((slot, i) => {
-              const src = slot.playUrl ?? slot.blobUrl;
-              return (
-                <div
-                  key={i}
-                  className="space-y-1.5 rounded-md border border-border/70 bg-muted/15 p-2.5 sm:p-3"
-                >
-                  <p className="text-[11px] font-medium text-muted-foreground sm:text-xs">
-                    요청 #{i + 1}
-                  </p>
-                  {slot.status === "loading" ? (
-                    <div className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
-                      <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />
-                      <span className="min-w-0 truncate">{slot.statusMessage ?? "대기…"}</span>
-                    </div>
-                  ) : slot.status === "error" ? (
-                    <p className="break-words text-xs text-destructive">
-                      {slot.statusMessage ?? "오류"}
-                    </p>
-                  ) : src ? (
-                    <>
-                      <div className="flex min-w-0 items-center gap-2">
-                        <audio
-                          controls
-                          className="h-10 min-h-10 w-0 min-w-0 flex-1 sm:h-9 sm:min-h-9"
-                          src={src}
-                        />
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-10 shrink-0 touch-manipulation whitespace-nowrap px-3 sm:h-9"
-                          asChild
-                        >
-                          <a
-                            href={src}
-                            download={`tts-${run.id.replace(/-/g, "").slice(0, 12)}-${i + 1}.mp3`}
-                          >
-                            다운로드
-                          </a>
-                        </Button>
-                      </div>
-                      {slot.meta &&
-                      (slot.meta.firstChunkLatencyMs != null ||
-                        slot.meta.audioDurationMs != null) ? (
-                        <p className="break-words text-[11px] leading-snug text-muted-foreground sm:text-xs">
-                          {slot.meta.firstChunkLatencyMs != null
-                            ? `첫 청크 지연: ${slot.meta.firstChunkLatencyMs} ms`
-                            : ""}
-                          {slot.meta.firstChunkLatencyMs != null &&
-                          slot.meta.audioDurationMs != null
-                            ? " · "
-                            : ""}
-                          {slot.meta.audioDurationMs != null
-                            ? `길이: ${slot.meta.audioDurationMs} ms`
-                            : ""}
+            {run.status !== "loading"
+              ? bulk.map((slot, i) => {
+                  const src = slot.playUrl ?? slot.blobUrl;
+                  return (
+                    <div
+                      key={i}
+                      className="space-y-1.5 rounded-md border border-border/70 bg-muted/15 p-2.5 sm:p-3"
+                    >
+                      <p className="text-[11px] font-medium text-muted-foreground sm:text-xs">
+                        요청 #{i + 1}
+                      </p>
+                      {slot.status === "error" ? (
+                        <p className="break-words text-xs text-destructive">
+                          {slot.statusMessage ?? "오류"}
                         </p>
-                      ) : null}
-                    </>
-                  ) : null}
-                </div>
-              );
-            })}
+                      ) : src ? (
+                        <>
+                          <div className="flex min-w-0 items-center gap-2">
+                            <audio
+                              controls
+                              className="h-10 min-h-10 w-0 min-w-0 flex-1 sm:h-9 sm:min-h-9"
+                              src={src}
+                            />
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-10 shrink-0 touch-manipulation whitespace-nowrap px-3 sm:h-9"
+                              asChild
+                            >
+                              <a
+                                href={src}
+                                download={`tts-${run.id.replace(/-/g, "").slice(0, 12)}-${i + 1}.mp3`}
+                              >
+                                다운로드
+                              </a>
+                            </Button>
+                          </div>
+                          {slot.meta &&
+                          (slot.meta.firstChunkLatencyMs != null ||
+                            slot.meta.audioDurationMs != null) ? (
+                            <p className="break-words text-[11px] leading-snug text-muted-foreground sm:text-xs">
+                              {slot.meta.firstChunkLatencyMs != null
+                                ? `첫 청크 지연: ${slot.meta.firstChunkLatencyMs} ms`
+                                : ""}
+                              {slot.meta.firstChunkLatencyMs != null &&
+                              slot.meta.audioDurationMs != null
+                                ? " · "
+                                : ""}
+                              {slot.meta.audioDurationMs != null
+                                ? `길이: ${slot.meta.audioDurationMs} ms`
+                                : ""}
+                            </p>
+                          ) : null}
+                        </>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">오디오 URL 없음</p>
+                      )}
+                    </div>
+                  );
+                })
+              : null}
           </div>
         ) : (
           <>
