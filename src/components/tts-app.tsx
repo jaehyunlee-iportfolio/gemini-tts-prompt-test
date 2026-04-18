@@ -755,7 +755,7 @@ function RunDetail({
 
   return (
     <ScrollArea className={cn("h-full min-h-0", className)}>
-      <div className="space-y-3 p-3 sm:space-y-4 sm:p-4 md:p-5">
+      <div className="space-y-2 p-3 sm:space-y-3 sm:p-4 md:p-5">
         <div className="min-w-0">
           <p className="text-xs text-muted-foreground">Bundle</p>
           <p className="break-all font-mono text-xs leading-snug sm:text-sm">{run.bundleName}</p>
@@ -779,18 +779,27 @@ function RunDetail({
           </Alert>
         ) : null}
         {run.status === "success" && audioSrc ? (
-          <div className="space-y-3">
-            <Badge variant="secondary" className="text-xs">
-              재생
-            </Badge>
-            <audio
-              controls
-              className="h-12 w-full min-h-[44px] max-w-full sm:h-11"
-              src={audioSrc}
-            />
+          <div className="space-y-1.5">
+            <div className="flex min-w-0 items-center gap-2">
+              <audio
+                controls
+                className="h-10 min-h-10 w-0 min-w-0 flex-1 sm:h-9 sm:min-h-9"
+                src={audioSrc}
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-10 shrink-0 touch-manipulation whitespace-nowrap px-3 sm:h-9"
+                asChild
+              >
+                <a href={audioSrc} download={`tts-${run.id.slice(0, 8)}.mp3`}>
+                  다운로드
+                </a>
+              </Button>
+            </div>
             {run.meta &&
             (run.meta.firstChunkLatencyMs != null || run.meta.audioDurationMs != null) ? (
-              <p className="break-words text-[11px] text-muted-foreground sm:text-xs">
+              <p className="break-words text-[11px] leading-snug text-muted-foreground sm:text-xs">
                 {run.meta.firstChunkLatencyMs != null
                   ? `첫 청크 지연: ${run.meta.firstChunkLatencyMs} ms`
                   : ""}
@@ -800,11 +809,6 @@ function RunDetail({
                 {run.meta.audioDurationMs != null ? `길이: ${run.meta.audioDurationMs} ms` : ""}
               </p>
             ) : null}
-            <Button variant="outline" size="sm" className="h-10 touch-manipulation sm:h-9" asChild>
-              <a href={audioSrc} download={`tts-${run.id.slice(0, 8)}.mp3`}>
-                다운로드
-              </a>
-            </Button>
           </div>
         ) : null}
         <Separator />
