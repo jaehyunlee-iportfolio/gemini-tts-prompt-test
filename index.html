@@ -495,8 +495,7 @@
   </div>
 
   <script>
-    const API_BASE = 'https://speech-stage.spindlebooks.com/api/v1/text-to-speech';
-    const AUTH_TOKEN = 'aXBvdXcnRmb2xpb0BzcGluZ12Gxlc3BlZWNoMzMxMEAk';
+    const API_BASE = '/api';
 
     const PROMPT_PRESETS = {
       'Male Child': {
@@ -599,12 +598,9 @@
       resultsDiv.prepend(card);
 
       try {
-        const startResp = await fetch(`${API_BASE}/stream/start`, {
+        const startResp = await fetch(`${API_BASE}/tts-start`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-SS-Authorization': AUTH_TOKEN,
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             text: actualText,
             bundleName,
@@ -643,7 +639,7 @@
       const audioChunks = [];
 
       return new Promise((resolve, reject) => {
-        const url = `${API_BASE}/streams/${sseId}`;
+        const url = `${API_BASE}/tts-stream?sseId=${sseId}`;
         const eventSource = new EventSource(url);
 
         let headersSent = false;
@@ -731,11 +727,8 @@
     async function fallbackFetch(idx, sseId) {
       updateCardStatus(idx, 'loading', 'SSE 실패, fetch로 재시도...');
       try {
-        const resp = await fetch(`${API_BASE}/streams/${sseId}`, {
-          headers: {
-            'Accept': 'text/event-stream',
-            'X-SS-Authorization': AUTH_TOKEN,
-          }
+        const resp = await fetch(`${API_BASE}/tts-stream?sseId=${sseId}`, {
+          headers: { 'Accept': 'text/event-stream' },
         });
 
         if (!resp.ok) throw new Error(`Stream fetch failed: ${resp.status}`);
