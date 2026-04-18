@@ -3,6 +3,9 @@
     "api/tts-stream.js": {
       "maxDuration": 60
     },
+    "api/tts-audio.js": {
+      "maxDuration": 60
+    },
     "api/prompt-save.js": {
       "maxDuration": 60
     },

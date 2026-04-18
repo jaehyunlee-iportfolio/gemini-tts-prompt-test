@@ -14,8 +14,9 @@ export default async function handler(req, res) {
   try {
     const resp = await fetch(`${API_BASE}/streams/${sseId}`, {
       headers: {
-        'Accept': 'text/event-stream',
+        Accept: 'text/event-stream',
         'X-SS-Authorization': AUTH_TOKEN,
+        'User-Agent': 'gemin-tts-prompt-test/1.0',
       },
     });
 
