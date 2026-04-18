@@ -17,7 +17,7 @@ function rev(v, long, short, changelog, createdAt = '2026-04-18T00:00:00.000Z') 
 
 const registry = {
   schemaVersion: 1,
-  registryVersion: 2,
+  registryVersion: 3,
   updatedAt: new Date().toISOString(),
   groups: [
     {
@@ -109,7 +109,7 @@ const registry = {
             rev(
               'v1.3',
               `# AUDIO PROFILE: Laura, adult female narrator
-A warm, clear adult woman with a calm, professional delivery.
+A warm, clear adult woman with a calm delivery.
 Laura sounds polished and approachable — suited to clear, neutral line reads.
 
 ## SCENE
@@ -117,7 +117,7 @@ A quiet studio booth with dry, neutral acoustics.
 Laura reads a short English sentence into the microphone as a clean line read.
 
 ## DIRECTOR'S NOTES
-Style: warm, clear, and lightly encouraging without theatrics. A composed, neutral host tone.
+Style: warm, clear, and encouraging without theatrics. A composed, neutral host tone.
 Pace: steady and even — an unhurried demonstration pace. No rushing, no drawn-out pauses.
 Accent: General American accent as heard in a neutral US reference recording.
 Articulation: clean consonants, precise vowels. Pronounce every word exactly as printed,
