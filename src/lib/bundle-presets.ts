@@ -25,10 +25,10 @@ const VOICE_FALLBACK_GROUP: Record<VoiceId, keyof typeof FALLBACK_PRESETS> = {
 
 export type BundlePresetItem = {
   id: string;
-  /** Shown on chip, e.g. GEMINI-Rasalgethi-Default · v1.2 */
+  /** Chip에만 표시 (예: v1.3). 전체 bundle은 tooltip `detail` 참고 */
   chipLabel: string;
   long: string;
-  /** Extra context for tooltip */
+  /** 툴팁: bundle·그룹 등 */
   detail?: string;
 };
 
@@ -76,9 +76,9 @@ function listFromRegistry(
   const bundle = bundleNameFromVoiceStyle(voice, style);
   return sortRevisionsDesc(prompt.revisions).map((r) => ({
     id: `reg:${group.id}:${prompt.id}:${r.version}`,
-    chipLabel: `${bundle} · ${r.version}`,
+    chipLabel: r.version,
     long: r.long,
-    detail: `${group.title} — ${prompt.title} ${r.version}`,
+    detail: `${bundle} · ${r.version} — ${group.title} / ${prompt.title}`,
   }));
 }
 
@@ -96,9 +96,9 @@ function listFromFallback(voice: VoiceId, style: StyleTone): BundlePresetItem[] 
       const versionPart = name.slice(prefix.length).trim();
       return {
         id: `fb:${groupTitle}:${name}`,
-        chipLabel: `${bundle} · ${versionPart || name}`,
+        chipLabel: versionPart || name,
         long,
-        detail: `${groupTitle} — ${name}`,
+        detail: `${bundle} — ${groupTitle} · ${name}`,
       };
     });
 }
