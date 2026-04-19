@@ -23,6 +23,22 @@ function stripBlobFields<T extends { blobUrl?: string; playUrl?: string }>(o: T)
   return rest as T;
 }
 
+/** Firestore는 필드 값으로 `undefined`를 허용하지 않음 */
+function stripUndefinedForFirestore(input: unknown): unknown {
+  if (input === undefined) return undefined;
+  if (input === null || typeof input !== "object") return input;
+  if (Array.isArray(input)) {
+    return input.map((item) => stripUndefinedForFirestore(item));
+  }
+  const obj = input as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (v === undefined) continue;
+    out[k] = stripUndefinedForFirestore(v);
+  }
+  return out;
+}
+
 /** Firestore에는 blob URL을 넣지 않음(재시작 시 무효). playUrl(프록시)만 유지 */
 export function serializeRunsForFirestore(runs: TtsRun[]): Record<string, unknown>[] {
   return runs.map((r) => {
@@ -30,7 +46,7 @@ export function serializeRunsForFirestore(runs: TtsRun[]): Record<string, unknow
     if (base.bulkSlots?.length) {
       base.bulkSlots = base.bulkSlots.map((s) => stripBlobFields({ ...s }));
     }
-    return base as unknown as Record<string, unknown>;
+    return stripUndefinedForFirestore(base) as Record<string, unknown>;
   });
 }
 
