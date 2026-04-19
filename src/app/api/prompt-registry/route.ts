@@ -2,7 +2,7 @@ import { readFile } from "fs/promises";
 import path from "path";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { getFileContent, REGISTRY_PATH } from "@/lib/server/github-repo";
+import { getFileContent, REGISTRY_PATH, resolveGithubPat } from "@/lib/server/github-repo";
 import { registryForbiddenBody } from "@/lib/registry-access";
 import { isSessionRegistryAdmin } from "@/lib/server/registry-admins";
 
@@ -34,7 +34,7 @@ export async function GET() {
   let registry: unknown = null;
   let lastErr: Error | null = null;
 
-  if (process.env.GITHUB_TOKEN) {
+  if (resolveGithubPat()) {
     try {
       const { text } = await getFileContent(REGISTRY_PATH);
       registry = JSON.parse(text);

@@ -13,6 +13,7 @@ LAURA TTS 생성형 음성의 프롬프트 안정성을 테스트하기 위한 *
 - **자동 버저닝**: 동일 프롬프트에 대해 최신 `vX.Y`의 `Y`가 1씩 증가 (예: `v1.2` → `v1.3`).
 - **캐시 우회**: 동일 bundleName + text 캐시 우회용 보이지 않는 토큰.
 - **API 프록시**: TTS 인증은 서버 환경변수만 사용 (클라이언트에 노출 안 됨). 라우트는 `src/app/api/**/route.ts`.
+- **결과 이력(Firestore, 선택)**: Firebase Admin + Firestore에 로그인 이메일별로 TTS 결과 목록을 저장합니다. `GET/PUT/DELETE /api/tts-history`. 환경 변수가 없으면 기존처럼 브라우저 세션에만 두고, 설정 시 로그인 후 자동 로드·약 2초 디바운스 저장. `blob:` 오디오는 저장하지 않으며, 프록시 `playUrl`만 복원 가능합니다(업스트림 만료 시 재생 불가일 수 있음).
 
 ### 2. Confluence 자동 동기화
 
@@ -73,6 +74,11 @@ npm start
 | `AUTH_URL` | 사이트 절대 URL (로컬: `http://localhost:3000`, Vercel 프로덕션 도메인) |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth 2.0 클라이언트 (승인된 리디렉션: `{AUTH_URL}/api/auth/callback/google`) |
 | `REGISTRY_ADMIN_EMAILS` | 선택. 쉼표로 구분한 추가 관리자(`@iportfolio.co.kr`만). UI로는 제거할 수 없고 Vercel 환경변수에서만 뺄 수 있음 |
+| `FIREBASE_PROJECT_ID` | 선택. 서비스 계정 JSON의 `project_id` |
+| `FIREBASE_CLIENT_EMAIL` | 선택. 서비스 계정 JSON의 `client_email` |
+| `FIREBASE_PRIVATE_KEY` | 선택. 서비스 계정 JSON의 `private_key`를 **한 줄**로 (줄바꿈은 `\n`로 이스케이프). Vercel에 붙여 넣을 때 흔한 형식 |
+
+Firebase Console에서 **Firestore 데이터베이스**를 같은 프로젝트에 만들고, 서비스 계정에 편집 권한이 있으면 됩니다(기본 소유자/편집자 역할로 충분한 경우가 많음).
 
 ### Google Cloud에서 할 일 (OAuth)
 

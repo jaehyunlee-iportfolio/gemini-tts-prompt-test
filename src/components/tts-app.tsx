@@ -107,6 +107,14 @@ function trimRuns(runs: TtsRun[], max: number): TtsRun[] {
   return runs.slice(0, max);
 }
 
+/** Firestore에서 받은 목록과 로컬(아직 저장 안 된) 항목 병합 */
+function mergeRunsWithRemote(local: TtsRun[], remote: TtsRun[], max: number): TtsRun[] {
+  const remoteIds = new Set(remote.map((r) => r.id));
+  const localOnly = local.filter((r) => !remoteIds.has(r.id));
+  const merged = [...localOnly, ...remote].sort((a, b) => b.createdAt - a.createdAt);
+  return trimRuns(merged, max);
+}
+
 function aggregateBulkStatus(slots: TtsBulkSlot[]): Pick<TtsRun, "status" | "statusMessage"> {
   const loading = slots.some((s) => s.status === "loading");
   if (loading) {
@@ -140,6 +148,8 @@ export function TtsApp() {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [maxHistory, setMaxHistory] = useState<(typeof HISTORY_OPTIONS)[number]>(30);
   const [runs, setRuns] = useState<TtsRun[]>([]);
+  const [remoteHistoryLoaded, setRemoteHistoryLoaded] = useState(false);
+  const [cloudSyncEnabled, setCloudSyncEnabled] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mobileResultTab, setMobileResultTab] = useState<"list" | "detail">("list");
   const [registryJson, setRegistryJson] = useState<PromptRegistryJson | null>(null);
@@ -147,11 +157,45 @@ export function TtsApp() {
   const [registryLoadError, setRegistryLoadError] = useState<string | null>(null);
   const runsRef = useRef(runs);
   runsRef.current = runs;
+  const maxHistoryRef = useRef(maxHistory);
+  maxHistoryRef.current = maxHistory;
+  const cloudSyncEnabledRef = useRef(false);
+  cloudSyncEnabledRef.current = cloudSyncEnabled;
 
   const handleRegistryLoaded = useCallback((reg: PromptRegistryJson) => {
     setRegistryJson(reg);
     setRegistryLoadError(null);
   }, []);
+
+  useEffect(() => {
+    if (rootSessionStatus !== "authenticated") {
+      if (rootSessionStatus === "unauthenticated") {
+        setRemoteHistoryLoaded(false);
+        setCloudSyncEnabled(false);
+      }
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      const res = await fetch(`${API_BASE}/tts-history`);
+      let j: { runs?: TtsRun[]; cloudSync?: boolean } = {};
+      try {
+        j = (await res.json()) as typeof j;
+      } catch {
+        /* ignore */
+      }
+      if (cancelled) return;
+      const enabled = Boolean(res.ok && j.cloudSync === true);
+      setCloudSyncEnabled(enabled);
+      if (enabled && Array.isArray(j.runs)) {
+        setRuns((prev) => mergeRunsWithRemote(prev, j.runs!, maxHistoryRef.current));
+      }
+      setRemoteHistoryLoaded(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [rootSessionStatus]);
 
   useEffect(() => {
     if (rootSessionStatus === "loading") return;
@@ -456,6 +500,9 @@ export function TtsApp() {
       return [];
     });
     setSelectedId(null);
+    if (cloudSyncEnabledRef.current) {
+      void fetch(`${API_BASE}/tts-history`, { method: "DELETE" });
+    }
   }, []);
 
   useEffect(() => {
@@ -469,6 +516,19 @@ export function TtsApp() {
   useEffect(() => {
     setRuns((prev) => trimRuns(prev, maxHistory));
   }, [maxHistory]);
+
+  useEffect(() => {
+    if (!remoteHistoryLoaded || !cloudSyncEnabled) return;
+    if (rootSessionStatus !== "authenticated") return;
+    const t = window.setTimeout(() => {
+      void fetch(`${API_BASE}/tts-history`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ runs: runsRef.current }),
+      });
+    }, 2000);
+    return () => window.clearTimeout(t);
+  }, [runs, remoteHistoryLoaded, cloudSyncEnabled, rootSessionStatus]);
 
   const bulkRepeatPreviewN = parsedBulkRepeatN(bulkRepeatInput);
 
@@ -766,7 +826,14 @@ export function TtsApp() {
               <Card className="flex min-h-0 w-full min-w-0 flex-col lg:min-h-[min(72dvh,800px)] xl:min-h-[min(78dvh,880px)]">
                 <CardHeader className="flex flex-col gap-3 space-y-0 px-4 pb-3 pt-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between sm:gap-4 sm:px-6 sm:pb-4 sm:pt-6">
                   <div className="min-w-0">
-                    <CardTitle className="text-lg sm:text-xl">결과</CardTitle>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <CardTitle className="text-lg sm:text-xl">결과</CardTitle>
+                      {cloudSyncEnabled ? (
+                        <Badge variant="outline" className="text-[10px] font-normal">
+                          Firestore 동기화
+                        </Badge>
+                      ) : null}
+                    </div>
                     <CardDescription className="mt-1 text-xs sm:text-sm">
                       <span className="hidden lg:inline">
                         목록에서 항목을 선택하면 오른쪽에 상세가 표시됩니다.
