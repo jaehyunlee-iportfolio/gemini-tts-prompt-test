@@ -8,11 +8,9 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ALLOWED_GOOGLE_EMAIL_DOMAIN } from "@/lib/registry-access";
 
 function LoginForm() {
   const searchParams = useSearchParams();
@@ -23,15 +21,13 @@ function LoginForm() {
     <Card className="w-full max-w-md border-border shadow-lg">
       <CardHeader className="space-y-1">
         <CardTitle className="text-xl">Gemini TTS Prompt Tester</CardTitle>
-        <CardDescription>
-          회사 Google 계정으로 로그인하세요. @{ALLOWED_GOOGLE_EMAIL_DOMAIN} 만 허용됩니다.
-        </CardDescription>
+        <CardDescription>Google 계정으로 로그인해 주세요.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {error ? (
           <p className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error === "AccessDenied"
-              ? `@${ALLOWED_GOOGLE_EMAIL_DOMAIN} 계정만 사용할 수 있습니다.`
+              ? "이 계정으로는 로그인할 수 없습니다."
               : "로그인에 실패했습니다. 다시 시도하세요."}
           </p>
         ) : null}
@@ -61,10 +57,6 @@ function LoginForm() {
           Google로 로그인
         </Button>
       </CardContent>
-      <CardFooter className="text-xs text-muted-foreground">
-        프롬프트 레지스트리 API는 관리자로 등록된 @iportfolio.co.kr 계정으로만 사용할 수 있습니다. 기본
-        슈퍼 관리자 외 계정은 레지스트리 탭에서 추가할 수 있습니다.
-      </CardFooter>
     </Card>
   );
 }
