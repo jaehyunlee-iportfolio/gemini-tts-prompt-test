@@ -1,7 +1,10 @@
 import { readFile } from "fs/promises";
 import path from "path";
 import { NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { getFileContent, REGISTRY_PATH } from "@/lib/server/github-repo";
+import { registryForbiddenBody } from "@/lib/registry-access";
+import { isSessionRegistryAdmin } from "@/lib/server/registry-admins";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -23,6 +26,11 @@ async function readRegistryFromDisk(): Promise<unknown> {
 }
 
 export async function GET() {
+  const session = await auth();
+  if (!(await isSessionRegistryAdmin(session?.user?.email))) {
+    return NextResponse.json(registryForbiddenBody(), { status: 403 });
+  }
+
   let registry: unknown = null;
   let lastErr: Error | null = null;
 

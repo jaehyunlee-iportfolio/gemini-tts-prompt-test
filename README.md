@@ -7,8 +7,9 @@ LAURA TTS 생성형 음성의 프롬프트 안정성을 테스트하기 위한 *
 ### 1. TTS Prompt Test Web App (Next.js, Vercel)
 
 - **UI**: Next.js App Router + TypeScript + shadcn/ui. Voice·Style 선택으로 `bundleName` 조합, 생성 결과는 마스터–디테일 + 히스토리 상한.
-- **프롬프트 프리셋**: `GET /api/prompt-registry`로 `docs/prompt-registry.json` 반영 (실패 시 내장 fallback).
-- **레지스트리 편집**: 웹에서는 **새 리비전**만 저장 가능(동일 프롬프트). 새 그룹·새 프롬프트(v1.0) 웹 UI/API는 **deprecated** — `docs/prompt-registry.json`은 GitHub에서 직접 수정. 저장 시 **GitHub `docs/`에 직접 커밋**되고, `LAURA-TTS-프롬프트-버전-가이드.md`가 같은 내용으로 재생성됨.
+- **접근 제어**: Google 로그인(Auth.js v5). `@iportfolio.co.kr` 도메인만 로그인 허용. 앱 전체는 로그인 후 사용(미들웨어). **프롬프트 레지스트리 API**(`prompt-registry`, `prompt-save`)는 **관리자 이메일**로 로그인한 세션에서만 성공합니다. 관리자 = 코드에 고정된 기본 슈퍼(`jaehyunlee@iportfolio.co.kr`) + 선택 환경변수 `REGISTRY_ADMIN_EMAILS`(쉼표 구분) + GitHub `docs/registry-admins.json`(웹 UI에서 추가·제거). 그 외 동료 계정은 TTS 등은 쓰되 레지스트리는 403·내장 fallback 프롬프트를 사용합니다.
+- **프롬프트 프리셋**: 관리자 세션이면 `GET /api/prompt-registry`로 `docs/prompt-registry.json` 반영. 권한 없음·실패 시 내장 fallback.
+- **레지스트리 편집**: 웹에서는 **새 리비전**만 저장 가능(동일 프롬프트). 새 그룹·새 프롬프트(v1.0) 웹 UI/API는 **deprecated** — `docs/prompt-registry.json`은 GitHub에서 직접 수정. 저장 시 **GitHub `docs/`에 직접 커밋**되고, `LAURA-TTS-프롬프트-버전-가이드.md`가 같은 내용으로 재생성됨. 웹 저장은 **관리자 Google 세션**으로만 허용(구 `PROMPT_ADMIN_SECRET` 헤더 방식은 제거됨).
 - **자동 버저닝**: 동일 프롬프트에 대해 최신 `vX.Y`의 `Y`가 1씩 증가 (예: `v1.2` → `v1.3`).
 - **캐시 우회**: 동일 bundleName + text 캐시 우회용 보이지 않는 토큰.
 - **API 프록시**: TTS 인증은 서버 환경변수만 사용 (클라이언트에 노출 안 됨). 라우트는 `src/app/api/**/route.ts`.
@@ -24,7 +25,7 @@ npm install
 npm run dev
 ```
 
-브라우저에서 `http://localhost:3000` — TTS·레지스트리 API는 같은 오리진의 `/api/*`로 제공됩니다.
+브라우저에서 `http://localhost:3000` — 로그인 후 TTS·레지스트리 API는 같은 오리진의 `/api/*`로 제공됩니다. 로컬 개발 시 `cp .env.example .env.local` 후 `.env.local`에 `AUTH_SECRET`, `AUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` 등을 채우고, Google Cloud Console OAuth 리디렉션 URI에 `http://localhost:3000/api/auth/callback/google`을 등록하세요.
 
 프로덕션 빌드:
 
@@ -46,6 +47,7 @@ npm start
 │   └── lib/server/                     ← GitHub·registry MD (서버 전용)
 ├── docs/
 │   ├── prompt-registry.json            ← 프롬프트 단일 소스
+│   ├── registry-admins.json            ← 위임 레지스트리 관리자(웹 UI에서 편집)
 │   └── LAURA-TTS-프롬프트-버전-가이드.md  ← 레지스트리에서 생성 (Confluence 동기화)
 ├── scripts/
 │   └── bootstrap-prompt-registry.mjs   ← 초기 JSON 재생성용 (선택)
@@ -67,7 +69,22 @@ npm start
 | `GITHUB_OWNER` | 예: `jaehyunlee-iportfolio` |
 | `GITHUB_REPO` | 예: `gemini-tts-prompt-test` |
 | `GITHUB_BRANCH` | 선택, 기본 `main` |
-| `PROMPT_ADMIN_SECRET` | 웹에서 `docs/` 반영 시 사용하는 임의의 비밀 문자열 (브라우저는 `X-Prompt-Admin-Secret` 헤더로 전송) |
+| `AUTH_SECRET` | Auth.js 세션 암호화용 (예: `openssl rand -base64 32`) |
+| `AUTH_URL` | 사이트 절대 URL (로컬: `http://localhost:3000`, Vercel 프로덕션 도메인) |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth 2.0 클라이언트 (승인된 리디렉션: `{AUTH_URL}/api/auth/callback/google`) |
+| `REGISTRY_ADMIN_EMAILS` | 선택. 쉼표로 구분한 추가 관리자(`@iportfolio.co.kr`만). UI로는 제거할 수 없고 Vercel 환경변수에서만 뺄 수 있음 |
+
+### Google Cloud에서 할 일 (OAuth)
+
+1. [Google Cloud Console](https://console.cloud.google.com/)에서 **프로젝트** 선택(이 앱 전용으로 새 프로젝트를 만드는 것을 권장).
+2. **API 및 서비스 → OAuth 동의 화면**: 사용자 유형은 조직 정책에 맞게(내부/외부) 설정, 앱 이름·지원 이메일 등 필수 항목 저장.
+3. **API 및 서비스 → 사용자 인증 정보 → 사용자 인증 정보 만들기 → OAuth 클라이언트 ID**에서 유형 **웹 애플리케이션** 선택.
+4. **승인된 JavaScript 출처**: 로컬은 `http://localhost:3000`, 배포는 `https://(실제 도메인)` (예: Vercel 기본 URL 또는 커스텀 도메인).
+5. **승인된 리디렉션 URI**: 각 출처마다 `…/api/auth/callback/google` 한 줄씩 추가 (예: `http://localhost:3000/api/auth/callback/google`, `https://xxx.vercel.app/api/auth/callback/google`).
+6. 생성 후 표시되는 **클라이언트 ID**와 **클라이언트 보안 비밀**을 복사해 Vercel 환경 변수 또는 로컬 `.env.local`의 `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`에 넣기.
+
+**다른 앱(jira-gantt 등)과 클라이언트 ID/시크릿을 재사용할 수 있나?**  
+기술적으로는 동일 OAuth 클라이언트에 **여러 리디렉션 URI**를 등록해 두고 여러 앱에서 같이 쓸 수 있습니다. 다만 **앱마다 별도 클라이언트**를 두는 편이 좋습니다. 한쪽 키가 유출되었을 때 영향 범위가 줄고, 리디렉션 URI·감사 로그 관리도 단순해집니다.
 
 ## GitHub Actions (Confluence) Secrets
 

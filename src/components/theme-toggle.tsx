@@ -14,7 +14,7 @@ export function ThemeToggle() {
       size="icon"
       className="h-10 w-10 shrink-0 touch-manipulation sm:h-9 sm:w-9"
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      aria-label={isDark ? "라이트 모드로 전환" : "다크 모드로 전환"}
+      aria-label={isDark ? "라이트" : "다크 모드"}
     >
       {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
     </Button>

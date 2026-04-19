@@ -40,10 +40,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { listBundlePresets } from "@/lib/bundle-presets";
+import { SUPER_REGISTRY_ADMIN_EMAIL } from "@/lib/registry-access";
 import { DEFAULT_PROMPT } from "@/lib/presets";
 import { sortRevisionsDesc } from "@/lib/registry-utils";
 import { proxyPlayUrl, streamTtsSse } from "@/lib/tts-sse";
 import { cn } from "@/lib/utils";
+import { AuthButtons } from "@/components/auth-buttons";
 import { ThemeToggle } from "@/components/theme-toggle";
 import type { PromptRegistryJson, RegistryGroup, RegistryPrompt } from "@/types/registry";
 import {
@@ -55,11 +57,23 @@ import {
   VOICE_IDS,
   STYLE_TONES,
 } from "@/types/tts";
+import { useSession } from "next-auth/react";
 import { ChevronDown, Loader2, Volume2 } from "lucide-react";
 
 const API_BASE = "/api";
 
 const HISTORY_OPTIONS = [10, 30, 50] as const;
+
+async function readApiErrorMessage(res: Response): Promise<string> {
+  const text = await res.text();
+  try {
+    const j = JSON.parse(text) as { error?: string };
+    if (j.error) return j.error;
+  } catch {
+    /* plain text */
+  }
+  return text || res.statusText;
+}
 
 const BULK_REPEAT_MIN = 1;
 const BULK_REPEAT_MAX = 30;
@@ -112,6 +126,7 @@ function aggregateBulkStatus(slots: TtsBulkSlot[]): Pick<TtsRun, "status" | "sta
 }
 
 export function TtsApp() {
+  const { status: rootSessionStatus } = useSession();
   const [mainTab, setMainTab] = useState("generate");
   const [voice, setVoice] = useState<VoiceId>("Rasalgethi");
   const [style, setStyle] = useState<StyleTone>("Default");
@@ -139,10 +154,11 @@ export function TtsApp() {
   }, []);
 
   useEffect(() => {
+    if (rootSessionStatus === "loading") return;
     async function loadPresets() {
       try {
         const res = await fetch(`${API_BASE}/prompt-registry`);
-        if (!res.ok) throw new Error(await res.text());
+        if (!res.ok) throw new Error(await readApiErrorMessage(res));
         const reg = (await res.json()) as PromptRegistryJson;
         setRegistryJson(reg);
         setRegistryLoadError(null);
@@ -155,7 +171,7 @@ export function TtsApp() {
       }
     }
     void loadPresets();
-  }, []);
+  }, [rootSessionStatus]);
 
   const bundleName = useMemo(() => bundleNameFromVoiceStyle(voice, style), [voice, style]);
 
@@ -464,6 +480,7 @@ export function TtsApp() {
             Gemini TTS Prompt Tester
           </h1>
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <AuthButtons />
             <ThemeToggle />
             <Badge variant="secondary" className="w-fit shrink-0">
               LAURA TTS Stage
@@ -1148,6 +1165,18 @@ function RegistryPanel({
 }: {
   onRegistryLoaded: (reg: PromptRegistryJson) => void;
 }) {
+  const { status: sessionStatus } = useSession();
+  const [registryAdminAccess, setRegistryAdminAccess] = useState<{
+    canManage: boolean;
+    emails: string[];
+    delegatedEmails: string[];
+    envAdminEmails: string[];
+  } | null>(null);
+  const [adminListMsg, setAdminListMsg] = useState<string | null>(null);
+  const [newAdminEmail, setNewAdminEmail] = useState("");
+
+  const canManageRegistry = registryAdminAccess?.canManage === true;
+
   const [data, setData] = useState<PromptRegistryJson | null>(null);
   const [panelLoadError, setPanelLoadError] = useState<string | null>(null);
   const [groupId, setGroupId] = useState("");
@@ -1156,7 +1185,6 @@ function RegistryPanel({
   const [regLong, setRegLong] = useState("");
   const [regShort, setRegShort] = useState("");
   const [regChangelog, setRegChangelog] = useState("");
-  const [adminSecret, setAdminSecret] = useState("");
   const [saveMsg, setSaveMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   const group = useMemo(
@@ -1172,7 +1200,7 @@ function RegistryPanel({
     setPanelLoadError(null);
     try {
       const res = await fetch(`${API_BASE}/prompt-registry`);
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) throw new Error(await readApiErrorMessage(res));
       const reg = (await res.json()) as PromptRegistryJson;
       setData(reg);
       const firstG = reg.groups?.[0];
@@ -1189,14 +1217,48 @@ function RegistryPanel({
     }
   }, [onRegistryLoaded]);
 
-  useEffect(() => {
-    const saved = sessionStorage.getItem("prompt_admin_secret");
-    if (saved) setAdminSecret(saved);
+  const refreshAdminAccess = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/registry-admins`);
+      if (!res.ok) {
+        setRegistryAdminAccess({
+          canManage: false,
+          emails: [],
+          delegatedEmails: [],
+          envAdminEmails: [],
+        });
+        return;
+      }
+      const j = (await res.json()) as {
+        emails?: string[];
+        delegatedEmails?: string[];
+        envAdminEmails?: string[];
+      };
+      setRegistryAdminAccess({
+        canManage: true,
+        emails: j.emails ?? [],
+        delegatedEmails: j.delegatedEmails ?? [],
+        envAdminEmails: j.envAdminEmails ?? [],
+      });
+    } catch {
+      setRegistryAdminAccess({
+        canManage: false,
+        emails: [],
+        delegatedEmails: [],
+        envAdminEmails: [],
+      });
+    }
   }, []);
 
   useEffect(() => {
+    if (sessionStatus === "loading") return;
+    void refreshAdminAccess();
+  }, [refreshAdminAccess, sessionStatus]);
+
+  useEffect(() => {
+    if (sessionStatus === "loading") return;
     void reloadRegistry();
-  }, [reloadRegistry]);
+  }, [reloadRegistry, sessionStatus]);
 
   useEffect(() => {
     if (!data?.groups?.length) return;
@@ -1245,15 +1307,12 @@ function RegistryPanel({
       if (!g || !p) throw new Error("그룹/프롬프트를 선택하세요.");
       const long = regLong.trim();
       if (!long) throw new Error("LONG 내용이 비어 있습니다.");
-      const secret = adminSecret.trim();
-      if (!secret) throw new Error("Admin secret를 입력하세요.");
-      sessionStorage.setItem("prompt_admin_secret", secret);
+      if (!canManageRegistry) throw new Error("레지스트리 저장 권한이 없습니다.");
 
       const res = await fetch(`${API_BASE}/prompt-save`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Prompt-Admin-Secret": secret,
         },
         body: JSON.stringify({
           action: "createRevision",
@@ -1286,9 +1345,52 @@ function RegistryPanel({
     regLong,
     regShort,
     regChangelog,
-    adminSecret,
+    canManageRegistry,
     reloadRegistry,
   ]);
+
+  const addRegistryAdmin = useCallback(async () => {
+    setAdminListMsg(null);
+    const email = newAdminEmail.trim().toLowerCase();
+    if (!email) {
+      setAdminListMsg("이메일을 입력하세요.");
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/registry-admins`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "add", email }),
+      });
+      const body = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) throw new Error(body.error || res.statusText);
+      setNewAdminEmail("");
+      await refreshAdminAccess();
+      setAdminListMsg("추가했습니다.");
+    } catch (e) {
+      setAdminListMsg(e instanceof Error ? e.message : String(e));
+    }
+  }, [newAdminEmail, refreshAdminAccess]);
+
+  const removeRegistryAdmin = useCallback(
+    async (email: string) => {
+      setAdminListMsg(null);
+      try {
+        const res = await fetch(`${API_BASE}/registry-admins`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "remove", email }),
+        });
+        const body = (await res.json().catch(() => ({}))) as { error?: string };
+        if (!res.ok) throw new Error(body.error || res.statusText);
+        await refreshAdminAccess();
+        setAdminListMsg("제거했습니다.");
+      } catch (e) {
+        setAdminListMsg(e instanceof Error ? e.message : String(e));
+      }
+    },
+    [refreshAdminAccess],
+  );
 
   return (
     <Card className="min-w-0 overflow-hidden">
@@ -1298,7 +1400,8 @@ function RegistryPanel({
         </CardTitle>
         <CardDescription className="text-xs leading-relaxed sm:text-sm">
           저장 시 docs/prompt-registry.json과 docs/LAURA-TTS-프롬프트-버전-가이드.md가 함께
-          갱신됩니다. 새 리비전 버전은 자동 증가합니다.
+          갱신됩니다. 새 리비전 버전은 자동 증가합니다. 조회·저장은 관리자로 등록된
+          @iportfolio.co.kr 계정만 가능합니다.
         </CardDescription>
       </CardHeader>
       <CardContent className="min-w-0 space-y-4 px-4 pb-4 sm:px-6 sm:pb-6">
@@ -1315,32 +1418,108 @@ function RegistryPanel({
           </p>
         ) : null}
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="min-w-0 space-y-2">
-            <Label htmlFor="admin-secret" className="text-sm">
-              Admin secret (PROMPT_ADMIN_SECRET)
-            </Label>
-            <Input
-              id="admin-secret"
-              type="password"
-              autoComplete="off"
-              className="h-11 text-base sm:h-10 sm:text-sm"
-              value={adminSecret}
-              onChange={(e) => setAdminSecret(e.target.value)}
-              placeholder="GitHub 반영 시 필요"
-            />
-          </div>
-          <div className="flex items-stretch sm:items-end">
-            <Button
-              type="button"
-              variant="secondary"
-              className="h-11 w-full touch-manipulation sm:h-10"
-              onClick={reloadRegistry}
-            >
-              레지스트리 다시 로드
-            </Button>
-          </div>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          {canManageRegistry ? (
+            <p className="text-xs text-muted-foreground sm:text-sm">레지스트리 관리자로 로그인됨</p>
+          ) : (
+            <p className="text-xs text-muted-foreground sm:text-sm">
+              이 탭의 API는 레지스트리 관리자 계정에서만 사용할 수 있습니다.
+            </p>
+          )}
+          <Button
+            type="button"
+            variant="secondary"
+            className="h-11 w-full touch-manipulation sm:h-10 sm:w-auto"
+            onClick={() => void reloadRegistry()}
+          >
+            레지스트리 다시 로드
+          </Button>
         </div>
+
+        {canManageRegistry && registryAdminAccess ? (
+          <div className="space-y-3 rounded-lg border border-border bg-muted/25 px-3 py-3 sm:px-4">
+            <p className="text-sm font-medium text-foreground">레지스트리 관리자 목록</p>
+            <p className="text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
+              기본 슈퍼 관리자는 코드에 고정되어 제거할 수 없습니다. 추가·삭제는 GitHub의{" "}
+              <code className="rounded bg-muted px-1">docs/registry-admins.json</code>에 반영됩니다.
+            </p>
+            <ul className="max-h-48 space-y-2 overflow-y-auto text-xs sm:text-sm">
+              {registryAdminAccess.emails.map((em) => {
+                const lower = em.toLowerCase();
+                const isSuper = lower === SUPER_REGISTRY_ADMIN_EMAIL.toLowerCase();
+                const isDelegated = registryAdminAccess.delegatedEmails.some(
+                  (d) => d.toLowerCase() === lower,
+                );
+                const isEnvOnly = registryAdminAccess.envAdminEmails.some(
+                  (d) => d.toLowerCase() === lower,
+                );
+                return (
+                  <li
+                    key={em}
+                    className="flex flex-col gap-2 rounded-md border border-border/60 bg-background/60 px-2.5 py-2 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <span className="min-w-0 break-all font-mono text-[11px] sm:text-xs">{em}</span>
+                    <div className="flex flex-wrap items-center gap-1.5 sm:shrink-0">
+                      {isSuper ? (
+                        <Badge variant="secondary" className="text-[10px]">
+                          기본
+                        </Badge>
+                      ) : null}
+                      {isEnvOnly ? (
+                        <Badge variant="outline" className="text-[10px]">
+                          환경변수
+                        </Badge>
+                      ) : null}
+                      {isDelegated ? (
+                        <Badge variant="outline" className="text-[10px]">
+                          파일
+                        </Badge>
+                      ) : null}
+                      {isDelegated && !isSuper ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 touch-manipulation px-2 text-xs text-destructive hover:text-destructive"
+                          onClick={() => void removeRegistryAdmin(em)}
+                        >
+                          제거
+                        </Button>
+                      ) : null}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+              <div className="min-w-0 flex-1 space-y-1">
+                <Label htmlFor="new-registry-admin" className="text-xs sm:text-sm">
+                  관리자 추가 (@iportfolio.co.kr)
+                </Label>
+                <Input
+                  id="new-registry-admin"
+                  type="email"
+                  autoComplete="email"
+                  className="h-11 font-mono text-sm sm:h-10"
+                  value={newAdminEmail}
+                  onChange={(e) => setNewAdminEmail(e.target.value)}
+                  placeholder="name@iportfolio.co.kr"
+                />
+              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                className="h-11 w-full touch-manipulation sm:h-10 sm:w-auto"
+                onClick={() => void addRegistryAdmin()}
+              >
+                추가
+              </Button>
+            </div>
+            {adminListMsg ? (
+              <p className="text-xs text-muted-foreground sm:text-sm">{adminListMsg}</p>
+            ) : null}
+          </div>
+        ) : null}
 
         {!data ? (
           <p className="text-sm text-muted-foreground">레지스트리를 불러오는 중…</p>
@@ -1435,6 +1614,7 @@ function RegistryPanel({
         <Button
           type="button"
           className="h-12 w-full touch-manipulation text-base sm:h-11 sm:w-auto sm:text-sm"
+          disabled={!canManageRegistry || !data}
           onClick={() => void saveNewRevision()}
         >
           새 리비전으로 저장 → GitHub

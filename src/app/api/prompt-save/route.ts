@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { auth } from "@/auth";
+import { registryForbiddenBody } from "@/lib/registry-access";
+import { isSessionRegistryAdmin } from "@/lib/server/registry-admins";
 import {
   getFileContent,
   putFile,
@@ -65,9 +68,9 @@ function findPrompt(group: RegistryGroup, promptId: string) {
 }
 
 export async function POST(req: Request) {
-  const admin = req.headers.get("x-prompt-admin-secret");
-  if (!process.env.PROMPT_ADMIN_SECRET || admin !== process.env.PROMPT_ADMIN_SECRET) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const session = await auth();
+  if (!(await isSessionRegistryAdmin(session?.user?.email))) {
+    return NextResponse.json(registryForbiddenBody(), { status: 403 });
   }
 
   if (!resolveGithubPat()) {

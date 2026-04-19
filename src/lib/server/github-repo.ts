@@ -1,5 +1,7 @@
 export const REGISTRY_PATH = "docs/prompt-registry.json";
 export const MARKDOWN_PATH = "docs/LAURA-TTS-프롬프트-버전-가이드.md";
+/** 위임 레지스트리 관리자(슈퍼 외 추가 계정). GitHub PAT 없으면 로컬 docs만 사용 */
+export const REGISTRY_ADMINS_PATH = "docs/registry-admins.json";
 
 /** PAT for GitHub Contents API (Vercel / local). `GH_TOKEN` is a common alias (e.g. GitHub CLI). */
 export function resolveGithubPat(): string | undefined {
