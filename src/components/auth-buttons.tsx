@@ -8,7 +8,7 @@ export function AuthButtons() {
   const { data: session, status } = useSession();
 
   if (status === "loading") {
-    return <span className="text-xs text-muted-foreground">세션…</span>;
+    return <span className="text-xs text-muted-foreground">로딩중…</span>;
   }
 
   if (!session?.user) {

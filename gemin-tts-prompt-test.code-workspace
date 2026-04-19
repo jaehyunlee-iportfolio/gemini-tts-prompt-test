@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../Jira 개선안 - 자동화"
+		},
+		{
+			"path": "../jira-gantt"
+		}
+	],
+	"settings": {}
+}
