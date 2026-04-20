@@ -94,6 +94,14 @@ function committedBulkRepeatDisplay(input: string): string {
   return String(parsedBulkRepeatN(input));
 }
 
+function isAbortError(error: unknown): boolean {
+  return error instanceof DOMException
+    ? error.name === "AbortError"
+    : error instanceof Error
+      ? error.name === "AbortError"
+      : false;
+}
+
 function revokeRunMediaUrls(r: TtsRun) {
   if (r.blobUrl) URL.revokeObjectURL(r.blobUrl);
   for (const s of r.bulkSlots ?? []) {
@@ -160,6 +168,7 @@ export function TtsApp() {
   const [registryLoadError, setRegistryLoadError] = useState<string | null>(null);
   const runsRef = useRef(runs);
   runsRef.current = runs;
+  const activeGenerationAbortRef = useRef<AbortController | null>(null);
   const maxHistoryRef = useRef(maxHistory);
   maxHistoryRef.current = maxHistory;
   const cloudSyncEnabledRef = useRef(false);
@@ -272,6 +281,9 @@ export function TtsApp() {
     const uid = parseInt(userId, 10);
     if (!originalText) return;
 
+    const generationAbortController = new AbortController();
+    activeGenerationAbortRef.current = generationAbortController;
+
     const id = crypto.randomUUID();
     const now = Date.now();
     const base = {
@@ -288,6 +300,7 @@ export function TtsApp() {
       const startResp = await fetch(`${API_BASE}/tts-start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: generationAbortController.signal,
         body: JSON.stringify({
           text: originalText,
           cacheBust,
@@ -311,6 +324,10 @@ export function TtsApp() {
 
       if (!sseId) {
         throw new Error("SSE ID not found in response: " + JSON.stringify(startData));
+      }
+
+      if (generationAbortController.signal.aborted) {
+        throw new DOMException("요청이 중지되었습니다.", "AbortError");
       }
 
       if (slotIndex == null) {
@@ -432,52 +449,75 @@ export function TtsApp() {
             );
           }
         },
+      }, {
+        signal: generationAbortController.signal,
       });
     };
 
-    if (n <= 1) {
+    try {
+      if (n <= 1) {
+        const newRun: TtsRun = {
+          ...base,
+          status: "loading",
+          statusMessage: "SSE 연결 대기 중...",
+        };
+        setRuns((prev) => trimRuns([newRun, ...prev], maxHistory));
+        setSelectedId(id);
+        setMobileResultTab("detail");
+        try {
+          await runStreamForSlot(null);
+        } catch (err) {
+          if (isAbortError(err)) {
+            updateRun(id, { status: "error", statusMessage: "요청이 중지되었습니다." });
+            return;
+          }
+          const message = err instanceof Error ? err.message : String(err);
+          updateRun(id, { status: "error", statusMessage: `오류: ${message}` });
+        }
+        return;
+      }
+
+      const bulkSlots: TtsBulkSlot[] = Array.from({ length: n }, () => ({
+        status: "loading" as const,
+        statusMessage: "대기...",
+      }));
       const newRun: TtsRun = {
         ...base,
         status: "loading",
-        statusMessage: "SSE 연결 대기 중...",
+        statusMessage: `0/${n} 처리 중`,
+        bulkCount: n,
+        bulkSlots,
       };
       setRuns((prev) => trimRuns([newRun, ...prev], maxHistory));
       setSelectedId(id);
       setMobileResultTab("detail");
-      try {
-        await runStreamForSlot(null);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        updateRun(id, { status: "error", statusMessage: `오류: ${message}` });
+
+      for (let i = 0; i < n; i++) {
+        if (generationAbortController.signal.aborted) break;
+        try {
+          await runStreamForSlot(i);
+        } catch (err) {
+          if (isAbortError(err)) {
+            patchBulkSlots(id, (slots) =>
+              slots.map((s, j) =>
+                j >= i && s.status === "loading"
+                  ? { ...s, status: "error" as const, statusMessage: "요청이 중지되었습니다." }
+                  : s,
+              ),
+            );
+            break;
+          }
+          const message = err instanceof Error ? err.message : String(err);
+          patchBulkSlots(id, (slots) =>
+            slots.map((s, j) =>
+              j === i ? { ...s, status: "error" as const, statusMessage: `오류: ${message}` } : s,
+            ),
+          );
+        }
       }
-      return;
-    }
-
-    const bulkSlots: TtsBulkSlot[] = Array.from({ length: n }, () => ({
-      status: "loading" as const,
-      statusMessage: "대기...",
-    }));
-    const newRun: TtsRun = {
-      ...base,
-      status: "loading",
-      statusMessage: `0/${n} 처리 중`,
-      bulkCount: n,
-      bulkSlots,
-    };
-    setRuns((prev) => trimRuns([newRun, ...prev], maxHistory));
-    setSelectedId(id);
-    setMobileResultTab("detail");
-
-    for (let i = 0; i < n; i++) {
-      try {
-        await runStreamForSlot(i);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        patchBulkSlots(id, (slots) =>
-          slots.map((s, j) =>
-            j === i ? { ...s, status: "error" as const, statusMessage: `오류: ${message}` } : s,
-          ),
-        );
+    } finally {
+      if (activeGenerationAbortRef.current === generationAbortController) {
+        activeGenerationAbortRef.current = null;
       }
     }
   }, [
@@ -496,6 +536,15 @@ export function TtsApp() {
     patchBulkSlots,
   ]);
 
+  const stopGeneration = useCallback(() => {
+    activeGenerationAbortRef.current?.abort();
+    setRuns((prev) =>
+      prev.map((r) =>
+        r.status === "loading" ? { ...r, status: "error", statusMessage: "요청이 중지되었습니다." } : r,
+      ),
+    );
+  }, []);
+
   const clearResults = useCallback(() => {
     setRuns((prev) => {
       for (const r of prev) {
@@ -511,6 +560,7 @@ export function TtsApp() {
 
   useEffect(() => {
     return () => {
+      activeGenerationAbortRef.current?.abort();
       for (const r of runsRef.current) {
         revokeRunMediaUrls(r);
       }
@@ -840,23 +890,36 @@ export function TtsApp() {
                   </div>
                 </CardContent>
                 <CardFooter className="px-4 pb-4 pt-0 sm:px-6 sm:pb-6">
-                  <Button
-                    className="h-12 w-full touch-manipulation text-base sm:h-11 sm:text-sm"
-                    size="lg"
-                    onClick={() => void startGeneration()}
-                    disabled={anyLoading || !text.trim()}
-                  >
+                  <div className="flex w-full flex-col gap-2 sm:flex-row">
+                    <Button
+                      className="h-12 w-full touch-manipulation text-base sm:h-11 sm:text-sm"
+                      size="lg"
+                      onClick={() => void startGeneration()}
+                      disabled={anyLoading || !text.trim()}
+                    >
+                      {anyLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          생성 중...
+                        </>
+                      ) : bulkRepeatPreviewN > 1 ? (
+                        `벌크 생성 (${bulkRepeatPreviewN}회)`
+                      ) : (
+                        "음성 생성"
+                      )}
+                    </Button>
                     {anyLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        생성 중...
-                      </>
-                    ) : bulkRepeatPreviewN > 1 ? (
-                      `벌크 생성 (${bulkRepeatPreviewN}회)`
-                    ) : (
-                      "음성 생성"
-                    )}
-                  </Button>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="lg"
+                        className="h-12 w-full touch-manipulation text-base sm:h-11 sm:w-auto sm:px-5 sm:text-sm"
+                        onClick={stopGeneration}
+                      >
+                        중지
+                      </Button>
+                    ) : null}
+                  </div>
                 </CardFooter>
               </Card>
 
