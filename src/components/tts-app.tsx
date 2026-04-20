@@ -62,6 +62,9 @@ import { ChevronDown, Loader2, Volume2 } from "lucide-react";
 
 const API_BASE = "/api";
 
+/** 레지스트리 프리셋과 겹치지 않는 가상 id — Custom 모드 (히스토리·저장과 무관) */
+const TRYOUT_PRESET_ID = "__tryout__";
+
 const HISTORY_OPTIONS = [10, 30, 50] as const;
 
 async function readApiErrorMessage(res: Response): Promise<string> {
@@ -228,13 +231,14 @@ export function TtsApp() {
     const ids = new Set(bundlePresets.map((p) => p.id));
     const latest = bundlePresets[0];
     if (!latest) {
+      if (activePresetKey === TRYOUT_PRESET_ID) return;
       if (activePresetKey != null) setActivePresetKey(null);
       return;
     }
-    if (activePresetKey == null || !ids.has(activePresetKey)) {
-      setActivePresetKey(latest.id);
-      setPrompt(latest.long);
-    }
+    if (activePresetKey === TRYOUT_PRESET_ID) return;
+    if (activePresetKey != null && ids.has(activePresetKey)) return;
+    setActivePresetKey(latest.id);
+    setPrompt(latest.long);
   }, [bundlePresets, activePresetKey]);
 
   const selectedRun = runs.find((r) => r.id === selectedId) ?? null;
@@ -658,6 +662,34 @@ export function TtsApp() {
                     </div>
                     <ScrollArea className="h-[min(28svh,140px)] rounded-md border border-border p-2 sm:h-[120px] sm:max-h-[160px]">
                       <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setActivePresetKey(TRYOUT_PRESET_ID);
+                                setPrompt("");
+                              }}
+                              className={cn(
+                                "touch-manipulation min-h-10 w-full max-w-full rounded-lg border px-3 py-2 text-left text-[11px] font-medium transition-colors active:scale-[0.99] sm:w-auto sm:max-w-[calc(100%-0.5rem)] sm:rounded-full sm:py-1.5 sm:text-xs",
+                                activePresetKey === TRYOUT_PRESET_ID
+                                  ? "border-primary bg-primary/15 text-primary"
+                                  : "border-dashed border-border bg-muted/30 text-muted-foreground hover:border-primary/50",
+                              )}
+                            >
+                              <span className="line-clamp-3 font-mono sm:line-clamp-2">Custom</span>
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent
+                            side="top"
+                            className="max-w-[min(90vw,20rem)] sm:max-w-xs"
+                          >
+                            <p className="text-xs">
+                              프리셋 텍스트를 덮어쓰지 않고 빈 칸에서 시도합니다. 아래 프롬프트를 마음대로
+                              고친 뒤 생성만 하면 되며, 실행 기록(히스토리)과는 별개입니다.
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
                         {bundlePresets.map((preset) => {
                           const active = activePresetKey === preset.id;
                           return (
@@ -702,8 +734,13 @@ export function TtsApp() {
                       id="tts-prompt"
                       className="min-h-[10rem] resize-y font-mono text-xs leading-relaxed sm:min-h-[11rem] sm:text-sm md:min-h-[12rem]"
                       value={prompt}
+                      placeholder={
+                        activePresetKey === TRYOUT_PRESET_ID
+                          ? "프롬프트를 직접 입력해 실험해 보세요…"
+                          : undefined
+                      }
                       onChange={(e) => {
-                        setActivePresetKey(null);
+                        setActivePresetKey(TRYOUT_PRESET_ID);
                         setPrompt(e.target.value);
                       }}
                     />
