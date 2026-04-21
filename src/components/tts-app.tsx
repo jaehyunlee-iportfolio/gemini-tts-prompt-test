@@ -46,6 +46,7 @@ import { sortRevisionsDesc } from "@/lib/registry-utils";
 import { proxyPlayUrl, streamTtsSse } from "@/lib/tts-sse";
 import { cn } from "@/lib/utils";
 import { AuthButtons } from "@/components/auth-buttons";
+import { CsvBatchQaTab } from "@/components/csv-batch-qa-tab";
 import { ThemeToggle } from "@/components/theme-toggle";
 import type { PromptRegistryJson, RegistryGroup, RegistryPrompt } from "@/types/registry";
 import {
@@ -603,12 +604,18 @@ export function TtsApp() {
         </header>
 
         <Tabs value={mainTab} onValueChange={setMainTab} className="space-y-4 sm:space-y-6">
-          <TabsList className="grid h-auto w-full grid-cols-2 gap-1 p-1 sm:inline-flex sm:w-auto sm:max-w-none">
+          <TabsList className="grid h-auto w-full grid-cols-3 gap-1 p-1 sm:inline-flex sm:w-auto sm:max-w-none">
             <TabsTrigger
               value="generate"
               className="touch-manipulation px-2 py-2.5 text-xs sm:flex-initial sm:px-3 sm:py-2 sm:text-sm"
             >
               음성 생성
+            </TabsTrigger>
+            <TabsTrigger
+              value="csv-batch"
+              className="touch-manipulation px-2 py-2.5 text-xs sm:flex-initial sm:px-3 sm:py-2 sm:text-sm"
+            >
+              CSV 배치·QA
             </TabsTrigger>
             <TabsTrigger
               value="registry"
@@ -1050,6 +1057,10 @@ export function TtsApp() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          <TabsContent value="csv-batch" className="mt-0 space-y-3 sm:space-y-4">
+            <CsvBatchQaTab />
           </TabsContent>
 
           <TabsContent value="registry">

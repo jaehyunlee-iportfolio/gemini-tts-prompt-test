@@ -295,3 +295,70 @@ async function fallbackFetch(
 export function proxyPlayUrl(upstreamAudioUrl: string) {
   return `${API_BASE}/tts-audio?url=${encodeURIComponent(upstreamAudioUrl)}`;
 }
+
+/** POST /tts-start 후 전체 SSE를 한 번에 읽어 오디오 URL 또는 MP3 바이트를 얻습니다(배치·자동화용). */
+export type FetchCompleteTtsParams = {
+  text: string;
+  bundleName: string;
+  prompt: string;
+  cacheBust: boolean;
+  platform?: string;
+  userId?: number;
+  signal?: AbortSignal;
+};
+
+export type FetchCompleteTtsResult =
+  | { kind: "proxyUrl"; playUrl: string }
+  | { kind: "mp3Bytes"; bytes: Uint8Array };
+
+export async function fetchCompleteTts(
+  params: FetchCompleteTtsParams,
+): Promise<FetchCompleteTtsResult> {
+  const startResp = await fetch(`${API_BASE}/tts-start`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    signal: params.signal,
+    body: JSON.stringify({
+      text: params.text,
+      cacheBust: params.cacheBust,
+      bundleName: params.bundleName,
+      viseme: false,
+      prompt: params.prompt,
+      platform: params.platform ?? "PLAYGROUND",
+      userId:
+        typeof params.userId === "number" && Number.isFinite(params.userId) ? params.userId : 2,
+    }),
+  });
+  if (!startResp.ok) {
+    const t = await startResp.text();
+    throw new Error(`tts-start failed (${startResp.status}): ${t}`);
+  }
+  const startData = (await startResp.json()) as Record<string, unknown>;
+  const sseId = (startData.sseId || startData.id || startData.streamId) as string | undefined;
+  if (!sseId) throw new Error("Missing sseId from tts-start");
+
+  const streamResp = await fetch(`${API_BASE}/tts-stream?sseId=${encodeURIComponent(sseId)}`, {
+    headers: { Accept: "text/event-stream" },
+    signal: params.signal,
+  });
+  if (!streamResp.ok) {
+    const t = await streamResp.text();
+    throw new Error(`tts-stream failed (${streamResp.status}): ${t}`);
+  }
+  const sseText = await streamResp.text();
+  const { audioUrl, legacyAudioChunks } = parseSseDataLines(sseText);
+  if (audioUrl) {
+    return { kind: "proxyUrl", playUrl: proxyPlayUrl(audioUrl) };
+  }
+  if (legacyAudioChunks.length > 0) {
+    const totalLen = legacyAudioChunks.reduce((sum, c) => sum + c.length, 0);
+    const merged = new Uint8Array(totalLen);
+    let offset = 0;
+    for (const chunk of legacyAudioChunks) {
+      merged.set(chunk, offset);
+      offset += chunk.length;
+    }
+    return { kind: "mp3Bytes", bytes: merged };
+  }
+  throw new Error("TTS 스트림에서 오디오를 찾지 못했습니다.");
+}
