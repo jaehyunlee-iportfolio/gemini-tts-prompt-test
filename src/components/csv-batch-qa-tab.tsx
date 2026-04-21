@@ -18,7 +18,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -27,6 +29,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { buildClipBaseName } from "@/lib/clip-filename";
+import { cn } from "@/lib/utils";
 import { arrayBufferToBase64 } from "@/lib/base64";
 import { listBundlePresets } from "@/lib/bundle-presets";
 import { parseQueryResultCsv, spokenTextFromCsvCell, type QueryCsvRow } from "@/lib/csv-query-rows";
@@ -41,9 +44,9 @@ import {
 } from "@/lib/text-similarity";
 import {
   bundleNameFromVoiceStyle,
+  isChirpZephyrVoice,
   type StyleTone,
   type VoiceId,
-  VOICE_IDS,
   STYLE_TONES,
 } from "@/types/tts";
 import { Loader2, Upload } from "lucide-react";
@@ -234,7 +237,6 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
   /** true: Spindle 미경유, 서버 GEMINI_API_KEY로 Gemini 네이티브 TTS(ai.google.dev speech-generation) */
   const [useCsvGeminiTts, setUseCsvGeminiTts] = useState(false);
   const [autoDownloadOnPass, setAutoDownloadOnPass] = useState(false);
-
   const [parseError, setParseError] = useState<string | null>(null);
   const [rows, setRows] = useState<QueryCsvRow[]>([]);
   const [jobRows, setJobRows] = useState<BatchRowState[]>([]);
@@ -245,7 +247,25 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
   const jobRowsRef = useRef(jobRows);
   jobRowsRef.current = jobRows;
 
+  useEffect(() => {
+    if (!isChirpZephyrVoice(voice)) return;
+    setStyle("Default");
+    setPrompt("");
+    setActivePresetKey(null);
+  }, [voice]);
+
+  useEffect(() => {
+    if (isChirpZephyrVoice(voice) && useCsvGeminiTts) {
+      setUseCsvGeminiTts(false);
+    }
+  }, [voice, useCsvGeminiTts]);
+
   const bundleName = useMemo(() => bundleNameFromVoiceStyle(voice, style), [voice, style]);
+
+  const effectivePrompt = useMemo(
+    () => (isChirpZephyrVoice(voice) ? "" : prompt),
+    [voice, prompt],
+  );
 
   const bundlePresets = useMemo(
     () => listBundlePresets(registryJson, voice, style),
@@ -383,7 +403,7 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
         if (useCsvGeminiTts) {
           blob = await fetchGeminiTtsWav({
             text: spokenText,
-            prompt,
+            prompt: effectivePrompt,
             voice,
             signal: ac.signal,
           });
@@ -391,7 +411,7 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
           const tts = await fetchCompleteTts({
             text: spokenText,
             bundleName,
-            prompt,
+            prompt: effectivePrompt,
             cacheBust,
             platform,
             userId: userIdNum,
@@ -479,7 +499,7 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
   }, [
     rows,
     bundleName,
-    prompt,
+    effectivePrompt,
     cacheBust,
     platform,
     userId,
@@ -601,7 +621,12 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
               최대 행을 바꾼 뒤에는 CSV를 다시 선택해야 적용됩니다.
             </p>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div
+              className={cn(
+                "grid grid-cols-1 gap-3",
+                isChirpZephyrVoice(voice) ? "" : "sm:grid-cols-2",
+              )}
+            >
               <div className="space-y-2">
                 <Label className="text-sm">Voice</Label>
                 <Select value={voice} onValueChange={(v) => setVoice(v as VoiceId)} disabled={running}>
@@ -609,38 +634,51 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {VOICE_IDS.map((v) => (
-                      <SelectItem key={v} value={v}>
-                        {v}
+                    <SelectGroup>
+                      <SelectLabel>Male Child</SelectLabel>
+                      <SelectItem value="Rasalgethi">Rasalgethi</SelectItem>
+                      <SelectItem value="Puck">Puck</SelectItem>
+                      <SelectItem value="Fenrir">Fenrir</SelectItem>
+                    </SelectGroup>
+                    <SelectGroup>
+                      <SelectLabel>Female Adult — 프롬프트 TTS</SelectLabel>
+                      <SelectItem value="Sulafat">Sulafat</SelectItem>
+                    </SelectGroup>
+                    <SelectGroup>
+                      <SelectLabel>Zephyr — 프롬프트 미지원 (CHIRP)</SelectLabel>
+                      <SelectItem value="ZephyrDefault">
+                        Zephyr-Default · Female Adult en-US
                       </SelectItem>
-                    ))}
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
                 {useCsvGeminiTts ? (
                   <p className="text-[10px] text-muted-foreground sm:text-[11px]">
-                    Gemini TTS prebuilt 이름과 동일(Rasalgethi, Puck, Fenrir, Sulafat).
+                    Gemini TTS는 Rasalgethi·Puck·Fenrir·Sulafat prebuilt만 지원합니다.
                   </p>
                 ) : null}
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm">Style</Label>
-                <Select
-                  value={style}
-                  onValueChange={(s) => setStyle(s as StyleTone)}
-                  disabled={running}
-                >
-                  <SelectTrigger className="h-11 sm:h-10">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {STYLE_TONES.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {s}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {!isChirpZephyrVoice(voice) ? (
+                <div className="space-y-2">
+                  <Label className="text-sm">Style</Label>
+                  <Select
+                    value={style}
+                    onValueChange={(s) => setStyle(s as StyleTone)}
+                    disabled={running}
+                  >
+                    <SelectTrigger className="h-11 sm:h-10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {STYLE_TONES.map((s) => (
+                        <SelectItem key={s} value={s}>
+                          {s}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : null}
             </div>
             <p className="break-all font-mono text-[11px] text-muted-foreground sm:text-xs">
               bundleName: {bundleName}
@@ -664,9 +702,15 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
                 id="csv-gemini-tts"
                 checked={useCsvGeminiTts}
                 onCheckedChange={setUseCsvGeminiTts}
-                disabled={running}
+                disabled={running || isChirpZephyrVoice(voice)}
               />
             </div>
+            {isChirpZephyrVoice(voice) ? (
+              <p className="text-[10px] leading-snug text-muted-foreground sm:text-[11px]">
+                Zephyr-Default는 Spindle(LAURA) CHIRP 경로만 지원합니다. CSV용 Gemini TTS 옵션은 Zephyr와
+                호환되지 않습니다.
+              </p>
+            ) : null}
 
             <div className="space-y-2">
               <Label htmlFor="batch-preset-ver" className="text-sm">
@@ -708,13 +752,17 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="_empty">
-                      이 Voice·Style 조합에 등록된 프롬프트가 없습니다
+                      {isChirpZephyrVoice(voice)
+                        ? "Zephyr CHIRP는 프롬프트 버전이 없습니다"
+                        : "이 Voice·Style 조합에 등록된 프롬프트가 없습니다"}
                     </SelectItem>
                   </SelectContent>
                 </Select>
               )}
               <p className="text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
-                {canPickPromptVersion ? (
+                {isChirpZephyrVoice(voice) ? (
+                  "Zephyr-Default는 프롬프트 TTS가 아니며 Spindle 요청 시 빈 프롬프트가 전송됩니다."
+                ) : canPickPromptVersion ? (
                   <>
                     레지스트리·로컬 프리셋 중{" "}
                     <span className="font-medium text-foreground/90">
@@ -733,16 +781,18 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
               <Textarea
                 rows={6}
                 className="min-h-[8rem] resize-y font-mono text-xs sm:text-sm"
-                value={prompt}
+                value={effectivePrompt}
                 onChange={(e) => {
                   setActivePresetKey(TRYOUT_PRESET_ID);
                   setPrompt(e.target.value);
                 }}
-                disabled={running}
+                disabled={running || isChirpZephyrVoice(voice)}
                 placeholder={
-                  activePresetKey === TRYOUT_PRESET_ID
-                    ? "프롬프트를 직접 입력…"
-                    : undefined
+                  isChirpZephyrVoice(voice)
+                    ? "Zephyr-Default는 프롬프트 TTS가 아니며 요청 시 비웁니다."
+                    : activePresetKey === TRYOUT_PRESET_ID
+                      ? "프롬프트를 직접 입력…"
+                      : undefined
                 }
               />
             </div>

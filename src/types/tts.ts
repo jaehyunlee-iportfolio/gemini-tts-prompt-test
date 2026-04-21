@@ -1,5 +1,12 @@
-export const VOICE_IDS = ["Rasalgethi", "Puck", "Fenrir", "Sulafat"] as const;
+export const VOICE_IDS = ["Rasalgethi", "Puck", "Fenrir", "Sulafat", "ZephyrDefault"] as const;
 export type VoiceId = (typeof VOICE_IDS)[number];
+
+/** Spindle CHIRP Zephyr — 프롬프트 TTS 아님, bundleName 고정 */
+export const CHIRP_ZEPHYR_BUNDLE_NAME = "CHIRP-Zephyr-Default";
+
+export function isChirpZephyrVoice(voice: VoiceId): boolean {
+  return voice === "ZephyrDefault";
+}
 
 export const STYLE_TONES = ["Default", "Cheerful", "Gentle"] as const;
 export type StyleTone = (typeof STYLE_TONES)[number];
@@ -41,5 +48,6 @@ export type TtsRun = {
 };
 
 export function bundleNameFromVoiceStyle(voice: VoiceId, style: StyleTone) {
+  if (voice === "ZephyrDefault") return CHIRP_ZEPHYR_BUNDLE_NAME;
   return `GEMINI-${voice}-${style}`;
 }

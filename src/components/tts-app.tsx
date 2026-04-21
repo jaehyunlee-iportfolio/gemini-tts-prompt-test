@@ -24,7 +24,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -51,11 +53,11 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import type { PromptRegistryJson, RegistryGroup, RegistryPrompt } from "@/types/registry";
 import {
   bundleNameFromVoiceStyle,
+  isChirpZephyrVoice,
   type StyleTone,
   type TtsBulkSlot,
   type TtsRun,
   type VoiceId,
-  VOICE_IDS,
   STYLE_TONES,
 } from "@/types/tts";
 import { useSession } from "next-auth/react";
@@ -230,6 +232,13 @@ export function TtsApp() {
     void loadPresets();
   }, [rootSessionStatus]);
 
+  useEffect(() => {
+    if (!isChirpZephyrVoice(voice)) return;
+    setStyle("Default");
+    setPrompt("");
+    setActivePresetKey(null);
+  }, [voice]);
+
   const bundleName = useMemo(() => bundleNameFromVoiceStyle(voice, style), [voice, style]);
 
   const bundlePresets = useMemo(
@@ -278,7 +287,7 @@ export function TtsApp() {
     const n = parsedBulkRepeatN(bulkDisplay);
 
     const originalText = text.trim();
-    const promptVal = prompt;
+    const promptVal = isChirpZephyrVoice(voice) ? "" : prompt;
     const uid = parseInt(userId, 10);
     if (!originalText) return;
 
@@ -649,11 +658,24 @@ export function TtsApp() {
                 <CardHeader className="space-y-1 px-4 pb-3 pt-4 sm:px-6 sm:pb-4 sm:pt-6">
                   <CardTitle className="text-lg sm:text-xl">요청</CardTitle>
                   <CardDescription className="text-xs sm:text-sm">
-                    Voice·Style을 고르면 bundleName이 조합됩니다.
+                    {isChirpZephyrVoice(voice) ? (
+                      <>
+                        Zephyr-Default는 Female Adult · en-US CHIRP 번들(
+                        <span className="font-mono">CHIRP-Zephyr-Default</span>)이며 프롬프트 TTS가
+                        아닙니다.
+                      </>
+                    ) : (
+                      <>Voice·Style을 고르면 bundleName이 조합됩니다.</>
+                    )}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3 px-4 sm:space-y-4 sm:px-6">
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+                  <div
+                    className={cn(
+                      "grid grid-cols-1 gap-3 sm:gap-4",
+                      isChirpZephyrVoice(voice) ? "" : "sm:grid-cols-2",
+                    )}
+                  >
                     <div className="space-y-2">
                       <Label className="text-sm">Voice</Label>
                       <Select value={voice} onValueChange={(v) => setVoice(v as VoiceId)}>
@@ -661,29 +683,42 @@ export function TtsApp() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {VOICE_IDS.map((v) => (
-                            <SelectItem key={v} value={v}>
-                              {v}
+                          <SelectGroup>
+                            <SelectLabel>Male Child</SelectLabel>
+                            <SelectItem value="Rasalgethi">Rasalgethi</SelectItem>
+                            <SelectItem value="Puck">Puck</SelectItem>
+                            <SelectItem value="Fenrir">Fenrir</SelectItem>
+                          </SelectGroup>
+                          <SelectGroup>
+                            <SelectLabel>Female Adult — 프롬프트 TTS</SelectLabel>
+                            <SelectItem value="Sulafat">Sulafat</SelectItem>
+                          </SelectGroup>
+                          <SelectGroup>
+                            <SelectLabel>Zephyr — 프롬프트 미지원 (CHIRP)</SelectLabel>
+                            <SelectItem value="ZephyrDefault">
+                              Zephyr-Default · Female Adult en-US
                             </SelectItem>
-                          ))}
+                          </SelectGroup>
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm">Style</Label>
-                      <Select value={style} onValueChange={(s) => setStyle(s as StyleTone)}>
-                        <SelectTrigger className="h-11 w-full touch-manipulation sm:h-10">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {STYLE_TONES.map((s) => (
-                            <SelectItem key={s} value={s}>
-                              {s}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    {!isChirpZephyrVoice(voice) ? (
+                      <div className="space-y-2">
+                        <Label className="text-sm">Style</Label>
+                        <Select value={style} onValueChange={(s) => setStyle(s as StyleTone)}>
+                          <SelectTrigger className="h-11 w-full touch-manipulation sm:h-10">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {STYLE_TONES.map((s) => (
+                              <SelectItem key={s} value={s}>
+                                {s}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ) : null}
                   </div>
                   <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
                     <span className="shrink-0 text-xs text-muted-foreground sm:text-sm">
@@ -710,78 +745,87 @@ export function TtsApp() {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <div className="flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-baseline sm:justify-between sm:gap-2">
-                      <Label className="text-sm">프리셋</Label>
-                      <span className="text-[10px] leading-snug text-muted-foreground sm:text-[11px]">
-                        {bundleName} · {style} 리비전만
-                      </span>
-                    </div>
-                    <ScrollArea className="h-[min(28svh,140px)] rounded-md border border-border p-2 sm:h-[120px] sm:max-h-[160px]">
-                      <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setActivePresetKey(TRYOUT_PRESET_ID);
-                                setPrompt("");
-                              }}
-                              className={cn(
-                                "touch-manipulation min-h-10 w-full max-w-full rounded-lg border px-3 py-2 text-left text-[11px] font-medium transition-colors active:scale-[0.99] sm:w-auto sm:max-w-[calc(100%-0.5rem)] sm:rounded-full sm:py-1.5 sm:text-xs",
-                                activePresetKey === TRYOUT_PRESET_ID
-                                  ? "border-primary bg-primary/15 text-primary"
-                                  : "border-dashed border-border bg-muted/30 text-muted-foreground hover:border-primary/50",
-                              )}
-                            >
-                              <span className="line-clamp-3 font-mono sm:line-clamp-2">Custom</span>
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent
-                            side="top"
-                            className="max-w-[min(90vw,20rem)] sm:max-w-xs"
-                          >
-                            <p className="text-xs">
-                              프리셋 텍스트를 덮어쓰지 않고 빈 칸에서 시도합니다. 아래 프롬프트를 마음대로
-                              고친 뒤 생성만 하면 되며, 실행 기록(히스토리)과는 별개입니다.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                        {bundlePresets.map((preset) => {
-                          const active = activePresetKey === preset.id;
-                          return (
-                            <Tooltip key={preset.id}>
-                              <TooltipTrigger asChild>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setActivePresetKey(preset.id);
-                                    setPrompt(preset.long);
-                                  }}
-                                  className={cn(
-                                    "touch-manipulation min-h-10 w-full max-w-full rounded-lg border px-3 py-2 text-left text-[11px] font-medium transition-colors active:scale-[0.99] sm:w-auto sm:max-w-[calc(100%-0.5rem)] sm:rounded-full sm:py-1.5 sm:text-xs",
-                                    active
-                                      ? "border-primary bg-primary/15 text-primary"
-                                      : "border-border bg-secondary/40 text-muted-foreground hover:border-primary/50",
-                                  )}
-                                >
-                                  <span className="line-clamp-3 font-mono sm:line-clamp-2">
-                                    {preset.chipLabel}
-                                  </span>
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent
-                                side="top"
-                                className="max-w-[min(90vw,20rem)] sm:max-w-xs"
-                              >
-                                <p className="text-xs">{preset.detail ?? preset.chipLabel}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          );
-                        })}
+                  {!isChirpZephyrVoice(voice) ? (
+                    <div className="space-y-2">
+                      <div className="flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-baseline sm:justify-between sm:gap-2">
+                        <Label className="text-sm">프리셋</Label>
+                        <span className="text-[10px] leading-snug text-muted-foreground sm:text-[11px]">
+                          {bundleName} · {style} 리비전만
+                        </span>
                       </div>
-                    </ScrollArea>
-                  </div>
+                      <ScrollArea className="h-[min(28svh,140px)] rounded-md border border-border p-2 sm:h-[120px] sm:max-h-[160px]">
+                        <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setActivePresetKey(TRYOUT_PRESET_ID);
+                                  setPrompt("");
+                                }}
+                                className={cn(
+                                  "touch-manipulation min-h-10 w-full max-w-full rounded-lg border px-3 py-2 text-left text-[11px] font-medium transition-colors active:scale-[0.99] sm:w-auto sm:max-w-[calc(100%-0.5rem)] sm:rounded-full sm:py-1.5 sm:text-xs",
+                                  activePresetKey === TRYOUT_PRESET_ID
+                                    ? "border-primary bg-primary/15 text-primary"
+                                    : "border-dashed border-border bg-muted/30 text-muted-foreground hover:border-primary/50",
+                                )}
+                              >
+                                <span className="line-clamp-3 font-mono sm:line-clamp-2">
+                                  Custom
+                                </span>
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="top"
+                              className="max-w-[min(90vw,20rem)] sm:max-w-xs"
+                            >
+                              <p className="text-xs">
+                                프리셋 텍스트를 덮어쓰지 않고 빈 칸에서 시도합니다. 아래 프롬프트를 마음대로
+                                고친 뒤 생성만 하면 되며, 실행 기록(히스토리)과는 별개입니다.
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                          {bundlePresets.map((preset) => {
+                            const active = activePresetKey === preset.id;
+                            return (
+                              <Tooltip key={preset.id}>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setActivePresetKey(preset.id);
+                                      setPrompt(preset.long);
+                                    }}
+                                    className={cn(
+                                      "touch-manipulation min-h-10 w-full max-w-full rounded-lg border px-3 py-2 text-left text-[11px] font-medium transition-colors active:scale-[0.99] sm:w-auto sm:max-w-[calc(100%-0.5rem)] sm:rounded-full sm:py-1.5 sm:text-xs",
+                                      active
+                                        ? "border-primary bg-primary/15 text-primary"
+                                        : "border-border bg-secondary/40 text-muted-foreground hover:border-primary/50",
+                                    )}
+                                  >
+                                    <span className="line-clamp-3 font-mono sm:line-clamp-2">
+                                      {preset.chipLabel}
+                                    </span>
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent
+                                  side="top"
+                                  className="max-w-[min(90vw,20rem)] sm:max-w-xs"
+                                >
+                                  <p className="text-xs">{preset.detail ?? preset.chipLabel}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            );
+                          })}
+                        </div>
+                      </ScrollArea>
+                    </div>
+                  ) : (
+                    <p className="rounded-md border border-dashed border-border bg-muted/30 px-3 py-2 text-xs leading-relaxed text-muted-foreground">
+                      Zephyr CHIRP 번들은 프롬프트 레지스트리·프리셋을 사용하지 않으며, 요청 시 프롬프트 필드는
+                      비워집니다.
+                    </p>
+                  )}
 
                   <div className="space-y-2">
                     <Label htmlFor="tts-prompt" className="text-sm">
@@ -790,11 +834,14 @@ export function TtsApp() {
                     <Textarea
                       id="tts-prompt"
                       className="min-h-[10rem] resize-y font-mono text-xs leading-relaxed sm:min-h-[11rem] sm:text-sm md:min-h-[12rem]"
-                      value={prompt}
+                      value={isChirpZephyrVoice(voice) ? "" : prompt}
+                      disabled={isChirpZephyrVoice(voice)}
                       placeholder={
-                        activePresetKey === TRYOUT_PRESET_ID
-                          ? "프롬프트를 직접 입력해 실험해 보세요…"
-                          : undefined
+                        isChirpZephyrVoice(voice)
+                          ? "Zephyr-Default는 프롬프트 TTS가 아니며, API 요청에는 빈 프롬프트가 전송됩니다."
+                          : activePresetKey === TRYOUT_PRESET_ID
+                            ? "프롬프트를 직접 입력해 실험해 보세요…"
+                            : undefined
                       }
                       onChange={(e) => {
                         setActivePresetKey(TRYOUT_PRESET_ID);

@@ -80,6 +80,15 @@ export async function POST(req: Request) {
       { status: 400 },
     );
   }
+  if (voiceRaw === "ZephyrDefault") {
+    return NextResponse.json(
+      {
+        error:
+          "Zephyr-Default(CHIRP)는 Spindle/LAURA 스트림만 지원합니다. Gemini prebuilt 보이스 이름이 아닙니다.",
+      },
+      { status: 400 },
+    );
+  }
 
   const stylePrompt = typeof body.prompt === "string" ? body.prompt : "";
   const model = process.env.GEMINI_TTS_MODEL?.trim() || DEFAULT_MODEL;

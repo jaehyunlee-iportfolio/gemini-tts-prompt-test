@@ -7,8 +7,10 @@ import {
   type VoiceId,
 } from "@/types/tts";
 
+type PromptTrackVoiceId = Exclude<VoiceId, "ZephyrDefault">;
+
 /** Known registry group ids (docs/prompt-registry.json) */
-const VOICE_REGISTRY_GROUP_ID: Record<VoiceId, string> = {
+const VOICE_REGISTRY_GROUP_ID: Record<PromptTrackVoiceId, string> = {
   Rasalgethi: "male-child",
   Puck: "male-child",
   Fenrir: "male-child",
@@ -16,7 +18,7 @@ const VOICE_REGISTRY_GROUP_ID: Record<VoiceId, string> = {
 };
 
 /** Fallback preset map keys in presets.ts */
-const VOICE_FALLBACK_GROUP: Record<VoiceId, keyof typeof FALLBACK_PRESETS> = {
+const VOICE_FALLBACK_GROUP: Record<PromptTrackVoiceId, keyof typeof FALLBACK_PRESETS> = {
   Rasalgethi: "Male Child",
   Puck: "Male Child",
   Fenrir: "Male Child",
@@ -38,7 +40,7 @@ function promptIdForStyle(style: StyleTone): string {
 
 function resolveRegistryGroup(
   reg: PromptRegistryJson,
-  voice: VoiceId,
+  voice: PromptTrackVoiceId,
 ): { id: string; title: string } | undefined {
   const preferred = VOICE_REGISTRY_GROUP_ID[voice];
   const byId = reg.groups?.find((g) => g.id === preferred);
@@ -61,7 +63,7 @@ function resolveRegistryGroup(
 
 function listFromRegistry(
   reg: PromptRegistryJson,
-  voice: VoiceId,
+  voice: PromptTrackVoiceId,
   style: StyleTone,
 ): BundlePresetItem[] {
   const groupMeta = resolveRegistryGroup(reg, voice);
@@ -82,7 +84,7 @@ function listFromRegistry(
   }));
 }
 
-function listFromFallback(voice: VoiceId, style: StyleTone): BundlePresetItem[] {
+function listFromFallback(voice: PromptTrackVoiceId, style: StyleTone): BundlePresetItem[] {
   const groupTitle = VOICE_FALLBACK_GROUP[voice];
   const presets = FALLBACK_PRESETS[groupTitle];
   if (!presets) return [];
@@ -109,9 +111,11 @@ export function listBundlePresets(
   voice: VoiceId,
   style: StyleTone,
 ): BundlePresetItem[] {
+  if (voice === "ZephyrDefault") return [];
+  const promptVoice: PromptTrackVoiceId = voice;
   if (registry?.groups?.length) {
-    const fromReg = listFromRegistry(registry, voice, style);
+    const fromReg = listFromRegistry(registry, promptVoice, style);
     if (fromReg.length) return fromReg;
   }
-  return listFromFallback(voice, style);
+  return listFromFallback(promptVoice, style);
 }
