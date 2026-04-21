@@ -52,7 +52,7 @@ const API_BASE = "/api";
 /** 음성 생성 탭과 동일 — 레지스트리 프리셋과 겹치지 않는 가상 id */
 const TRYOUT_PRESET_ID = "__tryout__";
 
-async function fetchGeminiTtsMp3(params: {
+async function fetchGeminiTtsWav(params: {
   text: string;
   prompt: string;
   voice: VoiceId;
@@ -89,6 +89,8 @@ export type BatchRowState = {
   csv: QueryCsvRow;
   spokenText: string;
   baseName: string;
+  /** Spindle: mp3, Gemini API: wav */
+  audioExt: "mp3" | "wav";
   phase: Phase;
   error?: string;
   /** blob: 재생·다운로드용 */
@@ -245,6 +247,7 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
     const uid = parseInt(userId, 10);
     const userIdNum = Number.isFinite(uid) ? uid : 2;
 
+    const audioExt: "mp3" | "wav" = useCsvGeminiTts ? "wav" : "mp3";
     const initial: BatchRowState[] = rows.map((csv) => {
       const spokenText = spokenTextFromCsvCell(csv.text);
       const baseName = buildClipBaseName(csv.content_id, csv.image_id, spokenText);
@@ -253,6 +256,7 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
         csv,
         spokenText,
         baseName,
+        audioExt,
         phase: "idle" as const,
       };
     });
@@ -271,7 +275,7 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
     };
 
     const runOne = async (job: BatchRowState) => {
-      const { key, spokenText } = job;
+      const { key, spokenText, audioExt } = job;
       try {
         if (ac.signal.aborted) {
           updateRow(key, { phase: "error", error: "중지됨" });
@@ -280,7 +284,7 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
         updateRow(key, { phase: "tts", error: undefined });
         let blob: Blob;
         if (useCsvGeminiTts) {
-          blob = await fetchGeminiTtsMp3({
+          blob = await fetchGeminiTtsWav({
             text: spokenText,
             prompt,
             voice,
@@ -308,11 +312,12 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
         updateRow(key, { phase: "stt", objectUrl });
 
         const b64 = arrayBufferToBase64(await blob.arrayBuffer());
+        const sttMime = audioExt === "wav" ? "audio/wav" : "audio/mpeg";
         const sttRes = await fetch(`${API_BASE}/stt-verify`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           signal: ac.signal,
-          body: JSON.stringify({ audioBase64: b64, mimeType: "audio/mpeg" }),
+          body: JSON.stringify({ audioBase64: b64, mimeType: sttMime }),
         });
         const sttRaw = await sttRes.text();
         let sttJson: { transcript?: string; error?: string } = {};
@@ -407,7 +412,7 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
           <code className="rounded bg-muted px-1">text, content_id, image_id</code> 형식 CSV를 올리면
           행마다 음성을 만들고, OpenAI 전사로 원문과 유사도를 비교합니다. 파일명은{" "}
           <span className="font-mono text-[11px] sm:text-xs">
-            CID_IMAGEID_문장앞부분.mp3
+            CID_IMAGEID_문장앞부분.mp3 또는 .wav
           </span>{" "}
           규칙입니다. 기본은 Spindle(LAURA) TTS이고, 옵션으로{" "}
           <a
@@ -419,8 +424,8 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
             Gemini 네이티브 TTS
           </a>
           를 켜면 서버{" "}
-          <code className="rounded bg-muted px-1">GEMINI_API_KEY</code>로만 생성합니다(PCM→MP3
-          인코딩, 스트리밍 없음). STT는{" "}
+          <code className="rounded bg-muted px-1">GEMINI_API_KEY</code>로만 생성합니다(PCM→WAV
+          컨테이너, 스트리밍 없음). STT는{" "}
           <code className="rounded bg-muted px-1">OPENAI_API_KEY</code>
           (선택 <code className="rounded bg-muted px-1">OPENAI_STT_MODEL</code>, 기본{" "}
           <code className="rounded bg-muted px-1">gpt-4o-transcribe</code>).
@@ -775,7 +780,7 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
                           </p>
                         ) : null}
                         <p className="break-all font-mono text-[10px] text-muted-foreground">
-                          {j.baseName}.mp3
+                          {j.baseName}.{j.audioExt}
                         </p>
                       </div>
                       <span className="font-mono text-[11px] sm:text-xs">
@@ -789,7 +794,7 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
                             <Button variant="outline" size="sm" className="h-8 text-[11px]" asChild>
                               <a
                                 href={j.objectUrl}
-                                download={`${j.baseName}.mp3`}
+                                download={`${j.baseName}.${j.audioExt}`}
                                 className="truncate"
                               >
                                 저장

@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
-import { pcmS16leMonoToMp3 } from "@/lib/pcm-s16le-to-mp3";
+import { pcmS16leMonoToWav } from "@/lib/pcm-s16le-to-wav";
 import { VOICE_IDS, type VoiceId } from "@/types/tts";
 
 export const runtime = "nodejs";
@@ -110,11 +110,11 @@ export async function POST(req: Request) {
       }
 
       const pcm = Buffer.from(b64, "base64");
-      const mp3 = pcmS16leMonoToMp3(pcm);
-      return new NextResponse(new Uint8Array(mp3), {
+      const wav = pcmS16leMonoToWav(pcm);
+      return new NextResponse(new Uint8Array(wav), {
         status: 200,
         headers: {
-          "Content-Type": "audio/mpeg",
+          "Content-Type": "audio/wav",
           "Cache-Control": "no-store",
         },
       });

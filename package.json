@@ -22,7 +22,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "firebase-admin": "^13.0.2",
-    "lamejs": "^1.2.1",
     "lucide-react": "^0.468.0",
     "next": "^15.1.6",
     "next-auth": "^5.0.0-beta.30",
