@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { buildClipBaseName } from "@/lib/clip-filename";
 import { arrayBufferToBase64 } from "@/lib/base64";
@@ -51,6 +52,19 @@ const API_BASE = "/api";
 
 /** 음성 생성 탭과 동일 — 레지스트리 프리셋과 겹치지 않는 가상 id */
 const TRYOUT_PRESET_ID = "__tryout__";
+
+/** object URL + download 파일명 — 브라우저가 연속 호출을 제한할 수 있음 */
+function triggerDownloadFromObjectUrl(url: string, filename: string) {
+  if (typeof document === "undefined") return;
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.rel = "noopener noreferrer";
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
 
 async function fetchGeminiTtsWav(params: {
   text: string;
@@ -123,6 +137,88 @@ function badgeForVerdict(v: QaVerdict | undefined) {
   return <Badge variant="destructive">{verdictLabelKo(v)}</Badge>;
 }
 
+function verdictOrErrorBadge(j: BatchRowState) {
+  if (j.phase === "error") {
+    return <Badge variant="destructive">오류</Badge>;
+  }
+  return badgeForVerdict(j.verdict);
+}
+
+function CsvResultTable({ rows }: { rows: BatchRowState[] }) {
+  if (rows.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center px-6 py-12 text-center text-sm text-muted-foreground">
+        해당 항목이 없습니다.
+      </div>
+    );
+  }
+  return (
+    <div className="min-w-[720px] divide-y divide-border">
+      <div className="grid grid-cols-[5rem_1fr_5.5rem_10rem_8rem] gap-2 bg-muted/40 px-3 py-2 text-[11px] font-medium text-muted-foreground sm:text-xs">
+        <span>행</span>
+        <span>원문 / STT</span>
+        <span>유사도</span>
+        <span>판정</span>
+        <span>오디오</span>
+      </div>
+      {rows.map((j) => (
+        <div
+          key={j.key}
+          className="grid grid-cols-[5rem_1fr_5.5rem_10rem_8rem] items-start gap-2 px-3 py-2 text-xs sm:text-sm"
+        >
+          <span className="font-mono text-[11px] text-muted-foreground">#{j.csv.rowIndex}</span>
+          <div className="min-w-0 space-y-1">
+            <p className="break-words text-[11px] text-muted-foreground sm:text-xs">{j.spokenText}</p>
+            {j.transcript != null ? (
+              <p className="break-words text-[11px] sm:text-xs">{j.transcript}</p>
+            ) : j.phase === "tts" || j.phase === "stt" ? (
+              <p className="text-[11px] text-muted-foreground sm:text-xs">
+                {j.phase === "tts" ? "TTS 생성 중…" : "STT 검증 중…"}
+              </p>
+            ) : null}
+            {j.error ? (
+              <p className="break-words text-[11px] text-destructive sm:text-xs">{j.error}</p>
+            ) : null}
+            <p className="break-all font-mono text-[10px] text-muted-foreground">
+              {j.baseName}.{j.audioExt}
+            </p>
+          </div>
+          <span className="font-mono text-[11px] sm:text-xs">
+            {j.score != null ? j.score.toFixed(2) : "—"}
+          </span>
+          <div>{verdictOrErrorBadge(j)}</div>
+          <div className="min-w-0">
+            {j.objectUrl ? (
+              <div className="flex flex-col gap-1">
+                <audio controls className="h-8 w-full min-w-[120px]" src={j.objectUrl} />
+                <Button variant="outline" size="sm" className="h-8 text-[11px]" asChild>
+                  <a
+                    href={j.objectUrl}
+                    download={`${j.baseName}.${j.audioExt}`}
+                    className="truncate"
+                  >
+                    저장
+                  </a>
+                </Button>
+              </div>
+            ) : j.phase === "idle" ? (
+              <span className="text-muted-foreground">대기</span>
+            ) : j.phase === "tts" ? (
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            ) : null}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function rowNeedsAttention(j: BatchRowState) {
+  return (
+    j.phase === "error" || j.verdict === "review" || j.verdict === "fail"
+  );
+}
+
 export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJson | null }) {
   const [voice, setVoice] = useState<VoiceId>("Rasalgethi");
   const [style, setStyle] = useState<StyleTone>("Default");
@@ -137,6 +233,7 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
   const [concurrency, setConcurrency] = useState("2");
   /** true: Spindle 미경유, 서버 GEMINI_API_KEY로 Gemini 네이티브 TTS(ai.google.dev speech-generation) */
   const [useCsvGeminiTts, setUseCsvGeminiTts] = useState(false);
+  const [autoDownloadOnPass, setAutoDownloadOnPass] = useState(false);
 
   const [parseError, setParseError] = useState<string | null>(null);
   const [rows, setRows] = useState<QueryCsvRow[]>([]);
@@ -275,7 +372,7 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
     };
 
     const runOne = async (job: BatchRowState) => {
-      const { key, spokenText, audioExt } = job;
+      const { key, spokenText, audioExt, baseName } = job;
       try {
         if (ac.signal.aborted) {
           updateRow(key, { phase: "error", error: "중지됨" });
@@ -338,6 +435,11 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
           score,
           verdict,
         });
+        if (autoDownloadOnPass && verdict === "pass") {
+          queueMicrotask(() => {
+            triggerDownloadFromObjectUrl(objectUrl, `${baseName}.${audioExt}`);
+          });
+        }
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") {
           updateRow(key, { phase: "error", error: "중지됨" });
@@ -387,6 +489,7 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
     revokeAllObjectUrls,
     useCsvGeminiTts,
     voice,
+    autoDownloadOnPass,
   ]);
 
   const counts = useMemo(() => {
@@ -403,6 +506,11 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
     }
     return { pass, review, fail, err };
   }, [jobRows]);
+
+  const attentionRows = useMemo(
+    () => jobRows.filter(rowNeedsAttention),
+    [jobRows],
+  );
 
   return (
     <div className="space-y-4">
@@ -432,7 +540,7 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
         </AlertDescription>
       </Alert>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(280px,26rem)_1fr]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(280px,26rem)_1fr] lg:items-stretch">
         <Card className="min-w-0">
           <CardHeader className="space-y-1">
             <CardTitle className="text-lg">업로드·옵션</CardTitle>
@@ -707,6 +815,24 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
                 />
               </div>
             </div>
+
+            <div className="flex min-h-11 flex-col gap-1.5 rounded-lg border border-border px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0 space-y-0.5">
+                <Label htmlFor="batch-auto-dl" className="cursor-pointer text-sm">
+                  통과 시 자동 저장
+                </Label>
+                <p className="text-[10px] leading-snug text-muted-foreground sm:text-[11px]">
+                  판정이 통과일 때만 브라우저 저장을 시도합니다. 연속 다운로드는 브라우저·OS에
+                  따라 차단될 수 있습니다.
+                </p>
+              </div>
+              <Switch
+                id="batch-auto-dl"
+                checked={autoDownloadOnPass}
+                onCheckedChange={setAutoDownloadOnPass}
+                disabled={running}
+              />
+            </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-2 sm:flex-row">
             <Button
@@ -735,82 +861,45 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
           </CardFooter>
         </Card>
 
-        <Card className="min-w-0">
-          <CardHeader className="space-y-1">
+        <Card className="flex min-h-0 min-w-0 flex-col">
+          <CardHeader className="shrink-0 space-y-1">
             <CardTitle className="text-lg">결과</CardTitle>
             <CardDescription className="text-xs sm:text-sm">
               통과 {counts.pass} · 검토 {counts.review} · 실패 {counts.fail} · 오류 {counts.err}
             </CardDescription>
           </CardHeader>
-          <CardContent className="min-h-0 p-0">
+          <CardContent className="flex min-h-0 flex-1 flex-col p-0">
             {jobRows.length === 0 ? (
-              <p className="px-6 py-8 text-sm text-muted-foreground">실행 후 표가 채워집니다.</p>
+              <p className="flex flex-1 flex-col items-center justify-center px-6 py-8 text-sm text-muted-foreground lg:min-h-[12rem]">
+                실행 후 표가 채워집니다.
+              </p>
             ) : (
-              <ScrollArea className="h-[min(62dvh,640px)] sm:h-[min(65dvh,720px)]">
-                <div className="min-w-[720px] divide-y divide-border">
-                  <div className="grid grid-cols-[5rem_1fr_5.5rem_10rem_8rem] gap-2 bg-muted/40 px-3 py-2 text-[11px] font-medium text-muted-foreground sm:text-xs">
-                    <span>행</span>
-                    <span>원문 / STT</span>
-                    <span>유사도</span>
-                    <span>판정</span>
-                    <span>오디오</span>
-                  </div>
-                  {jobRows.map((j) => (
-                    <div
-                      key={j.key}
-                      className="grid grid-cols-[5rem_1fr_5.5rem_10rem_8rem] items-start gap-2 px-3 py-2 text-xs sm:text-sm"
-                    >
-                      <span className="font-mono text-[11px] text-muted-foreground">
-                        #{j.csv.rowIndex}
-                      </span>
-                      <div className="min-w-0 space-y-1">
-                        <p className="break-words text-[11px] text-muted-foreground sm:text-xs">
-                          {j.spokenText}
-                        </p>
-                        {j.transcript != null ? (
-                          <p className="break-words text-[11px] sm:text-xs">{j.transcript}</p>
-                        ) : j.phase === "tts" || j.phase === "stt" ? (
-                          <p className="text-[11px] text-muted-foreground sm:text-xs">
-                            {j.phase === "tts" ? "TTS 생성 중…" : "STT 검증 중…"}
-                          </p>
-                        ) : null}
-                        {j.error ? (
-                          <p className="break-words text-[11px] text-destructive sm:text-xs">
-                            {j.error}
-                          </p>
-                        ) : null}
-                        <p className="break-all font-mono text-[10px] text-muted-foreground">
-                          {j.baseName}.{j.audioExt}
-                        </p>
-                      </div>
-                      <span className="font-mono text-[11px] sm:text-xs">
-                        {j.score != null ? j.score.toFixed(2) : "—"}
-                      </span>
-                      <div>{badgeForVerdict(j.verdict)}</div>
-                      <div className="min-w-0">
-                        {j.objectUrl ? (
-                          <div className="flex flex-col gap-1">
-                            <audio controls className="h-8 w-full min-w-[120px]" src={j.objectUrl} />
-                            <Button variant="outline" size="sm" className="h-8 text-[11px]" asChild>
-                              <a
-                                href={j.objectUrl}
-                                download={`${j.baseName}.${j.audioExt}`}
-                                className="truncate"
-                              >
-                                저장
-                              </a>
-                            </Button>
-                          </div>
-                        ) : j.phase === "idle" ? (
-                          <span className="text-muted-foreground">대기</span>
-                        ) : j.phase === "tts" ? (
-                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                        ) : null}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
+              <Tabs defaultValue="all" className="flex min-h-0 flex-1 flex-col px-4 pb-1 pt-0">
+                <TabsList className="grid h-auto w-full shrink-0 grid-cols-2 gap-1 p-1 sm:inline-flex sm:w-auto">
+                  <TabsTrigger value="all" className="text-xs sm:text-sm">
+                    전체 ({jobRows.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="attention" className="text-xs sm:text-sm">
+                    검토·실패·오류 ({attentionRows.length})
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent
+                  value="all"
+                  className="mt-0 flex min-h-0 flex-1 flex-col data-[state=inactive]:hidden"
+                >
+                  <ScrollArea className="flex-1 min-h-[min(42dvh,22rem)] lg:min-h-0">
+                    <CsvResultTable rows={jobRows} />
+                  </ScrollArea>
+                </TabsContent>
+                <TabsContent
+                  value="attention"
+                  className="mt-0 flex min-h-0 flex-1 flex-col data-[state=inactive]:hidden"
+                >
+                  <ScrollArea className="flex-1 min-h-[min(42dvh,22rem)] lg:min-h-0">
+                    <CsvResultTable rows={attentionRows} />
+                  </ScrollArea>
+                </TabsContent>
+              </Tabs>
             )}
           </CardContent>
         </Card>
