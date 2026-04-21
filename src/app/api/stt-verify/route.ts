@@ -1,21 +1,30 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const DEFAULT_MODEL = "gemini-2.0-flash";
+const OPENAI_TRANSCRIPTIONS = "https://api.openai.com/v1/audio/transcriptions";
+const DEFAULT_MODEL = "gpt-4o-transcribe";
 
 type Body = {
   audioBase64?: string;
   mimeType?: string;
 };
 
+function extensionForMime(mime: string): string {
+  const m = mime.toLowerCase();
+  if (m.includes("wav")) return ".wav";
+  if (m.includes("webm")) return ".webm";
+  if (m.includes("mp4") || m.includes("m4a")) return ".m4a";
+  if (m.includes("mpeg") || m.includes("mp3")) return ".mp3";
+  return ".mp3";
+}
+
 export async function POST(req: Request) {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) {
+  const apiKey = process.env.OPENAI_API_KEY?.trim();
+  if (!apiKey) {
     return NextResponse.json(
-      { error: "GEMINI_API_KEY가 설정되어 있지 않습니다." },
+      { error: "OPENAI_API_KEY가 설정되어 있지 않습니다." },
       { status: 500 },
     );
   }
@@ -37,28 +46,40 @@ export async function POST(req: Request) {
       ? body.mimeType.trim()
       : "audio/mpeg";
 
-  const modelId = process.env.GEMINI_STT_MODEL?.trim() || DEFAULT_MODEL;
+  const modelId = process.env.OPENAI_STT_MODEL?.trim() || DEFAULT_MODEL;
 
   try {
-    const genAI = new GoogleGenerativeAI(key);
-    const model = genAI.getGenerativeModel({ model: modelId });
-    const prompt =
-      "Listen to this audio and write a single line transcript of exactly what was spoken in English. " +
-      "Do not add labels, punctuation beyond what was clearly spoken, or commentary. " +
-      "If nothing was spoken, reply with an empty string.";
+    const buffer = Buffer.from(audioBase64, "base64");
+    const filename = `audio${extensionForMime(mimeType)}`;
+    const blob = new Blob([buffer], { type: mimeType });
 
-    const result = await model.generateContent([
-      { text: prompt },
-      {
-        inlineData: {
-          mimeType,
-          data: audioBase64,
-        },
+    const formData = new FormData();
+    formData.append("file", blob, filename);
+    formData.append("model", modelId);
+
+    const upstream = await fetch(OPENAI_TRANSCRIPTIONS, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
       },
-    ]);
+      body: formData,
+    });
 
-    const text = result.response.text().trim();
-    return NextResponse.json({ transcript: text, model: modelId });
+    const raw = await upstream.text();
+    let data: { text?: string; error?: { message?: string } } = {};
+    try {
+      data = JSON.parse(raw) as typeof data;
+    } catch {
+      data = {};
+    }
+
+    if (!upstream.ok) {
+      const msg = data.error?.message || raw || upstream.statusText;
+      return NextResponse.json({ error: msg }, { status: upstream.status });
+    }
+
+    const transcript = (data.text ?? "").trim();
+    return NextResponse.json({ transcript, model: modelId });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: message }, { status: 500 });

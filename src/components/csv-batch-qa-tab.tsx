@@ -332,9 +332,10 @@ export function CsvBatchQaTab() {
           <span className="font-mono text-[11px] sm:text-xs">
             CID_IMAGEID_문장앞부분.mp3
           </span>{" "}
-          규칙입니다. STT에는 환경 변수{" "}
-          <code className="rounded bg-muted px-1">GEMINI_API_KEY</code>가 필요합니다(선택적으로{" "}
-          <code className="rounded bg-muted px-1">GEMINI_STT_MODEL</code>).
+          규칙입니다.           STT에는 서버 환경 변수{" "}
+          <code className="rounded bg-muted px-1">OPENAI_API_KEY</code>가 필요합니다(선택:{" "}
+          <code className="rounded bg-muted px-1">OPENAI_STT_MODEL</code>, 기본{" "}
+          <code className="rounded bg-muted px-1">gpt-4o-transcribe</code>).
         </AlertDescription>
       </Alert>
 
