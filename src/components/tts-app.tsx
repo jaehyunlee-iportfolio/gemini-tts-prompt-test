@@ -1060,7 +1060,7 @@ export function TtsApp() {
           </TabsContent>
 
           <TabsContent value="csv-batch" className="mt-0 space-y-3 sm:space-y-4">
-            <CsvBatchQaTab />
+            <CsvBatchQaTab registryJson={registryJson} />
           </TabsContent>
 
           <TabsContent value="registry">

@@ -27,8 +27,10 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { buildClipBaseName } from "@/lib/clip-filename";
 import { arrayBufferToBase64 } from "@/lib/base64";
+import { listBundlePresets } from "@/lib/bundle-presets";
 import { parseQueryResultCsv, spokenTextFromCsvCell, type QueryCsvRow } from "@/lib/csv-query-rows";
 import { DEFAULT_PROMPT } from "@/lib/presets";
+import type { PromptRegistryJson } from "@/types/registry";
 import { fetchCompleteTts } from "@/lib/tts-sse";
 import {
   stringSimilarity,
@@ -46,6 +48,9 @@ import {
 import { Loader2, Upload } from "lucide-react";
 
 const API_BASE = "/api";
+
+/** 음성 생성 탭과 동일 — 레지스트리 프리셋과 겹치지 않는 가상 id */
+const TRYOUT_PRESET_ID = "__tryout__";
 
 type Phase = "idle" | "tts" | "stt" | "done" | "error";
 
@@ -86,10 +91,11 @@ function badgeForVerdict(v: QaVerdict | undefined) {
   return <Badge variant="destructive">{verdictLabelKo(v)}</Badge>;
 }
 
-export function CsvBatchQaTab() {
+export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJson | null }) {
   const [voice, setVoice] = useState<VoiceId>("Rasalgethi");
   const [style, setStyle] = useState<StyleTone>("Default");
   const [prompt, setPrompt] = useState(DEFAULT_PROMPT);
+  const [activePresetKey, setActivePresetKey] = useState<string | null>(null);
   const [platform, setPlatform] = useState("PLAYGROUND");
   const [userId, setUserId] = useState("2");
   const [cacheBust, setCacheBust] = useState(true);
@@ -109,6 +115,36 @@ export function CsvBatchQaTab() {
   jobRowsRef.current = jobRows;
 
   const bundleName = useMemo(() => bundleNameFromVoiceStyle(voice, style), [voice, style]);
+
+  const bundlePresets = useMemo(
+    () => listBundlePresets(registryJson, voice, style),
+    [registryJson, voice, style],
+  );
+
+  const canPickPromptVersion = bundlePresets.length > 0;
+
+  const presetSelectValue = useMemo(() => {
+    if (!canPickPromptVersion) return "_empty";
+    if (activePresetKey === TRYOUT_PRESET_ID) return TRYOUT_PRESET_ID;
+    if (activePresetKey != null && bundlePresets.some((p) => p.id === activePresetKey)) {
+      return activePresetKey;
+    }
+    return bundlePresets[0]!.id;
+  }, [canPickPromptVersion, activePresetKey, bundlePresets]);
+
+  useEffect(() => {
+    const ids = new Set(bundlePresets.map((p) => p.id));
+    const latest = bundlePresets[0];
+    if (!latest) {
+      if (activePresetKey === TRYOUT_PRESET_ID) return;
+      if (activePresetKey != null) setActivePresetKey(null);
+      return;
+    }
+    if (activePresetKey === TRYOUT_PRESET_ID) return;
+    if (activePresetKey != null && ids.has(activePresetKey)) return;
+    setActivePresetKey(latest.id);
+    setPrompt(latest.long);
+  }, [bundlePresets, activePresetKey]);
 
   const parsedThresholds = useMemo(() => {
     const p = parseFloat(passMin);
@@ -443,13 +479,81 @@ export function CsvBatchQaTab() {
             </p>
 
             <div className="space-y-2">
+              <Label htmlFor="batch-preset-ver" className="text-sm">
+                프롬프트 버전
+              </Label>
+              {canPickPromptVersion ? (
+                <Select
+                  value={presetSelectValue}
+                  onValueChange={(v) => {
+                    if (v === TRYOUT_PRESET_ID) {
+                      setActivePresetKey(TRYOUT_PRESET_ID);
+                      setPrompt("");
+                      return;
+                    }
+                    const p = bundlePresets.find((x) => x.id === v);
+                    if (p) {
+                      setActivePresetKey(p.id);
+                      setPrompt(p.long);
+                    }
+                  }}
+                  disabled={running}
+                >
+                  <SelectTrigger id="batch-preset-ver" className="h-11 sm:h-10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={TRYOUT_PRESET_ID}>Custom (직접 입력)</SelectItem>
+                    {bundlePresets.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.chipLabel}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Select value="_empty" disabled>
+                  <SelectTrigger id="batch-preset-ver" className="h-11 sm:h-10">
+                    <SelectValue placeholder="프롬프트 버전 없음" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="_empty">
+                      이 Voice·Style 조합에 등록된 프롬프트가 없습니다
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+              <p className="text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
+                {canPickPromptVersion ? (
+                  <>
+                    레지스트리·로컬 프리셋 중{" "}
+                    <span className="font-medium text-foreground/90">
+                      {bundleName} · {style}
+                    </span>{" "}
+                    리비전만 표시됩니다. 버전이 없으면 아래 Prompt에 직접 입력하세요.
+                  </>
+                ) : (
+                  "프롬프트 트랙을 찾지 못했습니다. 아래 Prompt에 직접 입력해 주세요."
+                )}
+              </p>
+            </div>
+
+            <div className="space-y-2">
               <Label className="text-sm">Prompt</Label>
               <Textarea
                 rows={6}
                 className="min-h-[8rem] resize-y font-mono text-xs sm:text-sm"
                 value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
+                onChange={(e) => {
+                  setActivePresetKey(TRYOUT_PRESET_ID);
+                  setPrompt(e.target.value);
+                }}
                 disabled={running}
+                placeholder={
+                  activePresetKey === TRYOUT_PRESET_ID
+                    ? "프롬프트를 직접 입력…"
+                    : undefined
+                }
               />
             </div>
 
