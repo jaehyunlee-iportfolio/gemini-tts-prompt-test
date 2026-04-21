@@ -52,6 +52,36 @@ const API_BASE = "/api";
 /** 음성 생성 탭과 동일 — 레지스트리 프리셋과 겹치지 않는 가상 id */
 const TRYOUT_PRESET_ID = "__tryout__";
 
+async function fetchGeminiTtsMp3(params: {
+  text: string;
+  prompt: string;
+  voice: VoiceId;
+  signal?: AbortSignal;
+}): Promise<Blob> {
+  const res = await fetch(`${API_BASE}/gemini-tts`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    signal: params.signal,
+    body: JSON.stringify({
+      text: params.text,
+      prompt: params.prompt,
+      voice: params.voice,
+    }),
+  });
+  if (!res.ok) {
+    const raw = await res.text();
+    let msg = raw || res.statusText;
+    try {
+      const j = JSON.parse(raw) as { error?: string };
+      if (typeof j.error === "string" && j.error) msg = j.error;
+    } catch {
+      /* non-JSON body */
+    }
+    throw new Error(msg);
+  }
+  return res.blob();
+}
+
 type Phase = "idle" | "tts" | "stt" | "done" | "error";
 
 export type BatchRowState = {
@@ -103,6 +133,8 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
   const [reviewMin, setReviewMin] = useState("0.72");
   const [maxRows, setMaxRows] = useState("500");
   const [concurrency, setConcurrency] = useState("2");
+  /** true: Spindle 미경유, 서버 GEMINI_API_KEY로 Gemini 네이티브 TTS(ai.google.dev speech-generation) */
+  const [useCsvGeminiTts, setUseCsvGeminiTts] = useState(false);
 
   const [parseError, setParseError] = useState<string | null>(null);
   const [rows, setRows] = useState<QueryCsvRow[]>([]);
@@ -246,23 +278,31 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
           return;
         }
         updateRow(key, { phase: "tts", error: undefined });
-        const tts = await fetchCompleteTts({
-          text: spokenText,
-          bundleName,
-          prompt,
-          cacheBust,
-          platform,
-          userId: userIdNum,
-          signal: ac.signal,
-        });
-
         let blob: Blob;
-        if (tts.kind === "proxyUrl") {
-          const resp = await fetch(tts.playUrl, { signal: ac.signal });
-          if (!resp.ok) throw new Error(`오디오 fetch 실패 (${resp.status})`);
-          blob = await resp.blob();
+        if (useCsvGeminiTts) {
+          blob = await fetchGeminiTtsMp3({
+            text: spokenText,
+            prompt,
+            voice,
+            signal: ac.signal,
+          });
         } else {
-          blob = new Blob([new Uint8Array(tts.bytes)], { type: "audio/mpeg" });
+          const tts = await fetchCompleteTts({
+            text: spokenText,
+            bundleName,
+            prompt,
+            cacheBust,
+            platform,
+            userId: userIdNum,
+            signal: ac.signal,
+          });
+          if (tts.kind === "proxyUrl") {
+            const resp = await fetch(tts.playUrl, { signal: ac.signal });
+            if (!resp.ok) throw new Error(`오디오 fetch 실패 (${resp.status})`);
+            blob = await resp.blob();
+          } else {
+            blob = new Blob([new Uint8Array(tts.bytes)], { type: "audio/mpeg" });
+          }
         }
         const objectUrl = URL.createObjectURL(blob);
         updateRow(key, { phase: "stt", objectUrl });
@@ -340,6 +380,8 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
     parsedThresholds.review,
     concurrencyN,
     revokeAllObjectUrls,
+    useCsvGeminiTts,
+    voice,
   ]);
 
   const counts = useMemo(() => {
@@ -363,14 +405,24 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
         <AlertTitle className="text-sm sm:text-base">CSV 배치 · STT QA</AlertTitle>
         <AlertDescription className="text-xs leading-relaxed sm:text-sm">
           <code className="rounded bg-muted px-1">text, content_id, image_id</code> 형식 CSV를 올리면
-          각 행을 Gemini TTS로 생성한 뒤, 같은 음성을 OpenAI 전사로 받아 적고 원문과 유사도를
-          비교합니다. 파일명은{" "}
+          행마다 음성을 만들고, OpenAI 전사로 원문과 유사도를 비교합니다. 파일명은{" "}
           <span className="font-mono text-[11px] sm:text-xs">
             CID_IMAGEID_문장앞부분.mp3
           </span>{" "}
-          규칙입니다. STT에는 서버 환경 변수{" "}
-          <code className="rounded bg-muted px-1">OPENAI_API_KEY</code>가 필요합니다(선택:{" "}
-          <code className="rounded bg-muted px-1">OPENAI_STT_MODEL</code>, 기본{" "}
+          규칙입니다. 기본은 Spindle(LAURA) TTS이고, 옵션으로{" "}
+          <a
+            className="underline underline-offset-2"
+            href="https://ai.google.dev/gemini-api/docs/speech-generation"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Gemini 네이티브 TTS
+          </a>
+          를 켜면 서버{" "}
+          <code className="rounded bg-muted px-1">GEMINI_API_KEY</code>로만 생성합니다(PCM→MP3
+          인코딩, 스트리밍 없음). STT는{" "}
+          <code className="rounded bg-muted px-1">OPENAI_API_KEY</code>
+          (선택 <code className="rounded bg-muted px-1">OPENAI_STT_MODEL</code>, 기본{" "}
           <code className="rounded bg-muted px-1">gpt-4o-transcribe</code>).
         </AlertDescription>
       </Alert>
@@ -380,7 +432,9 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
           <CardHeader className="space-y-1">
             <CardTitle className="text-lg">업로드·옵션</CardTitle>
             <CardDescription className="text-xs sm:text-sm">
-              음성 생성 탭과 동일하게 bundleName·프롬프트가 적용됩니다.
+              {useCsvGeminiTts
+                ? "Gemini TTS: Voice·프롬프트만 사용(Spindle bundle·캐시·Platform 미적용)."
+                : "Spindle: 음성 생성 탭과 동일하게 bundleName·프롬프트가 적용됩니다."}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -437,11 +491,7 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label className="text-sm">Voice</Label>
-                <Select
-                  value={voice}
-                  onValueChange={(v) => setVoice(v as VoiceId)}
-                  disabled={running}
-                >
+                <Select value={voice} onValueChange={(v) => setVoice(v as VoiceId)} disabled={running}>
                   <SelectTrigger className="h-11 sm:h-10">
                     <SelectValue />
                   </SelectTrigger>
@@ -453,6 +503,11 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
                     ))}
                   </SelectContent>
                 </Select>
+                {useCsvGeminiTts ? (
+                  <p className="text-[10px] text-muted-foreground sm:text-[11px]">
+                    Gemini TTS prebuilt 이름과 동일(Rasalgethi, Puck, Fenrir, Sulafat).
+                  </p>
+                ) : null}
               </div>
               <div className="space-y-2">
                 <Label className="text-sm">Style</Label>
@@ -476,7 +531,29 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
             </div>
             <p className="break-all font-mono text-[11px] text-muted-foreground sm:text-xs">
               bundleName: {bundleName}
+              {useCsvGeminiTts ? (
+                <span className="block text-amber-800/90 dark:text-amber-400/95">
+                  (Gemini 모드에서는 미사용)
+                </span>
+              ) : null}
             </p>
+
+            <div className="flex min-h-11 items-center justify-between gap-3 rounded-lg border border-border px-3 py-2.5">
+              <div className="min-w-0 space-y-0.5">
+                <Label htmlFor="csv-gemini-tts" className="cursor-pointer text-sm leading-snug">
+                  CSV만 Gemini API로 생성
+                </Label>
+                <p className="text-[10px] leading-snug text-muted-foreground sm:text-[11px]">
+                  Spindle 미경유 · 서버 <code className="rounded bg-muted px-0.5">GEMINI_API_KEY</code>
+                </p>
+              </div>
+              <Switch
+                id="csv-gemini-tts"
+                checked={useCsvGeminiTts}
+                onCheckedChange={setUseCsvGeminiTts}
+                disabled={running}
+              />
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="batch-preset-ver" className="text-sm">
@@ -560,7 +637,11 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="batch-platform">Platform</Label>
-                <Select value={platform} onValueChange={setPlatform} disabled={running}>
+                <Select
+                  value={platform}
+                  onValueChange={setPlatform}
+                  disabled={running || useCsvGeminiTts}
+                >
                   <SelectTrigger id="batch-platform" className="h-11 sm:h-10">
                     <SelectValue />
                   </SelectTrigger>
@@ -578,7 +659,7 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
                   className="h-11 sm:h-10"
                   value={userId}
                   onChange={(e) => setUserId(e.target.value)}
-                  disabled={running}
+                  disabled={running || useCsvGeminiTts}
                 />
               </div>
             </div>
@@ -591,7 +672,7 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
                 id="batch-cache"
                 checked={cacheBust}
                 onCheckedChange={setCacheBust}
-                disabled={running}
+                disabled={running || useCsvGeminiTts}
               />
             </div>
 
