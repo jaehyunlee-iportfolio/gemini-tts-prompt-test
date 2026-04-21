@@ -327,12 +327,12 @@ export function CsvBatchQaTab() {
         <AlertTitle className="text-sm sm:text-base">CSV 배치 · STT QA</AlertTitle>
         <AlertDescription className="text-xs leading-relaxed sm:text-sm">
           <code className="rounded bg-muted px-1">text, content_id, image_id</code> 형식 CSV를 올리면
-          각 행을 Gemini TTS로 생성한 뒤, 같은 음성을 Gemini로 다시 받아 적고 원문과 유사도를
+          각 행을 Gemini TTS로 생성한 뒤, 같은 음성을 OpenAI 전사로 받아 적고 원문과 유사도를
           비교합니다. 파일명은{" "}
           <span className="font-mono text-[11px] sm:text-xs">
             CID_IMAGEID_문장앞부분.mp3
           </span>{" "}
-          규칙입니다.           STT에는 서버 환경 변수{" "}
+          규칙입니다. STT에는 서버 환경 변수{" "}
           <code className="rounded bg-muted px-1">OPENAI_API_KEY</code>가 필요합니다(선택:{" "}
           <code className="rounded bg-muted px-1">OPENAI_STT_MODEL</code>, 기본{" "}
           <code className="rounded bg-muted px-1">gpt-4o-transcribe</code>).
@@ -369,6 +369,34 @@ export function CsvBatchQaTab() {
                 <p className="text-xs text-muted-foreground sm:text-sm">파일을 선택하세요.</p>
               )}
             </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="batch-max">최대 행 수</Label>
+                <Input
+                  id="batch-max"
+                  inputMode="numeric"
+                  className="h-11 sm:h-10"
+                  value={maxRows}
+                  onChange={(e) => setMaxRows(e.target.value.replace(/\D/g, ""))}
+                  disabled={running}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="batch-conc">동시 처리 수</Label>
+                <Input
+                  id="batch-conc"
+                  inputMode="numeric"
+                  className="h-11 sm:h-10"
+                  value={concurrency}
+                  onChange={(e) => setConcurrency(e.target.value.replace(/\D/g, ""))}
+                  disabled={running}
+                />
+              </div>
+            </div>
+            <p className="text-[11px] text-muted-foreground sm:text-xs">
+              최대 행을 바꾼 뒤에는 CSV를 다시 선택해야 적용됩니다.
+            </p>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-2">
@@ -489,34 +517,6 @@ export function CsvBatchQaTab() {
                 />
               </div>
             </div>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="batch-max">최대 행 수</Label>
-                <Input
-                  id="batch-max"
-                  inputMode="numeric"
-                  className="h-11 sm:h-10"
-                  value={maxRows}
-                  onChange={(e) => setMaxRows(e.target.value.replace(/\D/g, ""))}
-                  disabled={running}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="batch-conc">동시 처리 수</Label>
-                <Input
-                  id="batch-conc"
-                  inputMode="numeric"
-                  className="h-11 sm:h-10"
-                  value={concurrency}
-                  onChange={(e) => setConcurrency(e.target.value.replace(/\D/g, ""))}
-                  disabled={running}
-                />
-              </div>
-            </div>
-            <p className="text-[11px] text-muted-foreground sm:text-xs">
-              최대 행을 바꾼 뒤에는 CSV를 다시 선택해야 적용됩니다.
-            </p>
           </CardContent>
           <CardFooter className="flex flex-col gap-2 sm:flex-row">
             <Button
