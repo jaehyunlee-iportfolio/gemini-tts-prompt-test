@@ -18,7 +18,13 @@ export function parseSseDataLines(text: string) {
       return;
     }
 
-    if (eventName === "created" || parsed.eventType === "created") {
+    /** 스트리밍 완료 후 URL(`created`) · 동기 폴백 캐시 URL(`cached`) — CHIRP 등 streamSupported=false */
+    if (
+      eventName === "created" ||
+      eventName === "cached" ||
+      parsed.eventType === "created" ||
+      parsed.eventType === "cached"
+    ) {
       if (typeof parsed.audioUrl === "string") audioUrlFromCreated.push(parsed.audioUrl);
       return;
     }
@@ -169,6 +175,12 @@ export async function streamTtsSse(
     });
 
     eventSource.addEventListener("created", (event) => {
+      if (tryFinalizeFromCreated(event.data)) {
+        safeResolve();
+      }
+    });
+
+    eventSource.addEventListener("cached", (event) => {
       if (tryFinalizeFromCreated(event.data)) {
         safeResolve();
       }
