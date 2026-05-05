@@ -1,3 +1,5 @@
+import type { QaVerdict } from "@/lib/text-similarity";
+
 export const VOICE_IDS = ["Rasalgethi", "Puck", "Fenrir", "Sulafat", "ZephyrDefault"] as const;
 export type VoiceId = (typeof VOICE_IDS)[number];
 
@@ -18,8 +20,19 @@ export type TtsRunAudioMeta = {
   audioDurationMs?: number;
 };
 
+export type TtsRunQaStatus = "running" | "done" | "error";
+
+/** STT 검증 결과 — 슬롯/단일 run 양쪽이 공유 */
+export type TtsRunQa = {
+  qaStatus?: TtsRunQaStatus;
+  transcript?: string;
+  qaScore?: number;
+  qaVerdict?: QaVerdict;
+  qaError?: string;
+};
+
 /** One slot inside a 벌크(연속 N회) run — 상세에서 플레이어 1개에 대응 */
-export type TtsBulkSlot = {
+export type TtsBulkSlot = TtsRunQa & {
   status: TtsRunStatus;
   statusMessage?: string;
   playUrl?: string;
@@ -27,7 +40,7 @@ export type TtsBulkSlot = {
   meta?: TtsRunAudioMeta;
 };
 
-export type TtsRun = {
+export type TtsRun = TtsRunQa & {
   id: string;
   createdAt: number;
   bundleName: string;

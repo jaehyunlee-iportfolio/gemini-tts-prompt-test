@@ -45,6 +45,8 @@ import { listBundlePresets } from "@/lib/bundle-presets";
 import { SUPER_REGISTRY_ADMIN_EMAIL } from "@/lib/registry-access";
 import { DEFAULT_PROMPT } from "@/lib/presets";
 import { sortRevisionsDesc } from "@/lib/registry-utils";
+import { computeWpm, verifyAudioFromSrc } from "@/lib/stt-qa";
+import { verdictLabelKo, type QaVerdict } from "@/lib/text-similarity";
 import { proxyPlayUrl, streamTtsSse } from "@/lib/tts-sse";
 import { cn } from "@/lib/utils";
 import { AuthButtons } from "@/components/auth-buttons";
@@ -57,6 +59,8 @@ import {
   type StyleTone,
   type TtsBulkSlot,
   type TtsRun,
+  type TtsRunAudioMeta,
+  type TtsRunQa,
   type VoiceId,
   STYLE_TONES,
 } from "@/types/tts";
@@ -169,6 +173,7 @@ export function TtsApp() {
   const [registryJson, setRegistryJson] = useState<PromptRegistryJson | null>(null);
   const [activePresetKey, setActivePresetKey] = useState<string | null>(null);
   const [registryLoadError, setRegistryLoadError] = useState<string | null>(null);
+  const [autoSttVerify, setAutoSttVerify] = useState(false);
   const runsRef = useRef(runs);
   runsRef.current = runs;
   const activeGenerationAbortRef = useRef<AbortController | null>(null);
@@ -176,6 +181,8 @@ export function TtsApp() {
   maxHistoryRef.current = maxHistory;
   const cloudSyncEnabledRef = useRef(false);
   cloudSyncEnabledRef.current = cloudSyncEnabled;
+  const autoSttVerifyRef = useRef(autoSttVerify);
+  autoSttVerifyRef.current = autoSttVerify;
 
   const handleRegistryLoaded = useCallback((reg: PromptRegistryJson) => {
     setRegistryJson(reg);
@@ -276,6 +283,124 @@ export function TtsApp() {
       }),
     );
   }, []);
+
+  /**
+   * 단일 슬롯(또는 단일 run) STT 검증.
+   * src를 인자로 받음 — setRuns 직후 즉시 호출 시 ref가 stale 일 수 있어서.
+   */
+  const verifyOne = useCallback(
+    async ({
+      runId,
+      slotIndex,
+      src,
+      originalText,
+    }: {
+      runId: string;
+      slotIndex: number | null;
+      src: string;
+      originalText: string;
+    }) => {
+      if (slotIndex == null) {
+        updateRun(runId, { qaStatus: "running", qaError: undefined });
+      } else {
+        patchBulkSlots(runId, (slots) =>
+          slots.map((s, j) =>
+            j === slotIndex ? { ...s, qaStatus: "running" as const, qaError: undefined } : s,
+          ),
+        );
+      }
+      try {
+        const result = await verifyAudioFromSrc({ src, originalText });
+        if (slotIndex == null) {
+          updateRun(runId, {
+            qaStatus: "done",
+            transcript: result.transcript,
+            qaScore: result.score,
+            qaVerdict: result.verdict,
+            qaError: undefined,
+          });
+        } else {
+          patchBulkSlots(runId, (slots) =>
+            slots.map((s, j) =>
+              j === slotIndex
+                ? {
+                    ...s,
+                    qaStatus: "done" as const,
+                    transcript: result.transcript,
+                    qaScore: result.score,
+                    qaVerdict: result.verdict,
+                    qaError: undefined,
+                  }
+                : s,
+            ),
+          );
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (slotIndex == null) {
+          updateRun(runId, { qaStatus: "error", qaError: msg });
+        } else {
+          patchBulkSlots(runId, (slots) =>
+            slots.map((s, j) =>
+              j === slotIndex ? { ...s, qaStatus: "error" as const, qaError: msg } : s,
+            ),
+          );
+        }
+      }
+    },
+    [updateRun, patchBulkSlots],
+  );
+
+  /** 한 run 내 success 슬롯 전체(또는 단일 run) 동시 검증 */
+  const verifyAllInRun = useCallback(
+    (runId: string) => {
+      const run = runsRef.current.find((r) => r.id === runId);
+      if (!run) return;
+      if (run.bulkSlots?.length) {
+        run.bulkSlots.forEach((slot, i) => {
+          const src = slot.playUrl ?? slot.blobUrl;
+          if (!src) return;
+          if (slot.status !== "success") return;
+          if (slot.qaStatus === "running") return;
+          void verifyOne({ runId, slotIndex: i, src, originalText: run.originalText });
+        });
+        return;
+      }
+      const src = run.playUrl ?? run.blobUrl;
+      if (!src) return;
+      if (run.status !== "success") return;
+      if (run.qaStatus === "running") return;
+      void verifyOne({ runId, slotIndex: null, src, originalText: run.originalText });
+    },
+    [verifyOne],
+  );
+
+  /** 오디오 metadata 로드 시 duration(초) → meta.audioDurationMs 채움(이미 있으면 무시) */
+  const handleAudioMetaLoaded = useCallback(
+    (runId: string, slotIndex: number | null, durationSec: number) => {
+      if (!Number.isFinite(durationSec) || durationSec <= 0) return;
+      const durationMs = Math.round(durationSec * 1000);
+      setRuns((prev) =>
+        prev.map((r) => {
+          if (r.id !== runId) return r;
+          if (slotIndex == null) {
+            if (r.meta?.audioDurationMs != null) return r;
+            const meta: TtsRunAudioMeta = { ...(r.meta ?? {}), audioDurationMs: durationMs };
+            return { ...r, meta };
+          }
+          if (!r.bulkSlots) return r;
+          const slots = r.bulkSlots.map((s, i) => {
+            if (i !== slotIndex) return s;
+            if (s.meta?.audioDurationMs != null) return s;
+            const meta: TtsRunAudioMeta = { ...(s.meta ?? {}), audioDurationMs: durationMs };
+            return { ...s, meta };
+          });
+          return { ...r, bulkSlots: slots };
+        }),
+      );
+    },
+    [],
+  );
 
   const anyLoading = runs.some((r) => r.status === "loading");
 
@@ -397,6 +522,9 @@ export function TtsApp() {
               ),
             );
           }
+          if (autoSttVerifyRef.current) {
+            void verifyOne({ runId: id, slotIndex, src: playUrl, originalText });
+          }
         },
         finishFromChunks: (chunks) => {
           if (chunks.length === 0) {
@@ -446,6 +574,9 @@ export function TtsApp() {
                   : s,
               ),
             );
+          }
+          if (autoSttVerifyRef.current) {
+            void verifyOne({ runId: id, slotIndex, src: blobUrl, originalText });
           }
         },
         onError: (message) => {
@@ -544,6 +675,7 @@ export function TtsApp() {
     bulkRepeatInput,
     updateRun,
     patchBulkSlots,
+    verifyOne,
   ]);
 
   const stopGeneration = useCallback(() => {
@@ -595,6 +727,28 @@ export function TtsApp() {
   }, [runs, remoteHistoryLoaded, cloudSyncEnabled, rootSessionStatus]);
 
   const bulkRepeatPreviewN = parsedBulkRepeatN(bulkRepeatInput);
+
+  const detailVerifyOne = useCallback(
+    (slotIndex: number | null, src: string) => {
+      const run = runsRef.current.find((r) => r.id === selectedId);
+      if (!run) return;
+      void verifyOne({ runId: run.id, slotIndex, src, originalText: run.originalText });
+    },
+    [selectedId, verifyOne],
+  );
+
+  const detailVerifyAll = useCallback(() => {
+    if (!selectedId) return;
+    verifyAllInRun(selectedId);
+  }, [selectedId, verifyAllInRun]);
+
+  const detailAudioMetaLoaded = useCallback(
+    (slotIndex: number | null, durationSec: number) => {
+      if (!selectedId) return;
+      handleAudioMetaLoaded(selectedId, slotIndex, durationSec);
+    },
+    [selectedId, handleAudioMetaLoaded],
+  );
 
   return (
     <TooltipProvider delayDuration={300}>
@@ -998,6 +1152,16 @@ export function TtsApp() {
                     </CardDescription>
                   </div>
                   <div className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
+                    <div className="flex h-11 items-center gap-2 rounded-md border border-border px-3 sm:h-10">
+                      <Label htmlFor="auto-stt" className="cursor-pointer text-xs sm:text-sm">
+                        자동 STT 검증
+                      </Label>
+                      <Switch
+                        id="auto-stt"
+                        checked={autoSttVerify}
+                        onCheckedChange={setAutoSttVerify}
+                      />
+                    </div>
                     <Select
                       value={String(maxHistory)}
                       onValueChange={(v) =>
@@ -1049,7 +1213,13 @@ export function TtsApp() {
                         </ResizablePanel>
                         <ResizableHandle withHandle />
                         <ResizablePanel defaultSize={78} minSize={48} className="min-w-0 flex-1">
-                          <RunDetail run={selectedRun} className="h-full" />
+                          <RunDetail
+                            run={selectedRun}
+                            className="h-full"
+                            onVerifyOne={detailVerifyOne}
+                            onVerifyAll={detailVerifyAll}
+                            onAudioMetaLoaded={detailAudioMetaLoaded}
+                          />
                         </ResizablePanel>
                       </ResizablePanelGroup>
                     )}
@@ -1097,6 +1267,9 @@ export function TtsApp() {
                           run={selectedRun}
                           className="h-full min-h-0 flex-1"
                           emptyClassName="min-h-0 flex-1"
+                          onVerifyOne={detailVerifyOne}
+                          onVerifyAll={detailVerifyAll}
+                          onAudioMetaLoaded={detailAudioMetaLoaded}
                         />
                       </TabsContent>
                     </Tabs>
@@ -1199,14 +1372,127 @@ function RunList({
   );
 }
 
+function badgeForQaVerdict(v: QaVerdict | undefined) {
+  if (!v) return null;
+  if (v === "pass") {
+    return (
+      <Badge variant="outline" className="border-green-600/60 text-green-600 dark:text-green-400">
+        {verdictLabelKo(v)}
+      </Badge>
+    );
+  }
+  if (v === "review") {
+    return (
+      <Badge variant="outline" className="border-amber-600/60 text-amber-800 dark:text-amber-400">
+        {verdictLabelKo(v)}
+      </Badge>
+    );
+  }
+  return <Badge variant="destructive">{verdictLabelKo(v)}</Badge>;
+}
+
+function formatMetaLine(meta: TtsRunAudioMeta | undefined, originalText: string): string | null {
+  if (!meta) return null;
+  const parts: string[] = [];
+  if (meta.firstChunkLatencyMs != null) parts.push(`첫 청크 지연: ${meta.firstChunkLatencyMs} ms`);
+  if (meta.audioDurationMs != null) {
+    parts.push(`길이: ${meta.audioDurationMs} ms`);
+    const wpm = computeWpm(originalText, meta.audioDurationMs);
+    if (wpm != null) parts.push(`WPM ${wpm}`);
+  }
+  return parts.length > 0 ? parts.join(" · ") : null;
+}
+
+function QaResultBlock({ qa, originalText }: { qa: TtsRunQa; originalText: string }) {
+  if (!qa.qaStatus) return null;
+  return (
+    <div className="space-y-1.5 rounded-md border border-border/60 bg-muted/15 p-2.5 text-xs sm:text-sm">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-[11px] text-muted-foreground sm:text-xs">STT 검증</span>
+        {qa.qaStatus === "running" ? (
+          <span className="flex items-center gap-1 text-muted-foreground">
+            <Loader2 className="h-3 w-3 animate-spin" /> 검증 중…
+          </span>
+        ) : qa.qaStatus === "error" ? (
+          <Badge variant="destructive" className="text-[10px]">
+            오류
+          </Badge>
+        ) : (
+          <>
+            {qa.qaScore != null ? (
+              <span className="font-mono text-[11px] sm:text-xs">{qa.qaScore.toFixed(2)}</span>
+            ) : null}
+            {badgeForQaVerdict(qa.qaVerdict)}
+          </>
+        )}
+      </div>
+      {qa.qaStatus === "error" && qa.qaError ? (
+        <p className="break-words text-destructive">{qa.qaError}</p>
+      ) : null}
+      {qa.qaStatus === "done" && qa.transcript != null ? (
+        <div className="space-y-1.5">
+          <div className="space-y-0.5">
+            <p className="text-[11px] text-muted-foreground">원문</p>
+            <p className="whitespace-pre-wrap break-words">{originalText}</p>
+          </div>
+          <div className="space-y-0.5">
+            <p className="text-[11px] text-muted-foreground">STT</p>
+            <p className="whitespace-pre-wrap break-words">
+              {qa.transcript || (
+                <span className="text-muted-foreground">(빈 결과)</span>
+              )}
+            </p>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function VerifyButton({
+  qa,
+  src,
+  onClick,
+  className,
+}: {
+  qa: TtsRunQa;
+  src: string | undefined;
+  onClick: () => void;
+  className?: string;
+}) {
+  const running = qa.qaStatus === "running";
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      className={cn(
+        "h-10 shrink-0 touch-manipulation whitespace-nowrap px-3 sm:h-9",
+        className,
+      )}
+      disabled={!src || running}
+      onClick={onClick}
+    >
+      {running ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : null}
+      {qa.qaStatus === "done" ? "재검증" : "STT 검증"}
+    </Button>
+  );
+}
+
 function RunDetail({
   run,
   className,
   emptyClassName,
+  onVerifyOne,
+  onVerifyAll,
+  onAudioMetaLoaded,
 }: {
   run: TtsRun | null;
   className?: string;
   emptyClassName?: string;
+  onVerifyOne: (slotIndex: number | null, src: string) => void;
+  onVerifyAll: () => void;
+  onAudioMetaLoaded: (slotIndex: number | null, durationSec: number) => void;
 }) {
   if (!run) {
     return <EmptyDetail className={cn(className, emptyClassName)} />;
@@ -1214,6 +1500,10 @@ function RunDetail({
 
   const audioSrc = run.playUrl ?? run.blobUrl;
   const bulk = run.bulkSlots && run.bulkSlots.length > 0 ? run.bulkSlots : null;
+  const bulkVerifiableCount = bulk
+    ? bulk.filter((s) => (s.playUrl || s.blobUrl) && s.status === "success").length
+    : 0;
+  const bulkAnyVerifying = bulk?.some((s) => s.qaStatus === "running") ?? false;
 
   return (
     <ScrollArea className={cn("h-full min-h-0", className)}>
@@ -1231,6 +1521,23 @@ function RunDetail({
         </div>
         {bulk ? (
           <div className="space-y-2">
+            {bulkVerifiableCount > 0 ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  className="h-9 touch-manipulation"
+                  disabled={bulkAnyVerifying || bulkVerifiableCount === 0}
+                  onClick={onVerifyAll}
+                >
+                  {bulkAnyVerifying ? (
+                    <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
+                  ) : null}
+                  전체 STT 검증 ({bulkVerifiableCount})
+                </Button>
+              </div>
+            ) : null}
             {run.status === "loading" ? (
               <div className="space-y-2 rounded-md border border-border/60 bg-muted/20 p-3">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground sm:text-sm">
@@ -1266,6 +1573,7 @@ function RunDetail({
             {run.status !== "loading"
               ? bulk.map((slot, i) => {
                   const src = slot.playUrl ?? slot.blobUrl;
+                  const metaLine = formatMetaLine(slot.meta, run.originalText);
                   return (
                     <div
                       key={i}
@@ -1280,11 +1588,14 @@ function RunDetail({
                         </p>
                       ) : src ? (
                         <>
-                          <div className="flex min-w-0 items-center gap-2">
+                          <div className="flex min-w-0 flex-wrap items-center gap-2">
                             <audio
                               controls
                               className="h-10 min-h-10 w-0 min-w-0 flex-1 sm:h-9 sm:min-h-9"
                               src={src}
+                              onLoadedMetadata={(e) =>
+                                onAudioMetaLoaded(i, e.currentTarget.duration)
+                              }
                             />
                             <Button
                               variant="outline"
@@ -1299,23 +1610,18 @@ function RunDetail({
                                 다운로드
                               </a>
                             </Button>
+                            <VerifyButton
+                              qa={slot}
+                              src={src}
+                              onClick={() => onVerifyOne(i, src)}
+                            />
                           </div>
-                          {slot.meta &&
-                          (slot.meta.firstChunkLatencyMs != null ||
-                            slot.meta.audioDurationMs != null) ? (
+                          {metaLine ? (
                             <p className="break-words text-[11px] leading-snug text-muted-foreground sm:text-xs">
-                              {slot.meta.firstChunkLatencyMs != null
-                                ? `첫 청크 지연: ${slot.meta.firstChunkLatencyMs} ms`
-                                : ""}
-                              {slot.meta.firstChunkLatencyMs != null &&
-                              slot.meta.audioDurationMs != null
-                                ? " · "
-                                : ""}
-                              {slot.meta.audioDurationMs != null
-                                ? `길이: ${slot.meta.audioDurationMs} ms`
-                                : ""}
+                              {metaLine}
                             </p>
                           ) : null}
+                          <QaResultBlock qa={slot} originalText={run.originalText} />
                         </>
                       ) : (
                         <p className="text-xs text-muted-foreground">오디오 URL 없음</p>
@@ -1340,11 +1646,14 @@ function RunDetail({
             ) : null}
             {run.status === "success" && audioSrc ? (
               <div className="space-y-1.5">
-                <div className="flex min-w-0 items-center gap-2">
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
                   <audio
                     controls
                     className="h-10 min-h-10 w-0 min-w-0 flex-1 sm:h-9 sm:min-h-9"
                     src={audioSrc}
+                    onLoadedMetadata={(e) =>
+                      onAudioMetaLoaded(null, e.currentTarget.duration)
+                    }
                   />
                   <Button
                     variant="outline"
@@ -1356,19 +1665,21 @@ function RunDetail({
                       다운로드
                     </a>
                   </Button>
+                  <VerifyButton
+                    qa={run}
+                    src={audioSrc}
+                    onClick={() => onVerifyOne(null, audioSrc)}
+                  />
                 </div>
-                {run.meta &&
-                (run.meta.firstChunkLatencyMs != null || run.meta.audioDurationMs != null) ? (
-                  <p className="break-words text-[11px] leading-snug text-muted-foreground sm:text-xs">
-                    {run.meta.firstChunkLatencyMs != null
-                      ? `첫 청크 지연: ${run.meta.firstChunkLatencyMs} ms`
-                      : ""}
-                    {run.meta.firstChunkLatencyMs != null && run.meta.audioDurationMs != null
-                      ? " · "
-                      : ""}
-                    {run.meta.audioDurationMs != null ? `길이: ${run.meta.audioDurationMs} ms` : ""}
-                  </p>
-                ) : null}
+                {(() => {
+                  const metaLine = formatMetaLine(run.meta, run.originalText);
+                  return metaLine ? (
+                    <p className="break-words text-[11px] leading-snug text-muted-foreground sm:text-xs">
+                      {metaLine}
+                    </p>
+                  ) : null;
+                })()}
+                <QaResultBlock qa={run} originalText={run.originalText} />
               </div>
             ) : null}
           </>
