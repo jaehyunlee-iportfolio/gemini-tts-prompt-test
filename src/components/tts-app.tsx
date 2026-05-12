@@ -56,8 +56,12 @@ import type { PromptRegistryJson, RegistryGroup, RegistryPrompt } from "@/types/
 import {
   bundleNameFromVoiceStyle,
   isChirpZephyrVoice,
+  isGeminiTestModel,
+  TTS_MODEL_LABELS,
+  TTS_MODELS,
   type StyleTone,
   type TtsBulkSlot,
+  type TtsModel,
   type TtsRun,
   type TtsRunAudioMeta,
   type TtsRunQa,
@@ -154,6 +158,7 @@ function aggregateBulkStatus(slots: TtsBulkSlot[]): Pick<TtsRun, "status" | "sta
 export function TtsApp() {
   const { status: rootSessionStatus } = useSession();
   const [mainTab, setMainTab] = useState("generate");
+  const [model, setModel] = useState<TtsModel>("spindle-laura");
   const [voice, setVoice] = useState<VoiceId>("Rasalgethi");
   const [style, setStyle] = useState<StyleTone>("Default");
   const [text, setText] = useState("Hello My name is Erin.");
@@ -245,6 +250,13 @@ export function TtsApp() {
     setPrompt("");
     setActivePresetKey(null);
   }, [voice]);
+
+  /** Gemini 모델 테스트 엔드포인트는 Zephyr를 지원하지 않으므로 자동으로 Rasalgethi로 전환 */
+  useEffect(() => {
+    if (isGeminiTestModel(model) && isChirpZephyrVoice(voice)) {
+      setVoice("Rasalgethi");
+    }
+  }, [model, voice]);
 
   const bundleName = useMemo(() => bundleNameFromVoiceStyle(voice, style), [voice, style]);
 
@@ -427,11 +439,90 @@ export function TtsApp() {
       bundleName,
       voice,
       style,
+      model,
       originalText,
       prompt: promptVal,
     };
 
-    const runStreamForSlot = async (slotIndex: number | null) => {
+    const runGeminiTestForSlot = async (slotIndex: number | null) => {
+      if (!isGeminiTestModel(model)) return;
+      const startedAt = Date.now();
+      if (slotIndex == null) {
+        updateRun(id, {
+          status: "loading",
+          statusMessage: `${TTS_MODEL_LABELS[model]} 동기 요청 중...`,
+        });
+      } else {
+        patchBulkSlots(id, (slots) =>
+          slots.map((s, j) =>
+            j === slotIndex
+              ? {
+                  ...s,
+                  status: "loading" as const,
+                  statusMessage: `${TTS_MODEL_LABELS[model]} 동기 요청 중...`,
+                }
+              : s,
+          ),
+        );
+      }
+      const resp = await fetch(`${API_BASE}/gemini-model-test`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: generationAbortController.signal,
+        body: JSON.stringify({
+          text: originalText,
+          bundleName,
+          modelName: model,
+          cacheBust,
+        }),
+      });
+      if (!resp.ok) {
+        const errText = await resp.text();
+        let msg = errText;
+        try {
+          const j = JSON.parse(errText) as { error?: string };
+          if (j.error) msg = j.error;
+        } catch {
+          /* plain text */
+        }
+        throw new Error(`Gemini 모델 테스트 실패 (${resp.status}): ${msg}`);
+      }
+      const buf = await resp.arrayBuffer();
+      const ct = resp.headers.get("content-type") ?? "audio/mpeg";
+      const blob = new Blob([buf], { type: ct });
+      const blobUrl = URL.createObjectURL(blob);
+      const latency = Date.now() - startedAt;
+      const meta: TtsRunAudioMeta = { firstChunkLatencyMs: latency };
+      if (slotIndex == null) {
+        updateRun(id, {
+          status: "success",
+          statusMessage: undefined,
+          blobUrl,
+          playUrl: undefined,
+          meta,
+        });
+      } else {
+        patchBulkSlots(id, (slots) =>
+          slots.map((s, j) =>
+            j === slotIndex
+              ? {
+                  ...s,
+                  status: "success" as const,
+                  statusMessage: undefined,
+                  blobUrl,
+                  playUrl: undefined,
+                  meta,
+                }
+              : s,
+          ),
+        );
+      }
+      if (autoSttVerifyRef.current) {
+        void verifyOne({ runId: id, slotIndex, src: blobUrl, originalText });
+      }
+    };
+
+    const runSpindleStreamForSlot = async (slotIndex: number | null) => {
       const startResp = await fetch(`${API_BASE}/tts-start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -595,18 +686,26 @@ export function TtsApp() {
       });
     };
 
+    const runForSlot = (slotIndex: number | null) =>
+      isGeminiTestModel(model)
+        ? runGeminiTestForSlot(slotIndex)
+        : runSpindleStreamForSlot(slotIndex);
+
     try {
       if (n <= 1) {
+        const initialMessage = isGeminiTestModel(model)
+          ? `${TTS_MODEL_LABELS[model]} 요청 준비 중...`
+          : "SSE 연결 대기 중...";
         const newRun: TtsRun = {
           ...base,
           status: "loading",
-          statusMessage: "SSE 연결 대기 중...",
+          statusMessage: initialMessage,
         };
         setRuns((prev) => trimRuns([newRun, ...prev], maxHistory));
         setSelectedId(id);
         setMobileResultTab("detail");
         try {
-          await runStreamForSlot(null);
+          await runForSlot(null);
         } catch (err) {
           if (isAbortError(err)) {
             updateRun(id, { status: "error", statusMessage: "요청이 중지되었습니다." });
@@ -636,7 +735,7 @@ export function TtsApp() {
       for (let i = 0; i < n; i++) {
         if (generationAbortController.signal.aborted) break;
         try {
-          await runStreamForSlot(i);
+          await runForSlot(i);
         } catch (err) {
           if (isAbortError(err)) {
             patchBulkSlots(id, (slots) =>
@@ -670,6 +769,7 @@ export function TtsApp() {
     bundleName,
     voice,
     style,
+    model,
     platform,
     maxHistory,
     bulkRepeatInput,
@@ -824,6 +924,40 @@ export function TtsApp() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3 px-4 sm:space-y-4 sm:px-6">
+                  <div className="space-y-2">
+                    <Label className="text-sm">TTS 모델</Label>
+                    <Select value={model} onValueChange={(v) => setModel(v as TtsModel)}>
+                      <SelectTrigger className="h-11 w-full touch-manipulation sm:h-10">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Spindle LAURA (SSE)</SelectLabel>
+                          <SelectItem value="spindle-laura">
+                            {TTS_MODEL_LABELS["spindle-laura"]}
+                          </SelectItem>
+                        </SelectGroup>
+                        <SelectGroup>
+                          <SelectLabel>Spindle Gemini Model Test (동기)</SelectLabel>
+                          {TTS_MODELS.filter((m) => m !== "spindle-laura").map((m) => (
+                            <SelectItem key={m} value={m}>
+                              {TTS_MODEL_LABELS[m]}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    {isGeminiTestModel(model) ? (
+                      <p className="text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
+                        동기 엔드포인트({" "}
+                        <code className="rounded bg-muted px-1 font-mono">
+                          /support/gemini-model-test/synthesize
+                        </code>{" "}
+                        )로 MP3를 한 번에 받아옵니다. Zephyr 미지원이며, 업스트림 스펙상 prompt 필드는
+                        전송되지 않습니다(bundle에 내장).
+                      </p>
+                    ) : null}
+                  </div>
                   <div
                     className={cn(
                       "grid grid-cols-1 gap-3 sm:gap-4",
@@ -847,12 +981,14 @@ export function TtsApp() {
                             <SelectLabel>Female Adult — 프롬프트 TTS</SelectLabel>
                             <SelectItem value="Sulafat">Sulafat</SelectItem>
                           </SelectGroup>
-                          <SelectGroup>
-                            <SelectLabel>Zephyr — 프롬프트 미지원 (CHIRP)</SelectLabel>
-                            <SelectItem value="ZephyrDefault">
-                              Zephyr-Default · Female Adult en-US
-                            </SelectItem>
-                          </SelectGroup>
+                          {isGeminiTestModel(model) ? null : (
+                            <SelectGroup>
+                              <SelectLabel>Zephyr — 프롬프트 미지원 (CHIRP)</SelectLabel>
+                              <SelectItem value="ZephyrDefault">
+                                Zephyr-Default · Female Adult en-US
+                              </SelectItem>
+                            </SelectGroup>
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
@@ -1511,6 +1647,11 @@ function RunDetail({
         <div className="min-w-0">
           <p className="text-xs text-muted-foreground">Bundle</p>
           <p className="break-all font-mono text-xs leading-snug sm:text-sm">{run.bundleName}</p>
+          {run.model ? (
+            <p className="mt-1 text-[10px] leading-snug text-muted-foreground sm:text-[11px]">
+              모델: <span className="font-mono">{TTS_MODEL_LABELS[run.model] ?? run.model}</span>
+            </p>
+          ) : null}
         </div>
         <Separator />
         <div className="min-w-0">
