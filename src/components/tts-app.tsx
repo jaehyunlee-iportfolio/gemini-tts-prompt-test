@@ -1488,8 +1488,15 @@ function RunList({
           <p className="line-clamp-3 break-words text-xs text-muted-foreground sm:line-clamp-2">
             {r.originalText}
           </p>
-          {r.bulkCount != null && r.bulkCount > 1 ? (
-            <p className="text-[10px] text-muted-foreground">벌크 ×{r.bulkCount}</p>
+          {r.model || (r.bulkCount != null && r.bulkCount > 1) ? (
+            <p className="break-all text-[10px] leading-snug text-muted-foreground">
+              {[
+                r.model ? (TTS_MODEL_LABELS[r.model] ?? r.model) : null,
+                r.bulkCount != null && r.bulkCount > 1 ? `벌크 ×${r.bulkCount}` : null,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
           ) : null}
           <div className="flex flex-wrap items-center gap-2">
             {r.status === "loading" ? (
