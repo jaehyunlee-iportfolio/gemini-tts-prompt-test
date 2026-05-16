@@ -1267,7 +1267,7 @@ export function TtsApp() {
                 </CardFooter>
               </Card>
 
-              <Card className="flex min-h-0 w-full min-w-0 flex-col lg:min-h-[min(72dvh,800px)] xl:min-h-[min(78dvh,880px)]">
+              <Card className="flex min-h-0 w-full min-w-0 flex-col overflow-hidden lg:min-h-[min(72dvh,800px)] xl:min-h-[min(78dvh,880px)]">
                 <CardHeader className="flex flex-col gap-3 space-y-0 px-4 pb-3 pt-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between sm:gap-4 sm:px-6 sm:pb-4 sm:pt-6">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
@@ -1335,9 +1335,9 @@ export function TtsApp() {
                         className="h-full min-h-0 flex-1 rounded-none"
                       >
                         <ResizablePanel
-                          defaultSize={22}
-                          minSize={34}
-                          maxSize={40}
+                          defaultSize={36}
+                          minSize={28}
+                          maxSize={42}
                           className="max-w-[380px]"
                         >
                           <RunList
@@ -1348,7 +1348,7 @@ export function TtsApp() {
                           />
                         </ResizablePanel>
                         <ResizableHandle withHandle />
-                        <ResizablePanel defaultSize={78} minSize={48} className="min-w-0 flex-1">
+                        <ResizablePanel defaultSize={64} minSize={48} className="min-w-0 flex-1">
                           <RunDetail
                             run={selectedRun}
                             className="h-full"
@@ -1361,11 +1361,11 @@ export function TtsApp() {
                     )}
                   </div>
 
-                  <div className="flex h-[min(52dvh,520px)] min-h-[260px] flex-col sm:min-h-[300px] lg:hidden">
+                  <div className="flex flex-col lg:hidden">
                     <Tabs
                       value={mobileResultTab}
                       onValueChange={(v) => setMobileResultTab(v as "list" | "detail")}
-                      className="flex h-full min-h-0 flex-col"
+                      className="flex flex-col"
                     >
                       <TabsList className="mx-3 mt-2 grid h-auto w-auto grid-cols-2 gap-1 p-1 sm:mx-4">
                         <TabsTrigger
@@ -1383,7 +1383,7 @@ export function TtsApp() {
                       </TabsList>
                       <TabsContent
                         value="list"
-                        className="mt-0 flex min-h-0 flex-1 flex-col overflow-hidden px-0 pb-0"
+                        className="mt-0 flex flex-col px-0 pb-0 data-[state=inactive]:hidden"
                       >
                         <RunList
                           runs={runs}
@@ -1392,20 +1392,22 @@ export function TtsApp() {
                             setSelectedId(rid);
                             setMobileResultTab("detail");
                           }}
-                          className="h-full border-t border-border"
+                          className="border-t border-border"
+                          noScroll
                         />
                       </TabsContent>
                       <TabsContent
                         value="detail"
-                        className="mt-0 flex min-h-0 flex-1 flex-col overflow-hidden px-0 pb-0"
+                        className="mt-0 flex flex-col px-0 pb-0 data-[state=inactive]:hidden"
                       >
                         <RunDetail
                           run={selectedRun}
-                          className="h-full min-h-0 flex-1"
-                          emptyClassName="min-h-0 flex-1"
+                          className="border-t border-border"
+                          emptyClassName="min-h-[260px]"
                           onVerifyOne={detailVerifyOne}
                           onVerifyAll={detailVerifyAll}
                           onAudioMetaLoaded={detailAudioMetaLoaded}
+                          noScroll
                         />
                       </TabsContent>
                     </Tabs>
@@ -1453,59 +1455,63 @@ function RunList({
   selectedId,
   onSelect,
   className,
+  noScroll,
 }: {
   runs: TtsRun[];
   selectedId: string | null;
   onSelect: (id: string) => void;
   className?: string;
+  noScroll?: boolean;
 }) {
-  return (
-    <ScrollArea className={cn("h-full", className)}>
-      <div className="space-y-1.5 p-2 pr-3 sm:p-3 sm:pr-4">
-        {runs.map((r) => (
-          <button
-            key={r.id}
-            type="button"
-            onClick={() => onSelect(r.id)}
-            className={cn(
-              "flex w-full min-w-0 touch-manipulation flex-col gap-1.5 rounded-md border px-3 py-2.5 text-left text-sm transition-colors active:bg-secondary/80 sm:py-2",
-              selectedId === r.id
-                ? "border-primary bg-primary/10"
-                : "border-transparent bg-secondary/30 hover:bg-secondary/60",
+  const items = (
+    <div className="space-y-1.5 p-2 pr-3 sm:p-3 sm:pr-4">
+      {runs.map((r) => (
+        <button
+          key={r.id}
+          type="button"
+          onClick={() => onSelect(r.id)}
+          className={cn(
+            "flex w-full min-w-0 touch-manipulation flex-col gap-1.5 rounded-md border px-3 py-2.5 text-left text-sm transition-colors active:bg-secondary/80 sm:py-2",
+            selectedId === r.id
+              ? "border-primary bg-primary/10"
+              : "border-transparent bg-secondary/30 hover:bg-secondary/60",
+          )}
+        >
+          <div className="flex items-center justify-between gap-2">
+            <span className="truncate font-medium text-foreground">
+              {r.voice} · {r.style}
+            </span>
+            <span className="shrink-0 text-[10px] text-muted-foreground">
+              {new Date(r.createdAt).toLocaleTimeString("ko-KR")}
+            </span>
+          </div>
+          <p className="line-clamp-3 break-words text-xs text-muted-foreground sm:line-clamp-2">
+            {r.originalText}
+          </p>
+          {r.bulkCount != null && r.bulkCount > 1 ? (
+            <p className="text-[10px] text-muted-foreground">벌크 ×{r.bulkCount}</p>
+          ) : null}
+          <div className="flex flex-wrap items-center gap-2">
+            {r.status === "loading" ? (
+              <Skeleton className="h-5 w-16" />
+            ) : r.status === "success" ? (
+              <Badge variant="outline" className="text-[10px] text-green-400">
+                {r.bulkCount != null && r.bulkCount > 1 ? `완료 (${r.bulkCount})` : "완료"}
+              </Badge>
+            ) : (
+              <Badge variant="destructive" className="text-[10px]">
+                오류
+              </Badge>
             )}
-          >
-            <div className="flex items-center justify-between gap-2">
-              <span className="truncate font-medium text-foreground">
-                {r.voice} · {r.style}
-              </span>
-              <span className="shrink-0 text-[10px] text-muted-foreground">
-                {new Date(r.createdAt).toLocaleTimeString("ko-KR")}
-              </span>
-            </div>
-            <p className="line-clamp-3 break-words text-xs text-muted-foreground sm:line-clamp-2">
-              {r.originalText}
-            </p>
-            {r.bulkCount != null && r.bulkCount > 1 ? (
-              <p className="text-[10px] text-muted-foreground">벌크 ×{r.bulkCount}</p>
-            ) : null}
-            <div className="flex flex-wrap items-center gap-2">
-              {r.status === "loading" ? (
-                <Skeleton className="h-5 w-16" />
-              ) : r.status === "success" ? (
-                <Badge variant="outline" className="text-[10px] text-green-400">
-                  {r.bulkCount != null && r.bulkCount > 1 ? `완료 (${r.bulkCount})` : "완료"}
-                </Badge>
-              ) : (
-                <Badge variant="destructive" className="text-[10px]">
-                  오류
-                </Badge>
-              )}
-            </div>
-          </button>
-        ))}
-      </div>
-    </ScrollArea>
+          </div>
+        </button>
+      ))}
+    </div>
   );
+  if (noScroll) {
+    return <div className={cn(className)}>{items}</div>;
+  }
+  return <ScrollArea className={cn("h-full", className)}>{items}</ScrollArea>;
 }
 
 function badgeForQaVerdict(v: QaVerdict | undefined) {
@@ -1622,6 +1628,7 @@ function RunDetail({
   onVerifyOne,
   onVerifyAll,
   onAudioMetaLoaded,
+  noScroll,
 }: {
   run: TtsRun | null;
   className?: string;
@@ -1629,6 +1636,7 @@ function RunDetail({
   onVerifyOne: (slotIndex: number | null, src: string) => void;
   onVerifyAll: () => void;
   onAudioMetaLoaded: (slotIndex: number | null, durationSec: number) => void;
+  noScroll?: boolean;
 }) {
   if (!run) {
     return <EmptyDetail className={cn(className, emptyClassName)} />;
@@ -1641,9 +1649,8 @@ function RunDetail({
     : 0;
   const bulkAnyVerifying = bulk?.some((s) => s.qaStatus === "running") ?? false;
 
-  return (
-    <ScrollArea className={cn("h-full min-h-0", className)}>
-      <div className="space-y-2 p-3 sm:space-y-3 sm:p-4 md:p-5">
+  const inner = (
+    <div className="space-y-2 p-3 sm:space-y-3 sm:p-4 md:p-5">
         <div className="min-w-0">
           <p className="text-xs text-muted-foreground">Bundle</p>
           <p className="break-all font-mono text-xs leading-snug sm:text-sm">{run.bundleName}</p>
@@ -1828,12 +1835,18 @@ function RunDetail({
         <Separator />
         <div className="min-w-0">
           <p className="text-xs text-muted-foreground">Prompt</p>
-          <div className="h-[4.9rem] overflow-y-auto whitespace-pre-wrap break-words rounded-md bg-muted/50 p-2.5 text-xs leading-relaxed text-foreground sm:h-[5.75rem] sm:p-3 sm:text-sm sm:leading-relaxed">
+          <div className="max-h-[12rem] overflow-y-auto whitespace-pre-wrap break-words rounded-md bg-muted/50 p-2.5 text-xs leading-relaxed text-foreground sm:max-h-[14rem] sm:p-3 sm:text-sm sm:leading-relaxed">
             {run.prompt}
           </div>
         </div>
       </div>
-    </ScrollArea>
+  );
+
+  if (noScroll) {
+    return <div className={cn(className)}>{inner}</div>;
+  }
+  return (
+    <ScrollArea className={cn("h-full min-h-0", className)}>{inner}</ScrollArea>
   );
 }
 

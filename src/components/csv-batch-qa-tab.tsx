@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -561,8 +560,8 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
       </Alert>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(280px,26rem)_1fr] lg:items-stretch">
-        <Card className="min-w-0">
-          <CardHeader className="space-y-1">
+        <Card className="min-w-0 overflow-hidden">
+          <CardHeader className="space-y-1 px-4 pb-3 pt-4 sm:px-6 sm:pb-4 sm:pt-6">
             <CardTitle className="text-lg">업로드·옵션</CardTitle>
             <CardDescription className="text-xs sm:text-sm">
               {useCsvGeminiTts
@@ -570,7 +569,7 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
                 : "Spindle: 음성 생성 탭과 동일하게 bundleName·프롬프트가 적용됩니다."}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 px-4 sm:px-6">
             <div className="space-y-2">
               <Label className="text-sm">CSV 파일</Label>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -884,7 +883,7 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
               />
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col gap-2 sm:flex-row">
+          <CardFooter className="flex flex-col gap-2 px-4 pb-4 sm:flex-row sm:px-6 sm:pb-6">
             <Button
               className="h-12 w-full touch-manipulation sm:h-11"
               size="lg"
@@ -904,15 +903,20 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
               )}
             </Button>
             {running ? (
-              <Button type="button" variant="destructive" className="h-12 sm:h-11" onClick={stop}>
+              <Button
+                type="button"
+                variant="destructive"
+                className="h-12 w-full touch-manipulation sm:h-11 sm:w-auto"
+                onClick={stop}
+              >
                 중지
               </Button>
             ) : null}
           </CardFooter>
         </Card>
 
-        <Card className="flex min-h-0 min-w-0 flex-col">
-          <CardHeader className="shrink-0 space-y-1">
+        <Card className="flex min-h-0 min-w-0 flex-col overflow-hidden">
+          <CardHeader className="shrink-0 space-y-1 px-4 pb-3 pt-4 sm:px-6 sm:pb-4 sm:pt-6">
             <CardTitle className="text-lg">결과</CardTitle>
             <CardDescription className="text-xs sm:text-sm">
               통과 {counts.pass} · 검토 {counts.review} · 실패 {counts.fail} · 오류 {counts.err}
@@ -937,17 +941,17 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
                   value="all"
                   className="mt-0 flex min-h-0 flex-1 flex-col data-[state=inactive]:hidden"
                 >
-                  <ScrollArea className="flex-1 min-h-[min(42dvh,22rem)] lg:min-h-0">
+                  <div className="flex-1 min-h-[min(42dvh,22rem)] overflow-auto lg:min-h-0">
                     <CsvResultTable rows={jobRows} />
-                  </ScrollArea>
+                  </div>
                 </TabsContent>
                 <TabsContent
                   value="attention"
                   className="mt-0 flex min-h-0 flex-1 flex-col data-[state=inactive]:hidden"
                 >
-                  <ScrollArea className="flex-1 min-h-[min(42dvh,22rem)] lg:min-h-0">
+                  <div className="flex-1 min-h-[min(42dvh,22rem)] overflow-auto lg:min-h-0">
                     <CsvResultTable rows={attentionRows} />
-                  </ScrollArea>
+                  </div>
                 </TabsContent>
               </Tabs>
             )}
