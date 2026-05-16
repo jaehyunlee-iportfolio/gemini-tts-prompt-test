@@ -3,9 +3,11 @@ import { Buffer } from "node:buffer";
 import type { QaVerdict } from "@/lib/text-similarity";
 import {
   STYLE_TONES,
+  TTS_MODELS,
   VOICE_IDS,
   type StyleTone,
   type TtsBulkSlot,
+  type TtsModel,
   type TtsRun,
   type TtsRunQa,
   type TtsRunQaStatus,
@@ -69,6 +71,10 @@ function isStyleTone(v: unknown): v is StyleTone {
   return typeof v === "string" && (STYLE_TONES as readonly string[]).includes(v);
 }
 
+function isTtsModel(v: unknown): v is TtsModel {
+  return typeof v === "string" && (TTS_MODELS as readonly string[]).includes(v);
+}
+
 function isStatus(v: unknown): v is TtsRunStatus {
   return v === "loading" || v === "success" || v === "error";
 }
@@ -126,6 +132,7 @@ export function parsePersistedRun(o: unknown): TtsRun | null {
     bundleName: r.bundleName,
     voice: r.voice,
     style: r.style,
+    model: isTtsModel(r.model) ? r.model : undefined,
     originalText: r.originalText,
     prompt: r.prompt,
     status: r.status,
