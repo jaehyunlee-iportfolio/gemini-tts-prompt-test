@@ -1503,6 +1503,24 @@ function RunList({
                 오류
               </Badge>
             )}
+            {(() => {
+              const summary = bulkQaSummary(r);
+              if (!summary) return null;
+              return (
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "text-[10px]",
+                    summary.tone === "all-pass" && "border-green-600/60 text-green-600 dark:text-green-400",
+                    summary.tone === "mixed" && "border-amber-600/60 text-amber-700 dark:text-amber-400",
+                    summary.tone === "none" && "border-destructive/60 text-destructive",
+                    summary.tone === "running" && "text-muted-foreground",
+                  )}
+                >
+                  {summary.label}
+                </Badge>
+              );
+            })()}
           </div>
         </button>
       ))}
@@ -1512,6 +1530,49 @@ function RunList({
     return <div className={cn(className)}>{items}</div>;
   }
   return <ScrollArea className={cn("h-full", className)}>{items}</ScrollArea>;
+}
+
+/**
+ * 벌크 로딩 중 슬롯 인디케이터 색상.
+ * 슬롯은 모두 status:"loading"으로 초기화된 뒤 순차 처리되며, 처리 시작 시 statusMessage가
+ * 초기값("대기...")에서 바뀐다(예: "SSE 수신..." 또는 "...동기 요청 중..."). 이를 이용해
+ * 대기/처리중을 구분한다.
+ */
+function slotBadgeClass(slot: TtsBulkSlot): string {
+  if (slot.status === "success") {
+    return "border-green-600/60 bg-green-500/10 text-green-700 dark:text-green-400";
+  }
+  if (slot.status === "error") {
+    return "border-destructive/60 bg-destructive/10 text-destructive";
+  }
+  const waiting = !slot.statusMessage || slot.statusMessage === "대기...";
+  if (waiting) {
+    return "border-border/80 bg-background/60 text-muted-foreground";
+  }
+  return "border-amber-600/60 bg-amber-500/10 text-amber-700 dark:text-amber-400";
+}
+
+/**
+ * 벌크 run의 STT 검증 집계.
+ * - 단일 run이거나 검증된 슬롯이 없으면 null
+ * - 검증 중인 슬롯이 있으면 "검증 N/M …" + 회색
+ * - 모두 검증 완료 후 통과 카운트로 색 결정
+ */
+function bulkQaSummary(
+  r: TtsRun,
+): { label: string; tone: "all-pass" | "mixed" | "none" | "running" } | null {
+  const total = r.bulkCount ?? 0;
+  if (total <= 1 || !r.bulkSlots || r.bulkSlots.length === 0) return null;
+  const verified = r.bulkSlots.filter((s) => s.qaStatus === "done").length;
+  const running = r.bulkSlots.some((s) => s.qaStatus === "running");
+  if (verified === 0 && !running) return null;
+  const pass = r.bulkSlots.filter((s) => s.qaVerdict === "pass").length;
+  if (running) {
+    return { label: `검증 ${verified}/${total}…`, tone: "running" };
+  }
+  const tone: "all-pass" | "mixed" | "none" =
+    pass === total ? "all-pass" : pass === 0 ? "none" : "mixed";
+  return { label: `통과 ${pass}/${total}`, tone };
 }
 
 function badgeForQaVerdict(v: QaVerdict | undefined) {
@@ -1697,10 +1758,13 @@ function RunDetail({
                   없습니다.
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  {bulk.map((_, i) => (
+                  {bulk.map((slot, i) => (
                     <span
                       key={i}
-                      className="rounded border border-border/80 bg-background/60 px-2 py-0.5 font-mono text-[10px] text-muted-foreground"
+                      className={cn(
+                        "rounded border px-2 py-0.5 font-mono text-[10px]",
+                        slotBadgeClass(slot),
+                      )}
                     >
                       #{i + 1}
                     </span>
