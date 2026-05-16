@@ -48,6 +48,13 @@ import { sortRevisionsDesc } from "@/lib/registry-utils";
 import { computeWpm, verifyAudioFromSrc } from "@/lib/stt-qa";
 import { verdictLabelKo, type QaVerdict } from "@/lib/text-similarity";
 import { proxyPlayUrl, streamTtsSse } from "@/lib/tts-sse";
+import {
+  audioCacheKey,
+  clearAllAudios,
+  deleteAudiosForRun,
+  getAudio,
+  putAudio,
+} from "@/lib/audio-cache";
 import { cn } from "@/lib/utils";
 import { AuthButtons } from "@/components/auth-buttons";
 import { CsvBatchQaTab } from "@/components/csv-batch-qa-tab";
@@ -120,11 +127,42 @@ function revokeRunMediaUrls(r: TtsRun) {
   }
 }
 
+/** 메모리 + IndexedDB까지 정리 — run이 실제로 폐기되는 경우(trim, clear)에만 호출. */
+function discardRunCompletely(r: TtsRun) {
+  revokeRunMediaUrls(r);
+  void deleteAudiosForRun(r.id);
+}
+
+/** Firestore에서 받은 run/slot에 playUrl/blobUrl이 없으면 IndexedDB 캐시에서 복원 */
+async function restoreCachedBlobUrls(runs: TtsRun[]): Promise<TtsRun[]> {
+  return Promise.all(
+    runs.map(async (r) => {
+      let next: TtsRun = r;
+      if (!r.playUrl && !r.blobUrl && r.status === "success") {
+        const blob = await getAudio(audioCacheKey(r.id, null));
+        if (blob) next = { ...next, blobUrl: URL.createObjectURL(blob) };
+      }
+      if (r.bulkSlots?.length) {
+        const slots = await Promise.all(
+          r.bulkSlots.map(async (s, i) => {
+            if (s.playUrl || s.blobUrl || s.status !== "success") return s;
+            const blob = await getAudio(audioCacheKey(r.id, i));
+            if (!blob) return s;
+            return { ...s, blobUrl: URL.createObjectURL(blob) };
+          }),
+        );
+        next = { ...next, bulkSlots: slots };
+      }
+      return next;
+    }),
+  );
+}
+
 function trimRuns(runs: TtsRun[], max: number): TtsRun[] {
   if (runs.length <= max) return runs;
   const dropped = runs.slice(max);
   for (const r of dropped) {
-    revokeRunMediaUrls(r);
+    discardRunCompletely(r);
   }
   return runs.slice(0, max);
 }
@@ -215,7 +253,9 @@ export function TtsApp() {
       const enabled = Boolean(res.ok && j.cloudSync === true);
       setCloudSyncEnabled(enabled);
       if (enabled && Array.isArray(j.runs)) {
-        setRuns((prev) => mergeRunsWithRemote(prev, j.runs!, maxHistoryRef.current));
+        const restored = await restoreCachedBlobUrls(j.runs);
+        if (cancelled) return;
+        setRuns((prev) => mergeRunsWithRemote(prev, restored, maxHistoryRef.current));
       }
       setRemoteHistoryLoaded(true);
     })();
@@ -491,6 +531,7 @@ export function TtsApp() {
       const ct = resp.headers.get("content-type") ?? "audio/mpeg";
       const blob = new Blob([buf], { type: ct });
       const blobUrl = URL.createObjectURL(blob);
+      void putAudio(audioCacheKey(id, slotIndex), blob);
       const latency = Date.now() - startedAt;
       const meta: TtsRunAudioMeta = { firstChunkLatencyMs: latency };
       if (slotIndex == null) {
@@ -644,6 +685,7 @@ export function TtsApp() {
           }
           const blob = new Blob([merged], { type: "audio/mp3" });
           const blobUrl = URL.createObjectURL(blob);
+          void putAudio(audioCacheKey(id, slotIndex), blob);
           if (slotIndex == null) {
             updateRun(id, {
               status: "success",
@@ -790,10 +832,14 @@ export function TtsApp() {
   const clearResults = useCallback(() => {
     setRuns((prev) => {
       for (const r of prev) {
-        revokeRunMediaUrls(r);
+        if (r.blobUrl) URL.revokeObjectURL(r.blobUrl);
+        for (const s of r.bulkSlots ?? []) {
+          if (s.blobUrl) URL.revokeObjectURL(s.blobUrl);
+        }
       }
       return [];
     });
+    void clearAllAudios();
     setSelectedId(null);
     if (cloudSyncEnabledRef.current) {
       void fetch(`${API_BASE}/tts-history`, { method: "DELETE" });
