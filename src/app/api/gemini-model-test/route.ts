@@ -1,8 +1,14 @@
+import { auth } from "@/auth";
 import { generateCacheBustToken } from "@/lib/cache-bust";
+import {
+  isAudioStorageConfigured,
+  uploadAudioToStorage,
+} from "@/lib/server/audio-storage";
 import {
   GEMINI_TEST_MODELS,
   type GeminiTestModel,
 } from "@/types/tts";
+import { Buffer } from "node:buffer";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -34,6 +40,9 @@ type Body = {
   modelName: GeminiTestModel;
   rate?: number;
   cacheBust?: boolean;
+  /** Required to associate the uploaded audio with a history entry. */
+  runId?: string;
+  slotIndex?: number | null;
 };
 
 function parseBody(raw: unknown): Body | { error: string } {
@@ -58,6 +67,11 @@ function parseBody(raw: unknown): Body | { error: string } {
     modelName: o.modelName,
     rate,
     cacheBust: typeof o.cacheBust === "boolean" ? o.cacheBust : false,
+    runId: typeof o.runId === "string" && o.runId.length > 0 ? o.runId : undefined,
+    slotIndex:
+      typeof o.slotIndex === "number" && Number.isFinite(o.slotIndex)
+        ? o.slotIndex
+        : null,
   };
 }
 
@@ -121,6 +135,30 @@ export async function POST(req: Request) {
 
   const contentType = resp.headers.get("content-type") ?? "audio/mpeg";
   const buf = await resp.arrayBuffer();
+
+  // Persist to durable storage when possible so the result survives Firestore
+  // round-trip. Falls back to streaming the bytes inline if storage isn't
+  // configured or the request is unauthenticated.
+  if (parsed.runId && isAudioStorageConfigured()) {
+    const session = await auth();
+    const email = session?.user?.email?.trim().toLowerCase();
+    if (email) {
+      try {
+        const stored = await uploadAudioToStorage({
+          bytes: Buffer.from(buf),
+          contentType,
+          ownerEmail: email,
+          runId: parsed.runId,
+          slotIndex: parsed.slotIndex,
+        });
+        return NextResponse.json(stored, { status: 200 });
+      } catch (err) {
+        console.error("[gemini-model-test] storage upload failed", err);
+        // fall through to binary response so the user still hears the audio
+      }
+    }
+  }
+
   return new NextResponse(new Uint8Array(buf), {
     status: 200,
     headers: {

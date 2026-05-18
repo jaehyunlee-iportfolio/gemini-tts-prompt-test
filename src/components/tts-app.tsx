@@ -484,6 +484,77 @@ export function TtsApp() {
       prompt: promptVal,
     };
 
+    /**
+     * Replace a slot's transient `blobUrl` with a persistent storage URL.
+     * Called from the best-effort upload helpers below once the upload returns.
+     * No-op if the slot is gone (e.g., history trimmed) or already swapped.
+     */
+    const swapToPersistentUrl = (slotIndex: number | null, url: string) => {
+      setRuns((prev) =>
+        prev.map((r) => {
+          if (r.id !== id) return r;
+          if (slotIndex == null) {
+            if (r.playUrl === url) return r;
+            if (r.blobUrl) URL.revokeObjectURL(r.blobUrl);
+            return { ...r, playUrl: url, blobUrl: undefined };
+          }
+          if (!r.bulkSlots) return r;
+          const slots = r.bulkSlots.map((s, j) => {
+            if (j !== slotIndex) return s;
+            if (s.playUrl === url) return s;
+            if (s.blobUrl) URL.revokeObjectURL(s.blobUrl);
+            return { ...s, playUrl: url, blobUrl: undefined };
+          });
+          return { ...r, bulkSlots: slots };
+        }),
+      );
+    };
+
+    /** Persist Spindle SSE `created/cached` upstream URL to durable storage. */
+    const persistFromUpstreamUrl = async (
+      upstreamUrl: string,
+      slotIndex: number | null,
+    ) => {
+      try {
+        const r = await fetch(`${API_BASE}/tts-upload`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ upstreamUrl, runId: id, slotIndex }),
+        });
+        if (!r.ok) return;
+        const j = (await r.json()) as { url?: string };
+        if (typeof j.url === "string" && j.url.length > 0) {
+          swapToPersistentUrl(slotIndex, j.url);
+        }
+      } catch {
+        /* best-effort; original proxy URL stays in place */
+      }
+    };
+
+    /** Persist merged chunk bytes to durable storage. */
+    const persistFromBytes = async (
+      bytes: Uint8Array,
+      contentType: string,
+      slotIndex: number | null,
+    ) => {
+      try {
+        const params = new URLSearchParams({ runId: id, contentType });
+        if (slotIndex != null) params.set("slotIndex", String(slotIndex));
+        const r = await fetch(`${API_BASE}/tts-upload?${params.toString()}`, {
+          method: "POST",
+          headers: { "Content-Type": contentType },
+          body: bytes,
+        });
+        if (!r.ok) return;
+        const j = (await r.json()) as { url?: string };
+        if (typeof j.url === "string" && j.url.length > 0) {
+          swapToPersistentUrl(slotIndex, j.url);
+        }
+      } catch {
+        /* best-effort; blob URL keeps playing for the current session */
+      }
+    };
+
     const runGeminiTestForSlot = async (slotIndex: number | null) => {
       if (!isGeminiTestModel(model)) return;
       const startedAt = Date.now();
@@ -514,6 +585,8 @@ export function TtsApp() {
           bundleName,
           modelName: model,
           cacheBust,
+          runId: id,
+          slotIndex,
         }),
       });
       if (!resp.ok) {
@@ -527,19 +600,32 @@ export function TtsApp() {
         }
         throw new Error(`Gemini 모델 테스트 실패 (${resp.status}): ${msg}`);
       }
-      const buf = await resp.arrayBuffer();
-      const ct = resp.headers.get("content-type") ?? "audio/mpeg";
-      const blob = new Blob([buf], { type: ct });
-      const blobUrl = URL.createObjectURL(blob);
-      void putAudio(audioCacheKey(id, slotIndex), blob);
       const latency = Date.now() - startedAt;
       const meta: TtsRunAudioMeta = { firstChunkLatencyMs: latency };
+      const respCt = resp.headers.get("content-type") ?? "";
+
+      let playUrl: string | undefined;
+      let blobUrl: string | undefined;
+      if (respCt.toLowerCase().includes("application/json")) {
+        // Server uploaded to storage and returned a stable URL.
+        const j = (await resp.json()) as { url?: string };
+        if (!j.url) {
+          throw new Error("Gemini 모델 테스트 응답에 url이 없습니다.");
+        }
+        playUrl = j.url;
+      } else {
+        // Fallback: storage not configured / unauthenticated — stream bytes inline.
+        const buf = await resp.arrayBuffer();
+        const ct = respCt || "audio/mpeg";
+        blobUrl = URL.createObjectURL(new Blob([buf], { type: ct }));
+      }
+      const src = playUrl ?? blobUrl!;
       if (slotIndex == null) {
         updateRun(id, {
           status: "success",
           statusMessage: undefined,
           blobUrl,
-          playUrl: undefined,
+          playUrl,
           meta,
         });
       } else {
@@ -551,7 +637,7 @@ export function TtsApp() {
                   status: "success" as const,
                   statusMessage: undefined,
                   blobUrl,
-                  playUrl: undefined,
+                  playUrl,
                   meta,
                 }
               : s,
@@ -559,7 +645,7 @@ export function TtsApp() {
         );
       }
       if (autoSttVerifyRef.current) {
-        void verifyOne({ runId: id, slotIndex, src: blobUrl, originalText });
+        void verifyOne({ runId: id, slotIndex, src, originalText });
       }
     };
 
@@ -657,6 +743,9 @@ export function TtsApp() {
           if (autoSttVerifyRef.current) {
             void verifyOne({ runId: id, slotIndex, src: playUrl, originalText });
           }
+          // Replace the upstream proxy URL with a durable storage URL in
+          // the background; upstream TTL otherwise eventually breaks playback.
+          void persistFromUpstreamUrl(upstreamUrl, slotIndex);
         },
         finishFromChunks: (chunks) => {
           if (chunks.length === 0) {
@@ -683,7 +772,8 @@ export function TtsApp() {
             merged.set(chunk, offset);
             offset += chunk.length;
           }
-          const blob = new Blob([merged], { type: "audio/mp3" });
+          const contentType = "audio/mp3";
+          const blob = new Blob([merged], { type: contentType });
           const blobUrl = URL.createObjectURL(blob);
           void putAudio(audioCacheKey(id, slotIndex), blob);
           if (slotIndex == null) {
@@ -711,6 +801,9 @@ export function TtsApp() {
           if (autoSttVerifyRef.current) {
             void verifyOne({ runId: id, slotIndex, src: blobUrl, originalText });
           }
+          // Persist merged chunks to durable storage so the result survives
+          // Firestore round-trip; blob URL keeps working until the swap.
+          void persistFromBytes(merged, contentType, slotIndex);
         },
         onError: (message) => {
           if (slotIndex == null) {
