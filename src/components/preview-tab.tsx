@@ -13,14 +13,13 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { listBundlePresets } from "@/lib/bundle-presets";
-import { PREVIEW_EXAMPLE_PROMPTS, PREVIEW_EXAMPLE_TEXTS } from "@/lib/preview-examples";
+import {
+  PREVIEW_EXAMPLE_PROMPTS,
+  PREVIEW_EXAMPLE_TEXTS,
+  PREVIEW_PROMPT_CATEGORIES,
+  PREVIEW_PROMPT_CATEGORY_LABELS,
+} from "@/lib/preview-examples";
 import { proxyPlayUrl, streamTtsSse } from "@/lib/tts-sse";
 import { cn } from "@/lib/utils";
 import { bundleNameFromVoiceStyle, type StyleTone, type VoiceId } from "@/types/tts";
@@ -262,8 +261,7 @@ export function PreviewTab() {
   const earlier = results.slice(1);
 
   return (
-    <TooltipProvider delayDuration={300}>
-      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+    <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <Card className="min-w-0">
           <CardHeader className="space-y-1 px-4 pb-3 pt-4 sm:px-6 sm:pb-4 sm:pt-6">
             <CardTitle className="text-lg sm:text-xl">새 보이스 4종 체험</CardTitle>
@@ -348,17 +346,25 @@ export function PreviewTab() {
                 value={text}
                 onChange={(e) => setText(e.target.value)}
               />
-              <div className="flex flex-wrap gap-1.5">
-                {PREVIEW_EXAMPLE_TEXTS.map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => onPickExampleText(t)}
-                    className="touch-manipulation rounded-full border border-dashed border-border bg-muted/30 px-3 py-1 text-[11px] text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground sm:text-xs"
-                  >
-                    {t.length > 36 ? `${t.slice(0, 34)}…` : t}
-                  </button>
-                ))}
+              <div className="space-y-1.5">
+                <p className="text-xs font-medium text-foreground sm:text-sm">예시 문장</p>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {PREVIEW_EXAMPLE_TEXTS.map((t) => (
+                    <button
+                      key={t.label}
+                      type="button"
+                      onClick={() => onPickExampleText(t.text)}
+                      className="group flex touch-manipulation flex-col items-start gap-1 rounded-lg border border-dashed border-border bg-muted/20 px-3 py-2 text-left transition-colors hover:border-primary/60 hover:bg-primary/5 active:scale-[0.99]"
+                    >
+                      <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground group-hover:text-primary sm:text-xs">
+                        {t.label}
+                      </span>
+                      <span className="text-xs leading-relaxed text-foreground sm:text-sm">
+                        {t.text}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -400,29 +406,45 @@ export function PreviewTab() {
                     : "예시 프롬프트를 골라보거나 자유롭게 적어보세요."
                 }
               />
-              <div className="space-y-1.5">
-                <p className="text-[11px] text-muted-foreground sm:text-xs">예시 프롬프트</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {PREVIEW_EXAMPLE_PROMPTS.map((p) => (
-                    <Tooltip key={p.title}>
-                      <TooltipTrigger asChild>
-                        <button
-                          type="button"
-                          onClick={() => onPickExamplePrompt(p.body)}
-                          className="touch-manipulation rounded-full border border-border bg-secondary/40 px-3 py-1 text-[11px] text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground sm:text-xs"
-                        >
-                          {p.title}
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent
-                        side="top"
-                        className="max-w-[min(90vw,22rem)] sm:max-w-md"
-                      >
-                        <p className="text-xs leading-relaxed">{p.body}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  ))}
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <p className="text-xs font-medium text-foreground sm:text-sm">예시 프롬프트</p>
+                  <p className="text-[10px] text-muted-foreground sm:text-[11px]">
+                    클릭 시 위 textarea를 덮어쓰고 &quot;직접 작성&quot; 모드로 전환
+                  </p>
                 </div>
+                {PREVIEW_PROMPT_CATEGORIES.map((cat) => {
+                  const items = PREVIEW_EXAMPLE_PROMPTS.filter((p) => p.category === cat);
+                  if (items.length === 0) return null;
+                  const meta = PREVIEW_PROMPT_CATEGORY_LABELS[cat];
+                  return (
+                    <div key={cat} className="space-y-1.5">
+                      <div className="flex flex-wrap items-baseline gap-2 border-b border-border/60 pb-1">
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-primary/80 sm:text-xs">
+                          {meta.label}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">{meta.hint}</p>
+                      </div>
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        {items.map((p) => (
+                          <button
+                            key={p.title}
+                            type="button"
+                            onClick={() => onPickExamplePrompt(p.body)}
+                            className="group flex touch-manipulation flex-col items-start gap-1 rounded-lg border border-border bg-secondary/30 px-3 py-2 text-left transition-colors hover:border-primary/60 hover:bg-primary/5 active:scale-[0.99]"
+                          >
+                            <span className="text-sm font-semibold text-foreground group-hover:text-primary">
+                              {p.title}
+                            </span>
+                            <span className="line-clamp-3 text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
+                              {p.body}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -490,7 +512,6 @@ export function PreviewTab() {
           </CardContent>
         </Card>
       </div>
-    </TooltipProvider>
   );
 }
 
