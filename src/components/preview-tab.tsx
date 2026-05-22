@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/tooltip";
 import { listBundlePresets } from "@/lib/bundle-presets";
 import { PREVIEW_EXAMPLE_PROMPTS, PREVIEW_EXAMPLE_TEXTS } from "@/lib/preview-examples";
-import { fetchCompleteTts } from "@/lib/tts-sse";
+import { proxyPlayUrl, streamTtsSse } from "@/lib/tts-sse";
 import { cn } from "@/lib/utils";
 import { bundleNameFromVoiceStyle, type StyleTone, type VoiceId } from "@/types/tts";
 import type { PromptRegistryJson } from "@/types/registry";
@@ -171,38 +171,74 @@ export function PreviewTab() {
       text: trimmedText,
       prompt,
       status: "loading",
-      message: "음성 생성 중...",
+      message: "SSE 연결 대기 중...",
     };
     setResults((prev) => trimResults([initial, ...prev]));
     setGenerating(true);
 
+    const updateResult = (patch: Partial<PreviewResult>) => {
+      setResults((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+    };
+
     try {
-      const result = await fetchCompleteTts({
-        text: trimmedText,
-        bundleName,
-        prompt,
-        cacheBust: true,
-        platform: "PLAYGROUND",
-        userId: 2,
+      const startResp = await fetch(`${API_BASE}/tts-start`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         signal: abort.signal,
+        body: JSON.stringify({
+          text: trimmedText,
+          cacheBust: true,
+          bundleName,
+          viseme: false,
+          prompt,
+          platform: "PLAYGROUND",
+          userId: 2,
+        }),
       });
-
-      let playUrl: string | undefined;
-      let blobUrl: string | undefined;
-      if (result.kind === "proxyUrl") {
-        playUrl = result.playUrl;
-      } else {
-        blobUrl = URL.createObjectURL(
-          new Blob([new Uint8Array(result.bytes)], { type: "audio/mp3" }),
-        );
+      if (!startResp.ok) {
+        const t = await startResp.text();
+        throw new Error(`tts-start failed (${startResp.status}): ${t}`);
       }
+      const startData = (await startResp.json()) as Record<string, unknown>;
+      const sseId = (startData.sseId || startData.id || startData.streamId) as
+        | string
+        | undefined;
+      if (!sseId) throw new Error("sseId가 응답에 없습니다.");
 
-      setResults((prev) =>
-        prev.map((r) =>
-          r.id === id
-            ? { ...r, status: "success" as const, playUrl, blobUrl, message: undefined }
-            : r,
-        ),
+      updateResult({ message: `SSE 수신 중 (ID: ${sseId})...` });
+
+      await streamTtsSse(
+        sseId,
+        {
+          onLoading: (msg) => updateResult({ message: msg }),
+          finishFromUrl: (upstreamUrl) => {
+            updateResult({
+              status: "success",
+              playUrl: proxyPlayUrl(upstreamUrl),
+              blobUrl: undefined,
+              message: undefined,
+            });
+          },
+          finishFromChunks: (chunks) => {
+            if (chunks.length === 0) {
+              updateResult({ status: "error", message: "오디오 데이터가 비어있습니다." });
+              return;
+            }
+            const totalLen = chunks.reduce((sum, c) => sum + c.length, 0);
+            const merged = new Uint8Array(totalLen);
+            let offset = 0;
+            for (const chunk of chunks) {
+              merged.set(chunk, offset);
+              offset += chunk.length;
+            }
+            const blobUrl = URL.createObjectURL(
+              new Blob([new Uint8Array(merged)], { type: "audio/mp3" }),
+            );
+            updateResult({ status: "success", blobUrl, playUrl: undefined, message: undefined });
+          },
+          onError: (msg) => updateResult({ status: "error", message: msg }),
+        },
+        { signal: abort.signal },
       );
     } catch (err) {
       const isAbort = err instanceof DOMException && err.name === "AbortError";
@@ -211,9 +247,7 @@ export function PreviewTab() {
         : err instanceof Error
           ? err.message
           : String(err);
-      setResults((prev) =>
-        prev.map((r) => (r.id === id ? { ...r, status: "error" as const, message } : r)),
-      );
+      updateResult({ status: "error", message });
     } finally {
       if (abortRef.current === abort) abortRef.current = null;
       setGenerating(false);
