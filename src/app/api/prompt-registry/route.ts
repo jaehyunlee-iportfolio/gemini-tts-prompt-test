@@ -3,8 +3,7 @@ import path from "path";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getFileContent, REGISTRY_PATH, resolveGithubPat } from "@/lib/server/github-repo";
-import { registryForbiddenBody } from "@/lib/registry-access";
-import { isSessionRegistryAdmin } from "@/lib/server/registry-admins";
+import { isAllowedGoogleEmailDomain } from "@/lib/registry-access";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -26,9 +25,15 @@ async function readRegistryFromDisk(): Promise<unknown> {
 }
 
 export async function GET() {
+  // 읽기 권한은 로그인된 사내(@iportfolio.co.kr) 계정 누구에게나 허용합니다.
+  // 쓰기(createRevision 등)는 /api/prompt-save에서 별도로 admin gate 적용.
+  // Preview 탭이 기본 프롬프트(레지스트리 최신 long)를 자동 로드하려면 GET이 필요.
   const session = await auth();
-  if (!(await isSessionRegistryAdmin(session?.user?.email))) {
-    return NextResponse.json(registryForbiddenBody(), { status: 403 });
+  if (!isAllowedGoogleEmailDomain(session?.user?.email)) {
+    return NextResponse.json(
+      { error: "로그인된 @iportfolio.co.kr 계정에서만 사용할 수 있습니다." },
+      { status: 403 },
+    );
   }
 
   let registry: unknown = null;
