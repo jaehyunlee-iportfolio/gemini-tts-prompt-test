@@ -15,32 +15,13 @@ export type StyleTone = (typeof STYLE_TONES)[number];
 
 /**
  * 사용자가 선택 가능한 TTS 모델.
- * - `spindle-laura`: 기존 Spindle LAURA SSE 스트림 (기본)
- * - `gemini-3.1-flash-tts-preview` · `gemini-2.5-pro-tts`:
- *   Spindle의 `/api/v1/support/gemini-model-test/synthesize` 동기 엔드포인트.
- *   bundle 4종(Rasalgethi/Puck/Fenrir/Sulafat)만 지원, Zephyr 미지원.
+ * - `spindle-laura`: Spindle LAURA SSE 스트림.
  */
-export const TTS_MODELS = [
-  "spindle-laura",
-  "gemini-3.1-flash-tts-preview",
-  "gemini-2.5-pro-tts",
-] as const;
+export const TTS_MODELS = ["spindle-laura"] as const;
 export type TtsModel = (typeof TTS_MODELS)[number];
-
-export const GEMINI_TEST_MODELS = [
-  "gemini-3.1-flash-tts-preview",
-  "gemini-2.5-pro-tts",
-] as const;
-export type GeminiTestModel = (typeof GEMINI_TEST_MODELS)[number];
-
-export function isGeminiTestModel(m: TtsModel): m is GeminiTestModel {
-  return (GEMINI_TEST_MODELS as readonly string[]).includes(m);
-}
 
 export const TTS_MODEL_LABELS: Record<TtsModel, string> = {
   "spindle-laura": "Spindle LAURA (SSE)",
-  "gemini-3.1-flash-tts-preview": "Gemini 3.1 Flash TTS (preview)",
-  "gemini-2.5-pro-tts": "Gemini 2.5 Pro TTS",
 };
 
 export type TtsRunStatus = "loading" | "success" | "error";

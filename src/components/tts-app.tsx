@@ -58,17 +58,15 @@ import {
 import { cn } from "@/lib/utils";
 import { AuthButtons } from "@/components/auth-buttons";
 import { CsvBatchQaTab } from "@/components/csv-batch-qa-tab";
+import { PreviewTab } from "@/components/preview-tab";
 import { ThemeToggle } from "@/components/theme-toggle";
 import type { PromptRegistryJson, RegistryGroup, RegistryPrompt } from "@/types/registry";
 import {
   bundleNameFromVoiceStyle,
   isChirpZephyrVoice,
-  isGeminiTestModel,
   TTS_MODEL_LABELS,
-  TTS_MODELS,
   type StyleTone,
   type TtsBulkSlot,
-  type TtsModel,
   type TtsRun,
   type TtsRunAudioMeta,
   type TtsRunQa,
@@ -193,10 +191,12 @@ function aggregateBulkStatus(slots: TtsBulkSlot[]): Pick<TtsRun, "status" | "sta
   };
 }
 
+type AdminAccessStatus = "loading" | "admin" | "non-admin";
+
 export function TtsApp() {
   const { status: rootSessionStatus } = useSession();
-  const [mainTab, setMainTab] = useState("generate");
-  const [model, setModel] = useState<TtsModel>("spindle-laura");
+  const [mainTab, setMainTab] = useState("preview");
+  const [adminAccessStatus, setAdminAccessStatus] = useState<AdminAccessStatus>("loading");
   const [voice, setVoice] = useState<VoiceId>("Rasalgethi");
   const [style, setStyle] = useState<StyleTone>("Default");
   const [text, setText] = useState("Hello My name is Erin.");
@@ -231,6 +231,33 @@ export function TtsApp() {
     setRegistryJson(reg);
     setRegistryLoadError(null);
   }, []);
+
+  useEffect(() => {
+    if (rootSessionStatus === "loading") return;
+    if (rootSessionStatus !== "authenticated") {
+      setAdminAccessStatus("non-admin");
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/registry-admins`);
+        if (cancelled) return;
+        setAdminAccessStatus(res.ok ? "admin" : "non-admin");
+      } catch {
+        if (!cancelled) setAdminAccessStatus("non-admin");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [rootSessionStatus]);
+
+  useEffect(() => {
+    if (adminAccessStatus === "non-admin" && mainTab !== "preview") {
+      setMainTab("preview");
+    }
+  }, [adminAccessStatus, mainTab]);
 
   useEffect(() => {
     if (rootSessionStatus !== "authenticated") {
@@ -290,13 +317,6 @@ export function TtsApp() {
     setPrompt("");
     setActivePresetKey(null);
   }, [voice]);
-
-  /** Gemini 모델 테스트 엔드포인트는 Zephyr를 지원하지 않으므로 자동으로 Rasalgethi로 전환 */
-  useEffect(() => {
-    if (isGeminiTestModel(model) && isChirpZephyrVoice(voice)) {
-      setVoice("Rasalgethi");
-    }
-  }, [model, voice]);
 
   const bundleName = useMemo(() => bundleNameFromVoiceStyle(voice, style), [voice, style]);
 
@@ -479,7 +499,7 @@ export function TtsApp() {
       bundleName,
       voice,
       style,
-      model,
+      model: "spindle-laura" as const,
       originalText,
       prompt: promptVal,
     };
@@ -552,100 +572,6 @@ export function TtsApp() {
         }
       } catch {
         /* best-effort; blob URL keeps playing for the current session */
-      }
-    };
-
-    const runGeminiTestForSlot = async (slotIndex: number | null) => {
-      if (!isGeminiTestModel(model)) return;
-      const startedAt = Date.now();
-      if (slotIndex == null) {
-        updateRun(id, {
-          status: "loading",
-          statusMessage: `${TTS_MODEL_LABELS[model]} 동기 요청 중...`,
-        });
-      } else {
-        patchBulkSlots(id, (slots) =>
-          slots.map((s, j) =>
-            j === slotIndex
-              ? {
-                  ...s,
-                  status: "loading" as const,
-                  statusMessage: `${TTS_MODEL_LABELS[model]} 동기 요청 중...`,
-                }
-              : s,
-          ),
-        );
-      }
-      const resp = await fetch(`${API_BASE}/gemini-model-test`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        signal: generationAbortController.signal,
-        body: JSON.stringify({
-          text: originalText,
-          bundleName,
-          modelName: model,
-          cacheBust,
-          runId: id,
-          slotIndex,
-        }),
-      });
-      if (!resp.ok) {
-        const errText = await resp.text();
-        let msg = errText;
-        try {
-          const j = JSON.parse(errText) as { error?: string };
-          if (j.error) msg = j.error;
-        } catch {
-          /* plain text */
-        }
-        throw new Error(`Gemini 모델 테스트 실패 (${resp.status}): ${msg}`);
-      }
-      const latency = Date.now() - startedAt;
-      const meta: TtsRunAudioMeta = { firstChunkLatencyMs: latency };
-      const respCt = resp.headers.get("content-type") ?? "";
-
-      let playUrl: string | undefined;
-      let blobUrl: string | undefined;
-      if (respCt.toLowerCase().includes("application/json")) {
-        // Server uploaded to storage and returned a stable URL.
-        const j = (await resp.json()) as { url?: string };
-        if (!j.url) {
-          throw new Error("Gemini 모델 테스트 응답에 url이 없습니다.");
-        }
-        playUrl = j.url;
-      } else {
-        // Fallback: storage not configured / unauthenticated — stream bytes inline.
-        const buf = await resp.arrayBuffer();
-        const ct = respCt || "audio/mpeg";
-        blobUrl = URL.createObjectURL(new Blob([buf], { type: ct }));
-      }
-      const src = playUrl ?? blobUrl!;
-      if (slotIndex == null) {
-        updateRun(id, {
-          status: "success",
-          statusMessage: undefined,
-          blobUrl,
-          playUrl,
-          meta,
-        });
-      } else {
-        patchBulkSlots(id, (slots) =>
-          slots.map((s, j) =>
-            j === slotIndex
-              ? {
-                  ...s,
-                  status: "success" as const,
-                  statusMessage: undefined,
-                  blobUrl,
-                  playUrl,
-                  meta,
-                }
-              : s,
-          ),
-        );
-      }
-      if (autoSttVerifyRef.current) {
-        void verifyOne({ runId: id, slotIndex, src, originalText });
       }
     };
 
@@ -821,16 +747,11 @@ export function TtsApp() {
       });
     };
 
-    const runForSlot = (slotIndex: number | null) =>
-      isGeminiTestModel(model)
-        ? runGeminiTestForSlot(slotIndex)
-        : runSpindleStreamForSlot(slotIndex);
+    const runForSlot = (slotIndex: number | null) => runSpindleStreamForSlot(slotIndex);
 
     try {
       if (n <= 1) {
-        const initialMessage = isGeminiTestModel(model)
-          ? `${TTS_MODEL_LABELS[model]} 요청 준비 중...`
-          : "SSE 연결 대기 중...";
+        const initialMessage = "SSE 연결 대기 중...";
         const newRun: TtsRun = {
           ...base,
           status: "loading",
@@ -904,7 +825,6 @@ export function TtsApp() {
     bundleName,
     voice,
     style,
-    model,
     platform,
     maxHistory,
     bulkRepeatInput,
@@ -1006,26 +926,45 @@ export function TtsApp() {
         </header>
 
         <Tabs value={mainTab} onValueChange={setMainTab} className="space-y-4 sm:space-y-6">
-          <TabsList className="grid h-auto w-full grid-cols-3 gap-1 p-1 sm:inline-flex sm:w-auto sm:max-w-none">
+          <TabsList
+            className={cn(
+              "grid h-auto w-full gap-1 p-1 sm:inline-flex sm:w-auto sm:max-w-none",
+              adminAccessStatus === "admin" ? "grid-cols-4" : "grid-cols-1",
+            )}
+          >
             <TabsTrigger
-              value="generate"
+              value="preview"
               className="touch-manipulation px-2 py-2.5 text-xs sm:flex-initial sm:px-3 sm:py-2 sm:text-sm"
             >
-              음성 생성
+              Preview
             </TabsTrigger>
-            <TabsTrigger
-              value="csv-batch"
-              className="touch-manipulation px-2 py-2.5 text-xs sm:flex-initial sm:px-3 sm:py-2 sm:text-sm"
-            >
-              CSV 배치·QA
-            </TabsTrigger>
-            <TabsTrigger
-              value="registry"
-              className="touch-manipulation px-2 py-2.5 text-xs sm:flex-initial sm:px-3 sm:py-2 sm:text-sm"
-            >
-              프롬프트 레지스트리
-            </TabsTrigger>
+            {adminAccessStatus === "admin" ? (
+              <>
+                <TabsTrigger
+                  value="generate"
+                  className="touch-manipulation px-2 py-2.5 text-xs sm:flex-initial sm:px-3 sm:py-2 sm:text-sm"
+                >
+                  음성 생성
+                </TabsTrigger>
+                <TabsTrigger
+                  value="csv-batch"
+                  className="touch-manipulation px-2 py-2.5 text-xs sm:flex-initial sm:px-3 sm:py-2 sm:text-sm"
+                >
+                  CSV 배치·QA
+                </TabsTrigger>
+                <TabsTrigger
+                  value="registry"
+                  className="touch-manipulation px-2 py-2.5 text-xs sm:flex-initial sm:px-3 sm:py-2 sm:text-sm"
+                >
+                  프롬프트 레지스트리
+                </TabsTrigger>
+              </>
+            ) : null}
           </TabsList>
+
+          <TabsContent value="preview" className="mt-0 space-y-3 sm:space-y-4">
+            <PreviewTab />
+          </TabsContent>
 
           <TabsContent value="generate" className="mt-0 space-y-3 sm:space-y-4">
             <Alert className="text-sm">
@@ -1063,40 +1002,6 @@ export function TtsApp() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3 px-4 sm:space-y-4 sm:px-6">
-                  <div className="space-y-2">
-                    <Label className="text-sm">TTS 모델</Label>
-                    <Select value={model} onValueChange={(v) => setModel(v as TtsModel)}>
-                      <SelectTrigger className="h-11 w-full touch-manipulation sm:h-10">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Spindle LAURA (SSE)</SelectLabel>
-                          <SelectItem value="spindle-laura">
-                            {TTS_MODEL_LABELS["spindle-laura"]}
-                          </SelectItem>
-                        </SelectGroup>
-                        <SelectGroup>
-                          <SelectLabel>Spindle Gemini Model Test (동기)</SelectLabel>
-                          {TTS_MODELS.filter((m) => m !== "spindle-laura").map((m) => (
-                            <SelectItem key={m} value={m}>
-                              {TTS_MODEL_LABELS[m]}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    {isGeminiTestModel(model) ? (
-                      <p className="text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
-                        동기 엔드포인트({" "}
-                        <code className="rounded bg-muted px-1 font-mono">
-                          /support/gemini-model-test/synthesize
-                        </code>{" "}
-                        )로 MP3를 한 번에 받아옵니다. Zephyr 미지원이며, 업스트림 스펙상 prompt 필드는
-                        전송되지 않습니다(bundle에 내장).
-                      </p>
-                    ) : null}
-                  </div>
                   <div
                     className={cn(
                       "grid grid-cols-1 gap-3 sm:gap-4",
@@ -1120,14 +1025,12 @@ export function TtsApp() {
                             <SelectLabel>Female Adult — 프롬프트 TTS</SelectLabel>
                             <SelectItem value="Sulafat">Sulafat</SelectItem>
                           </SelectGroup>
-                          {isGeminiTestModel(model) ? null : (
-                            <SelectGroup>
-                              <SelectLabel>Zephyr — 프롬프트 미지원 (CHIRP)</SelectLabel>
-                              <SelectItem value="ZephyrDefault">
-                                Zephyr-Default · Female Adult en-US
-                              </SelectItem>
-                            </SelectGroup>
-                          )}
+                          <SelectGroup>
+                            <SelectLabel>Zephyr — 프롬프트 미지원 (CHIRP)</SelectLabel>
+                            <SelectItem value="ZephyrDefault">
+                              Zephyr-Default · Female Adult en-US
+                            </SelectItem>
+                          </SelectGroup>
                         </SelectContent>
                       </Select>
                     </div>
