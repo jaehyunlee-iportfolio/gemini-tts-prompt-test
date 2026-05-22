@@ -152,6 +152,24 @@ export function PreviewTab() {
     setPrompt(value);
   }, []);
 
+  const focusElementById = (id: string) => {
+    requestAnimationFrame(() => {
+      const el = document.getElementById(id) as HTMLTextAreaElement | null;
+      el?.focus();
+    });
+  };
+
+  const onCustomText = useCallback(() => {
+    setText("");
+    focusElementById("preview-text");
+  }, []);
+
+  const onCustomPrompt = useCallback(() => {
+    setPromptMode("custom");
+    setPrompt("");
+    focusElementById("preview-prompt");
+  }, []);
+
   const generate = useCallback(async () => {
     if (generating) return;
     const trimmedText = text.trim();
@@ -349,6 +367,18 @@ export function PreviewTab() {
               <div className="space-y-1.5">
                 <p className="text-xs font-medium text-foreground sm:text-sm">예시 문장</p>
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={onCustomText}
+                    className="group flex touch-manipulation flex-col items-start gap-1 rounded-lg border-2 border-dashed border-primary/40 bg-primary/5 px-3 py-2 text-left transition-colors hover:border-primary/70 hover:bg-primary/10 active:scale-[0.99]"
+                  >
+                    <span className="text-[11px] font-semibold uppercase tracking-wide text-primary sm:text-xs">
+                      + 직접 작성
+                    </span>
+                    <span className="text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                      위 textarea를 비우고 원하는 영어 문장을 직접 입력합니다.
+                    </span>
+                  </button>
                   {PREVIEW_EXAMPLE_TEXTS.map((t) => (
                     <button
                       key={t.label}
@@ -413,6 +443,17 @@ export function PreviewTab() {
                     클릭 시 위 textarea를 덮어쓰고 &quot;직접 작성&quot; 모드로 전환
                   </p>
                 </div>
+                <button
+                  type="button"
+                  onClick={onCustomPrompt}
+                  className="group flex w-full touch-manipulation flex-col items-start gap-1 rounded-lg border-2 border-dashed border-primary/40 bg-primary/5 px-3 py-2 text-left transition-colors hover:border-primary/70 hover:bg-primary/10 active:scale-[0.99]"
+                >
+                  <span className="text-sm font-semibold text-primary">+ 직접 작성</span>
+                  <span className="text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
+                    위 textarea를 비우고 스타일 지시문을 직접 적어봅니다. Voice·Style은 그대로
+                    유지됩니다.
+                  </span>
+                </button>
                 {PREVIEW_PROMPT_CATEGORIES.map((cat) => {
                   const items = PREVIEW_EXAMPLE_PROMPTS.filter((p) => p.category === cat);
                   if (items.length === 0) return null;
