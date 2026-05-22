@@ -192,7 +192,9 @@ export function PreviewTab() {
       if (result.kind === "proxyUrl") {
         playUrl = result.playUrl;
       } else {
-        blobUrl = URL.createObjectURL(new Blob([result.bytes], { type: "audio/mp3" }));
+        blobUrl = URL.createObjectURL(
+          new Blob([new Uint8Array(result.bytes)], { type: "audio/mp3" }),
+        );
       }
 
       setResults((prev) =>
