@@ -563,7 +563,7 @@ export function TtsApp() {
         const r = await fetch(`${API_BASE}/tts-upload?${params.toString()}`, {
           method: "POST",
           headers: { "Content-Type": contentType },
-          body: bytes,
+          body: new Uint8Array(bytes),
         });
         if (!r.ok) return;
         const j = (await r.json()) as { url?: string };
