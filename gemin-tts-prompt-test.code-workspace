@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "../jira-gantt"
+		},
+		{
+			"path": "../../../../../../Documents/GitHub/spindle-speech"
 		}
 	],
 	"settings": {}
