@@ -14,6 +14,5 @@ __pycache__/
 out/
 tsconfig.tsbuildinfo
 # SPM 스윕 생성 오디오(용량 큼, Stage URL/캐시로 재생 가능) — 레포에 커밋 안 함
-docs/spm-sweep/child-audio/
-docs/spm-sweep/confirm-audio/
 docs/spm-sweep/audio/
+docs/spm-sweep/*-audio/

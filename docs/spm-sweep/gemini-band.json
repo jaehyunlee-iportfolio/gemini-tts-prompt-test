@@ -1,0 +1,976 @@
+{
+  "bands": {
+    "wide-low": {
+      "beginner": 0.78,
+      "intermediate": 1.02,
+      "advanced": 1.3
+    },
+    "wide-safe": {
+      "beginner": 0.85,
+      "intermediate": 1.08,
+      "advanced": 1.35
+    }
+  },
+  "results": [
+    {
+      "bundle": "GEMINI-Rasalgethi-Default",
+      "base": 160.1,
+      "bands": {
+        "wide-low": {
+          "levels": {
+            "beginner": {
+              "spm": 125,
+              "mySpmMed": 174.3,
+              "mySpmSD": 0.0,
+              "wpmMed": 136,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 0.78
+            },
+            "intermediate": {
+              "spm": 163,
+              "mySpmMed": 198.8,
+              "mySpmSD": 0.0,
+              "wpmMed": 156,
+              "midPauseN": 1,
+              "midPauseSec": 0.39,
+              "sttMed": 1.0,
+              "rate": 1.02
+            },
+            "advanced": {
+              "spm": 208,
+              "mySpmMed": 238.2,
+              "mySpmSD": 0.0,
+              "wpmMed": 186,
+              "midPauseN": 2,
+              "midPauseSec": 0.42,
+              "sttMed": 1.0,
+              "rate": 1.3
+            }
+          },
+          "distinct": true,
+          "order": "174.3/198.8/238.2",
+          "beginnerPauseSec": 0.0
+        },
+        "wide-safe": {
+          "levels": {
+            "beginner": {
+              "spm": 136,
+              "mySpmMed": 184.3,
+              "mySpmSD": 0.0,
+              "wpmMed": 144,
+              "midPauseN": 1,
+              "midPauseSec": 0.33,
+              "sttMed": 1.0,
+              "rate": 0.85
+            },
+            "intermediate": {
+              "spm": 173,
+              "mySpmMed": 189.4,
+              "mySpmSD": 0.0,
+              "wpmMed": 148,
+              "midPauseN": 2,
+              "midPauseSec": 0.64,
+              "sttMed": 1.0,
+              "rate": 1.08
+            },
+            "advanced": {
+              "spm": 216,
+              "mySpmMed": 236.7,
+              "mySpmSD": 0.0,
+              "wpmMed": 185,
+              "midPauseN": 1,
+              "midPauseSec": 0.22,
+              "sttMed": 1.0,
+              "rate": 1.35
+            }
+          },
+          "distinct": false,
+          "order": "184.3/189.4/236.7",
+          "beginnerPauseSec": 0.33
+        }
+      }
+    },
+    {
+      "bundle": "GEMINI-Rasalgethi-Cheerful",
+      "base": 170.3,
+      "bands": {
+        "wide-low": {
+          "levels": {
+            "beginner": {
+              "spm": 133,
+              "mySpmMed": 113.9,
+              "mySpmSD": 0.0,
+              "wpmMed": 89,
+              "midPauseN": 7,
+              "midPauseSec": 1.82,
+              "sttMed": 1.0,
+              "rate": 0.78
+            },
+            "intermediate": {
+              "spm": 174,
+              "mySpmMed": 197.9,
+              "mySpmSD": 0.0,
+              "wpmMed": 155,
+              "midPauseN": 1,
+              "midPauseSec": 0.34,
+              "sttMed": 1.0,
+              "rate": 1.02
+            },
+            "advanced": {
+              "spm": 221,
+              "mySpmMed": 259.9,
+              "mySpmSD": 0.0,
+              "wpmMed": 203,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.3
+            }
+          },
+          "distinct": true,
+          "order": "113.9/197.9/259.9",
+          "beginnerPauseSec": 1.82
+        },
+        "wide-safe": {
+          "levels": {
+            "beginner": {
+              "spm": 145,
+              "mySpmMed": 168.1,
+              "mySpmSD": 0.0,
+              "wpmMed": 132,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 0.85
+            },
+            "intermediate": {
+              "spm": 184,
+              "mySpmMed": 246.0,
+              "mySpmSD": 0.0,
+              "wpmMed": 193,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.08
+            },
+            "advanced": {
+              "spm": 230,
+              "mySpmMed": 278.5,
+              "mySpmSD": 0.0,
+              "wpmMed": 218,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.35
+            }
+          },
+          "distinct": true,
+          "order": "168.1/246.0/278.5",
+          "beginnerPauseSec": 0.0
+        }
+      }
+    },
+    {
+      "bundle": "GEMINI-Rasalgethi-Gentle",
+      "base": 160.7,
+      "bands": {
+        "wide-low": {
+          "levels": {
+            "beginner": {
+              "spm": 125,
+              "mySpmMed": 158.8,
+              "mySpmSD": 0.0,
+              "wpmMed": 124,
+              "midPauseN": 3,
+              "midPauseSec": 0.71,
+              "sttMed": 1.0,
+              "rate": 0.78
+            },
+            "intermediate": {
+              "spm": 164,
+              "mySpmMed": 183.2,
+              "mySpmSD": 0.0,
+              "wpmMed": 143,
+              "midPauseN": 2,
+              "midPauseSec": 0.57,
+              "sttMed": 1.0,
+              "rate": 1.02
+            },
+            "advanced": {
+              "spm": 209,
+              "mySpmMed": 238.4,
+              "mySpmSD": 0.0,
+              "wpmMed": 187,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.3
+            }
+          },
+          "distinct": true,
+          "order": "158.8/183.2/238.4",
+          "beginnerPauseSec": 0.71
+        },
+        "wide-safe": {
+          "levels": {
+            "beginner": {
+              "spm": 137,
+              "mySpmMed": 204.4,
+              "mySpmSD": 0.0,
+              "wpmMed": 160,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 0.85
+            },
+            "intermediate": {
+              "spm": 174,
+              "mySpmMed": 190.4,
+              "mySpmSD": 0.0,
+              "wpmMed": 149,
+              "midPauseN": 1,
+              "midPauseSec": 0.38,
+              "sttMed": 1.0,
+              "rate": 1.08
+            },
+            "advanced": {
+              "spm": 217,
+              "mySpmMed": 240.8,
+              "mySpmSD": 0.0,
+              "wpmMed": 188,
+              "midPauseN": 2,
+              "midPauseSec": 0.49,
+              "sttMed": 1.0,
+              "rate": 1.35
+            }
+          },
+          "distinct": false,
+          "order": "204.4/190.4/240.8",
+          "beginnerPauseSec": 0.0
+        }
+      }
+    },
+    {
+      "bundle": "GEMINI-Puck-Default",
+      "base": 153.1,
+      "bands": {
+        "wide-low": {
+          "levels": {
+            "beginner": {
+              "spm": 119,
+              "mySpmMed": 138.6,
+              "mySpmSD": 0.0,
+              "wpmMed": 108,
+              "midPauseN": 4,
+              "midPauseSec": 0.94,
+              "sttMed": 1.0,
+              "rate": 0.78
+            },
+            "intermediate": {
+              "spm": 156,
+              "mySpmMed": 170.4,
+              "mySpmSD": 0.0,
+              "wpmMed": 133,
+              "midPauseN": 1,
+              "midPauseSec": 0.32,
+              "sttMed": 1.0,
+              "rate": 1.02
+            },
+            "advanced": {
+              "spm": 199,
+              "mySpmMed": 221.1,
+              "mySpmSD": 0.0,
+              "wpmMed": 173,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.3
+            }
+          },
+          "distinct": true,
+          "order": "138.6/170.4/221.1",
+          "beginnerPauseSec": 0.94
+        },
+        "wide-safe": {
+          "levels": {
+            "beginner": {
+              "spm": 130,
+              "mySpmMed": 139.3,
+              "mySpmSD": 0.0,
+              "wpmMed": 109,
+              "midPauseN": 4,
+              "midPauseSec": 1.1,
+              "sttMed": 1.0,
+              "rate": 0.85
+            },
+            "intermediate": {
+              "spm": 165,
+              "mySpmMed": 195.4,
+              "mySpmSD": 0.0,
+              "wpmMed": 153,
+              "midPauseN": 1,
+              "midPauseSec": 0.29,
+              "sttMed": 1.0,
+              "rate": 1.08
+            },
+            "advanced": {
+              "spm": 207,
+              "mySpmMed": 270.8,
+              "mySpmSD": 0.0,
+              "wpmMed": 212,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.35
+            }
+          },
+          "distinct": true,
+          "order": "139.3/195.4/270.8",
+          "beginnerPauseSec": 1.1
+        }
+      }
+    },
+    {
+      "bundle": "GEMINI-Puck-Cheerful",
+      "base": 160.7,
+      "bands": {
+        "wide-low": {
+          "levels": {
+            "beginner": {
+              "spm": 125,
+              "mySpmMed": 158.2,
+              "mySpmSD": 0.0,
+              "wpmMed": 124,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 0.78
+            },
+            "intermediate": {
+              "spm": 164,
+              "mySpmMed": 172.9,
+              "mySpmSD": 0.0,
+              "wpmMed": 135,
+              "midPauseN": 2,
+              "midPauseSec": 0.59,
+              "sttMed": 1.0,
+              "rate": 1.02
+            },
+            "advanced": {
+              "spm": 209,
+              "mySpmMed": 257.9,
+              "mySpmSD": 0.0,
+              "wpmMed": 202,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.3
+            }
+          },
+          "distinct": true,
+          "order": "158.2/172.9/257.9",
+          "beginnerPauseSec": 0.0
+        },
+        "wide-safe": {
+          "levels": {
+            "beginner": {
+              "spm": 137,
+              "mySpmMed": 184.3,
+              "mySpmSD": 0.0,
+              "wpmMed": 144,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 0.85
+            },
+            "intermediate": {
+              "spm": 174,
+              "mySpmMed": 213.4,
+              "mySpmSD": 0.0,
+              "wpmMed": 167,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.08
+            },
+            "advanced": {
+              "spm": 217,
+              "mySpmMed": 195.7,
+              "mySpmSD": 0.0,
+              "wpmMed": 153,
+              "midPauseN": 3,
+              "midPauseSec": 0.77,
+              "sttMed": 1.0,
+              "rate": 1.35
+            }
+          },
+          "distinct": false,
+          "order": "184.3/213.4/195.7",
+          "beginnerPauseSec": 0.0
+        }
+      }
+    },
+    {
+      "bundle": "GEMINI-Puck-Gentle",
+      "base": 146.7,
+      "bands": {
+        "wide-low": {
+          "levels": {
+            "beginner": {
+              "spm": 114,
+              "mySpmMed": 156.0,
+              "mySpmSD": 0.0,
+              "wpmMed": 122,
+              "midPauseN": 1,
+              "midPauseSec": 0.32,
+              "sttMed": 1.0,
+              "rate": 0.78
+            },
+            "intermediate": {
+              "spm": 150,
+              "mySpmMed": 163.8,
+              "mySpmSD": 0.0,
+              "wpmMed": 128,
+              "midPauseN": 3,
+              "midPauseSec": 0.66,
+              "sttMed": 1.0,
+              "rate": 1.02
+            },
+            "advanced": {
+              "spm": 191,
+              "mySpmMed": 197.3,
+              "mySpmSD": 0.0,
+              "wpmMed": 154,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.3
+            }
+          },
+          "distinct": false,
+          "order": "156.0/163.8/197.3",
+          "beginnerPauseSec": 0.32
+        },
+        "wide-safe": {
+          "levels": {
+            "beginner": {
+              "spm": 125,
+              "mySpmMed": 143.9,
+              "mySpmSD": 0.0,
+              "wpmMed": 113,
+              "midPauseN": 1,
+              "midPauseSec": 0.48,
+              "sttMed": 1.0,
+              "rate": 0.85
+            },
+            "intermediate": {
+              "spm": 158,
+              "mySpmMed": 182.6,
+              "mySpmSD": 0.0,
+              "wpmMed": 143,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.08
+            },
+            "advanced": {
+              "spm": 198,
+              "mySpmMed": 219.6,
+              "mySpmSD": 0.0,
+              "wpmMed": 172,
+              "midPauseN": 1,
+              "midPauseSec": 0.22,
+              "sttMed": 1.0,
+              "rate": 1.35
+            }
+          },
+          "distinct": true,
+          "order": "143.9/182.6/219.6",
+          "beginnerPauseSec": 0.48
+        }
+      }
+    },
+    {
+      "bundle": "GEMINI-Fenrir-Default",
+      "base": 160.3,
+      "bands": {
+        "wide-low": {
+          "levels": {
+            "beginner": {
+              "spm": 125,
+              "mySpmMed": 136.3,
+              "mySpmSD": 0.0,
+              "wpmMed": 107,
+              "midPauseN": 3,
+              "midPauseSec": 0.96,
+              "sttMed": 1.0,
+              "rate": 0.78
+            },
+            "intermediate": {
+              "spm": 164,
+              "mySpmMed": 191.5,
+              "mySpmSD": 0.0,
+              "wpmMed": 150,
+              "midPauseN": 1,
+              "midPauseSec": 0.21,
+              "sttMed": 1.0,
+              "rate": 1.02
+            },
+            "advanced": {
+              "spm": 208,
+              "mySpmMed": 250.0,
+              "mySpmSD": 0.0,
+              "wpmMed": 196,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.3
+            }
+          },
+          "distinct": true,
+          "order": "136.3/191.5/250.0",
+          "beginnerPauseSec": 0.96
+        },
+        "wide-safe": {
+          "levels": {
+            "beginner": {
+              "spm": 136,
+              "mySpmMed": 177.1,
+              "mySpmSD": 0.0,
+              "wpmMed": 139,
+              "midPauseN": 1,
+              "midPauseSec": 0.26,
+              "sttMed": 1.0,
+              "rate": 0.85
+            },
+            "intermediate": {
+              "spm": 173,
+              "mySpmMed": 166.8,
+              "mySpmSD": 0.0,
+              "wpmMed": 131,
+              "midPauseN": 2,
+              "midPauseSec": 0.61,
+              "sttMed": 1.0,
+              "rate": 1.08
+            },
+            "advanced": {
+              "spm": 216,
+              "mySpmMed": 270.3,
+              "mySpmSD": 0.0,
+              "wpmMed": 212,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.35
+            }
+          },
+          "distinct": false,
+          "order": "177.1/166.8/270.3",
+          "beginnerPauseSec": 0.26
+        }
+      }
+    },
+    {
+      "bundle": "GEMINI-Fenrir-Cheerful",
+      "base": 159.0,
+      "bands": {
+        "wide-low": {
+          "levels": {
+            "beginner": {
+              "spm": 124,
+              "mySpmMed": 103.2,
+              "mySpmSD": 0.0,
+              "wpmMed": 81,
+              "midPauseN": 7,
+              "midPauseSec": 2.34,
+              "sttMed": 1.0,
+              "rate": 0.78
+            },
+            "intermediate": {
+              "spm": 162,
+              "mySpmMed": 209.5,
+              "mySpmSD": 0.0,
+              "wpmMed": 164,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.02
+            },
+            "advanced": {
+              "spm": 207,
+              "mySpmMed": 215.8,
+              "mySpmSD": 0.0,
+              "wpmMed": 169,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.3
+            }
+          },
+          "distinct": false,
+          "order": "103.2/209.5/215.8",
+          "beginnerPauseSec": 2.34
+        },
+        "wide-safe": {
+          "levels": {
+            "beginner": {
+              "spm": 135,
+              "mySpmMed": 158.8,
+              "mySpmSD": 0.0,
+              "wpmMed": 124,
+              "midPauseN": 1,
+              "midPauseSec": 0.48,
+              "sttMed": 1.0,
+              "rate": 0.85
+            },
+            "intermediate": {
+              "spm": 172,
+              "mySpmMed": 208.3,
+              "mySpmSD": 0.0,
+              "wpmMed": 163,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.08
+            },
+            "advanced": {
+              "spm": 215,
+              "mySpmMed": 351.2,
+              "mySpmSD": 0.0,
+              "wpmMed": 275,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.35
+            }
+          },
+          "distinct": true,
+          "order": "158.8/208.3/351.2",
+          "beginnerPauseSec": 0.48
+        }
+      }
+    },
+    {
+      "bundle": "GEMINI-Fenrir-Gentle",
+      "base": 147.3,
+      "bands": {
+        "wide-low": {
+          "levels": {
+            "beginner": {
+              "spm": 115,
+              "mySpmMed": 108.5,
+              "mySpmSD": 0.0,
+              "wpmMed": 85,
+              "midPauseN": 2,
+              "midPauseSec": 0.8,
+              "sttMed": 1.0,
+              "rate": 0.78
+            },
+            "intermediate": {
+              "spm": 150,
+              "mySpmMed": 171.1,
+              "mySpmSD": 0.0,
+              "wpmMed": 134,
+              "midPauseN": 1,
+              "midPauseSec": 0.42,
+              "sttMed": 1.0,
+              "rate": 1.02
+            },
+            "advanced": {
+              "spm": 191,
+              "mySpmMed": 164.6,
+              "mySpmSD": 0.0,
+              "wpmMed": 129,
+              "midPauseN": 4,
+              "midPauseSec": 1.34,
+              "sttMed": 1.0,
+              "rate": 1.3
+            }
+          },
+          "distinct": false,
+          "order": "108.5/171.1/164.6",
+          "beginnerPauseSec": 0.8
+        },
+        "wide-safe": {
+          "levels": {
+            "beginner": {
+              "spm": 125,
+              "mySpmMed": 125.2,
+              "mySpmSD": 0.0,
+              "wpmMed": 98,
+              "midPauseN": 3,
+              "midPauseSec": 0.85,
+              "sttMed": 1.0,
+              "rate": 0.85
+            },
+            "intermediate": {
+              "spm": 159,
+              "mySpmMed": 163.1,
+              "mySpmSD": 0.0,
+              "wpmMed": 128,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.08
+            },
+            "advanced": {
+              "spm": 199,
+              "mySpmMed": 187.6,
+              "mySpmSD": 0.0,
+              "wpmMed": 147,
+              "midPauseN": 2,
+              "midPauseSec": 0.48,
+              "sttMed": 1.0,
+              "rate": 1.35
+            }
+          },
+          "distinct": true,
+          "order": "125.2/163.1/187.6",
+          "beginnerPauseSec": 0.85
+        }
+      }
+    },
+    {
+      "bundle": "GEMINI-Sulafat-Default",
+      "base": 157.8,
+      "bands": {
+        "wide-low": {
+          "levels": {
+            "beginner": {
+              "spm": 123,
+              "mySpmMed": 141.1,
+              "mySpmSD": 0.0,
+              "wpmMed": 110,
+              "midPauseN": 2,
+              "midPauseSec": 0.54,
+              "sttMed": 1.0,
+              "rate": 0.78
+            },
+            "intermediate": {
+              "spm": 161,
+              "mySpmMed": 192.2,
+              "mySpmSD": 0.0,
+              "wpmMed": 150,
+              "midPauseN": 1,
+              "midPauseSec": 0.25,
+              "sttMed": 1.0,
+              "rate": 1.02
+            },
+            "advanced": {
+              "spm": 205,
+              "mySpmMed": 261.2,
+              "mySpmSD": 0.0,
+              "wpmMed": 204,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.3
+            }
+          },
+          "distinct": true,
+          "order": "141.1/192.2/261.2",
+          "beginnerPauseSec": 0.54
+        },
+        "wide-safe": {
+          "levels": {
+            "beginner": {
+              "spm": 134,
+              "mySpmMed": 137.2,
+              "mySpmSD": 0.0,
+              "wpmMed": 107,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 0.85
+            },
+            "intermediate": {
+              "spm": 170,
+              "mySpmMed": 194.7,
+              "mySpmSD": 0.0,
+              "wpmMed": 152,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.08
+            },
+            "advanced": {
+              "spm": 213,
+              "mySpmMed": 232.9,
+              "mySpmSD": 0.0,
+              "wpmMed": 182,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.35
+            }
+          },
+          "distinct": true,
+          "order": "137.2/194.7/232.9",
+          "beginnerPauseSec": 0.0
+        }
+      }
+    },
+    {
+      "bundle": "GEMINI-Sulafat-Cheerful",
+      "base": 162.9,
+      "bands": {
+        "wide-low": {
+          "levels": {
+            "beginner": {
+              "spm": 127,
+              "mySpmMed": 188.2,
+              "mySpmSD": 0.0,
+              "wpmMed": 147,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 0.78
+            },
+            "intermediate": {
+              "spm": 166,
+              "mySpmMed": 218.6,
+              "mySpmSD": 0.0,
+              "wpmMed": 171,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.02
+            },
+            "advanced": {
+              "spm": 212,
+              "mySpmMed": 277.1,
+              "mySpmSD": 0.0,
+              "wpmMed": 217,
+              "midPauseN": 1,
+              "midPauseSec": 0.27,
+              "sttMed": 1.0,
+              "rate": 1.3
+            }
+          },
+          "distinct": true,
+          "order": "188.2/218.6/277.1",
+          "beginnerPauseSec": 0.0
+        },
+        "wide-safe": {
+          "levels": {
+            "beginner": {
+              "spm": 138,
+              "mySpmMed": 181.3,
+              "mySpmSD": 0.0,
+              "wpmMed": 142,
+              "midPauseN": 1,
+              "midPauseSec": 0.25,
+              "sttMed": 1.0,
+              "rate": 0.85
+            },
+            "intermediate": {
+              "spm": 176,
+              "mySpmMed": 219.8,
+              "mySpmSD": 0.0,
+              "wpmMed": 172,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.08
+            },
+            "advanced": {
+              "spm": 220,
+              "mySpmMed": 268.7,
+              "mySpmSD": 0.0,
+              "wpmMed": 210,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.35
+            }
+          },
+          "distinct": true,
+          "order": "181.3/219.8/268.7",
+          "beginnerPauseSec": 0.25
+        }
+      }
+    },
+    {
+      "bundle": "GEMINI-Sulafat-Gentle",
+      "base": 153.9,
+      "bands": {
+        "wide-low": {
+          "levels": {
+            "beginner": {
+              "spm": 120,
+              "mySpmMed": 138.3,
+              "mySpmSD": 0.0,
+              "wpmMed": 108,
+              "midPauseN": 1,
+              "midPauseSec": 0.33,
+              "sttMed": 1.0,
+              "rate": 0.78
+            },
+            "intermediate": {
+              "spm": 157,
+              "mySpmMed": 141.7,
+              "mySpmSD": 0.0,
+              "wpmMed": 111,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.02
+            },
+            "advanced": {
+              "spm": 200,
+              "mySpmMed": 245.4,
+              "mySpmSD": 0.0,
+              "wpmMed": 192,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.3
+            }
+          },
+          "distinct": false,
+          "order": "138.3/141.7/245.4",
+          "beginnerPauseSec": 0.33
+        },
+        "wide-safe": {
+          "levels": {
+            "beginner": {
+              "spm": 131,
+              "mySpmMed": 153.4,
+              "mySpmSD": 0.0,
+              "wpmMed": 120,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 0.85
+            },
+            "intermediate": {
+              "spm": 166,
+              "mySpmMed": 189.3,
+              "mySpmSD": 0.0,
+              "wpmMed": 148,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.08
+            },
+            "advanced": {
+              "spm": 208,
+              "mySpmMed": 240.8,
+              "mySpmSD": 0.0,
+              "wpmMed": 188,
+              "midPauseN": 0,
+              "midPauseSec": 0.0,
+              "sttMed": 1.0,
+              "rate": 1.35
+            }
+          },
+          "distinct": true,
+          "order": "153.4/189.3/240.8",
+          "beginnerPauseSec": 0.0
+        }
+      }
+    }
+  ]
+}

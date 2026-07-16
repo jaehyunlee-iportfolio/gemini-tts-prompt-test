@@ -404,17 +404,17 @@ export function SpmLabTab() {
           {recommendation ? (
             <Alert className="text-sm">
               <AlertTitle className="flex flex-wrap items-center gap-2 text-sm">
-                추천 요청 spm (7-9세 아동 기준)
+                추천 요청 spm (rate 배수 B 0.85 / I 1.0 / A 1.18)
                 {recommendation.category ? (
                   <Badge
-                    variant={recommendation.category === "clean" ? "secondary" : "outline"}
+                    variant={recommendation.category === "child" ? "secondary" : "destructive"}
                     className="text-[10px]"
                   >
-                    {recommendation.category === "clean"
-                      ? "clean"
-                      : recommendation.category === "floored"
-                        ? "floored · 느린 beginner 부적합"
-                        : "gemini · 지터"}
+                    {recommendation.category === "child"
+                      ? "child · 7-9세 적정"
+                      : recommendation.category === "fast"
+                        ? "fast · 전 레벨 과속"
+                        : "collapse · 레벨 뭉침(지터)"}
                   </Badge>
                 ) : null}
               </AlertTitle>
