@@ -1,8 +1,9 @@
 /**
  * Spindle Speech Voice Table — 활성 Voice Profile(번들) 전체 목록.
- * 출처: Confluence SS/Voice Table (2026-05-08 수정본). Typecast 취소선 번들은 제외.
- * baseSpm은 서버(Voice Profile attributes) 값이며, 미확인 번들은 undefined —
- * 이 경우 spm 파라미터 지정 시 서버가 400/500(baseSpm is required)을 반환할 수 있다.
+ * baseSpm/gender/ageGroup/accent는 백엔드가 제공한 서버 VoiceTable.json
+ * (2026-07-14, docs/spm-sweep/server-voicetable.json)을 그대로 반영한 authoritative 값.
+ * rate = 요청 spm / baseSpm 이므로, spm=baseSpm이면 해당 VP의 기본(자연) 속도(rate 1.0).
+ * Typecast 3종은 서버 v2에 없어(profile not found) baseSpm이 없다.
  */
 
 export const TTS_PROVIDERS = ["GEMINI", "AZ", "GCP", "AWS", "TC", "CHIRP"] as const;
@@ -44,48 +45,55 @@ function providerFromBundleName(bundleName: string): TtsProvider {
 type ProfileSeed = Omit<VoiceProfile, "provider">;
 
 const SEEDS: ProfileSeed[] = [
-  // ── Male · Child · en-US ──
-  { bundleName: "GCP-Jeremy-Default", voiceName: "en-US-Neural2-I", gender: "Male", ageGroup: "Child", accent: "en-US", isDefault: true },
-  { bundleName: "AWS-Kevin-Default", voiceName: "Kevin", gender: "Male", ageGroup: "Child", accent: "en-US" },
-  { bundleName: "AWS-Justin-Default", voiceName: "Justin", gender: "Male", ageGroup: "Child", accent: "en-US" },
-  { bundleName: "AZ-TuningAna-Default", voiceName: "en-US-AnaNeural", gender: "Male", ageGroup: "Child", accent: "en-US" },
-  { bundleName: "AZ-TuningEvelyn-Default", voiceName: "en-US-EvelynMultilingualNeural", gender: "Male", ageGroup: "Child", accent: "en-US" },
-  { bundleName: "GEMINI-Rasalgethi-Default", voiceName: "Rasalgethi", gender: "Male", ageGroup: "Child", accent: "en-US" },
-  { bundleName: "GEMINI-Rasalgethi-Cheerful", voiceName: "Rasalgethi", gender: "Male", ageGroup: "Child", accent: "en-US" },
-  { bundleName: "GEMINI-Rasalgethi-Gentle", voiceName: "Rasalgethi", gender: "Male", ageGroup: "Child", accent: "en-US" },
-  { bundleName: "GEMINI-Puck-Default", voiceName: "Puck", gender: "Male", ageGroup: "Child", accent: "en-US" },
-  { bundleName: "GEMINI-Puck-Cheerful", voiceName: "Puck", gender: "Male", ageGroup: "Child", accent: "en-US" },
-  { bundleName: "GEMINI-Puck-Gentle", voiceName: "Puck", gender: "Male", ageGroup: "Child", accent: "en-US" },
-  { bundleName: "GEMINI-Fenrir-Default", voiceName: "Fenrir", gender: "Male", ageGroup: "Child", accent: "en-US" },
-  { bundleName: "GEMINI-Fenrir-Cheerful", voiceName: "Fenrir", gender: "Male", ageGroup: "Child", accent: "en-US" },
-  { bundleName: "GEMINI-Fenrir-Gentle", voiceName: "Fenrir", gender: "Male", ageGroup: "Child", accent: "en-US" },
-  // ── Male · Child · en-UK ──
-  { bundleName: "GCP-Rey-Default", voiceName: "en-GB-Neural2-B", gender: "Male", ageGroup: "Child", accent: "en-UK", isDefault: true },
-  { bundleName: "AZ-TuningMaisie-Default", voiceName: "en-GB-MaisieNeural", gender: "Male", ageGroup: "Child", accent: "en-UK" },
-  // ── Male · Adult ──
-  { bundleName: "AZ-Guy-Friendly", voiceName: "en-US-GuyNeural", gender: "Male", ageGroup: "Adult", accent: "en-US", isDefault: true },
+  // ── 서버 VoiceTable.json (2026-07-14 백엔드 제공) 기준 — baseSpm은 authoritative ──
+  // Male · Child · en-US
+  { bundleName: "GCP-Jeremy-Default", voiceName: "en-US-Neural2-I", gender: "Male", ageGroup: "Child", accent: "en-US", isDefault: true, baseSpm: 239.8 },
+  { bundleName: "AWS-Kevin-Default", voiceName: "Kevin", gender: "Male", ageGroup: "Child", accent: "en-US", baseSpm: 227.8 },
+  { bundleName: "AWS-Justin-Default", voiceName: "Justin", gender: "Male", ageGroup: "Child", accent: "en-US", baseSpm: 215.1 },
+  { bundleName: "AZ-TuningAna-Default", voiceName: "en-US-AnaNeural", gender: "Male", ageGroup: "Child", accent: "en-US", baseSpm: 149.3 },
+  { bundleName: "GEMINI-Rasalgethi-Default", voiceName: "Rasalgethi", gender: "Male", ageGroup: "Child", accent: "en-US", baseSpm: 160.1 },
+  { bundleName: "GEMINI-Rasalgethi-Cheerful", voiceName: "Rasalgethi", gender: "Male", ageGroup: "Child", accent: "en-US", baseSpm: 170.3 },
+  { bundleName: "GEMINI-Rasalgethi-Gentle", voiceName: "Rasalgethi", gender: "Male", ageGroup: "Child", accent: "en-US", baseSpm: 160.7 },
+  { bundleName: "GEMINI-Puck-Default", voiceName: "Puck", gender: "Male", ageGroup: "Child", accent: "en-US", baseSpm: 153.1 },
+  { bundleName: "GEMINI-Puck-Cheerful", voiceName: "Puck", gender: "Male", ageGroup: "Child", accent: "en-US", baseSpm: 160.7 },
+  { bundleName: "GEMINI-Puck-Gentle", voiceName: "Puck", gender: "Male", ageGroup: "Child", accent: "en-US", baseSpm: 146.7 },
+  { bundleName: "GEMINI-Fenrir-Default", voiceName: "Fenrir", gender: "Male", ageGroup: "Child", accent: "en-US", baseSpm: 160.3 },
+  { bundleName: "GEMINI-Fenrir-Cheerful", voiceName: "Fenrir", gender: "Male", ageGroup: "Child", accent: "en-US", baseSpm: 159.0 },
+  { bundleName: "GEMINI-Fenrir-Gentle", voiceName: "Fenrir", gender: "Male", ageGroup: "Child", accent: "en-US", baseSpm: 147.3 },
+  { bundleName: "AZ-TuningEvelyn-Default", voiceName: "en-US-EvelynMultilingualNeural", gender: "Male", ageGroup: "Child", accent: "en-US", baseSpm: 162.7 },
+  // Male · Child · en-UK
+  { bundleName: "GCP-Rey-Default", voiceName: "en-GB-Neural2-B", gender: "Male", ageGroup: "Child", accent: "en-UK", isDefault: true, baseSpm: 223.8 },
+  { bundleName: "AZ-TuningMaisie-Default", voiceName: "en-GB-MaisieNeural", gender: "Male", ageGroup: "Child", accent: "en-UK", baseSpm: 155.8 },
+  // Male · Adult · en-US
+  { bundleName: "AZ-Guy-Friendly", voiceName: "en-US-GuyNeural", gender: "Male", ageGroup: "Adult", accent: "en-US", isDefault: true, baseSpm: 163.3 },
+  // Male · Adult · en-UK
+  { bundleName: "AZ-Oliver-Default", voiceName: "en-GB-OliverNeural", gender: "Male", ageGroup: "Adult", accent: "en-UK", isDefault: true, baseSpm: 161.4 },
+  // Male · Senior · en-US
+  { bundleName: "AZ-Tony-Default", voiceName: "en-US-TonyNeural", gender: "Male", ageGroup: "Senior", accent: "en-US", isDefault: true, baseSpm: 168.9 },
+  // Male · Senior · en-UK
+  { bundleName: "AZ-Alfie-Default", voiceName: "en-GB-AlfieNeural", gender: "Male", ageGroup: "Senior", accent: "en-UK", isDefault: true, baseSpm: 162.5 },
+  // Female · Child · en-US
+  { bundleName: "AZ-Ana-Default", voiceName: "en-US-AnaNeural", gender: "Female", ageGroup: "Child", accent: "en-US", isDefault: true, baseSpm: 149.3 },
+  { bundleName: "AZ-Xiaoyou-Default", voiceName: "zh-CN-XiaoyouMultilingualNeural", gender: "Female", ageGroup: "Child", accent: "en-US", isDefault: true, baseSpm: 197.7 },
+  // Female · Child · en-UK
+  { bundleName: "AZ-Maisie-Default", voiceName: "en-GB-MaisieNeural", gender: "Female", ageGroup: "Child", accent: "en-UK", isDefault: true, baseSpm: 155.8 },
+  // Female · Adult · en-US
+  { bundleName: "AZ-Sara-Friendly", voiceName: "en-US-SaraNeural", gender: "Female", ageGroup: "Adult", accent: "en-US", isDefault: true, baseSpm: 151.8 },
+  { bundleName: "AZ-Jenny-Cheerful", voiceName: "en-US-JennyNeural", gender: "Female", ageGroup: "Adult", accent: "en-US", baseSpm: 154.9 },
+  { bundleName: "GEMINI-Sulafat-Default", voiceName: "Sulafat", gender: "Female", ageGroup: "Adult", accent: "en-US", baseSpm: 157.8 },
+  { bundleName: "GEMINI-Sulafat-Cheerful", voiceName: "Sulafat", gender: "Female", ageGroup: "Adult", accent: "en-US", baseSpm: 162.9 },
+  { bundleName: "GEMINI-Sulafat-Gentle", voiceName: "Sulafat", gender: "Female", ageGroup: "Adult", accent: "en-US", baseSpm: 153.9 },
+  { bundleName: "CHIRP-Zephyr-Default", voiceName: "en-US-Chirp3-HD-Zephyr", gender: "Female", ageGroup: "Adult", accent: "en-US", baseSpm: 219.2 },
+  // Female · Adult · en-UK
+  { bundleName: "AZ-Sonia-Cheerful", voiceName: "en-GB-SoniaNeural", gender: "Female", ageGroup: "Adult", accent: "en-UK", isDefault: true, baseSpm: 190.3 },
+  // Female · Senior · en-US
+  { bundleName: "AZ-Nancy-Default", voiceName: "en-US-NancyNeural", gender: "Female", ageGroup: "Senior", accent: "en-US", isDefault: true, baseSpm: 148.0 },
+  // Female · Senior · en-UK
+  { bundleName: "AZ-Hollie-Default", voiceName: "en-GB-HollieNeural", gender: "Female", ageGroup: "Senior", accent: "en-UK", isDefault: true, baseSpm: 157.2 },
+  // ── Typecast: 서버 v2 미지원(profile not found) — baseSpm 없음, 참고용 ──
   { bundleName: "TC-Tim-Default", voiceName: "팀v6", gender: "Male", ageGroup: "Adult", accent: "en-US" },
-  { bundleName: "AZ-Oliver-Default", voiceName: "en-GB-OliverNeural", gender: "Male", ageGroup: "Adult", accent: "en-UK", isDefault: true },
-  // ── Male · Senior ──
-  { bundleName: "AZ-Tony-Default", voiceName: "en-US-TonyNeural", gender: "Male", ageGroup: "Senior", accent: "en-US", isDefault: true },
   { bundleName: "TC-Sindarin-Default", voiceName: "Sindarin-v5", gender: "Male", ageGroup: "Senior", accent: "en-US" },
-  { bundleName: "AZ-Alfie-Default", voiceName: "en-GB-AlfieNeural", gender: "Male", ageGroup: "Senior", accent: "en-UK", isDefault: true },
-  // ── Female · Child ──
-  { bundleName: "AZ-Ana-Default", voiceName: "en-US-AnaNeural", gender: "Female", ageGroup: "Child", accent: "en-US", isDefault: true },
-  { bundleName: "AZ-Maisie-Default", voiceName: "en-GB-MaisieNeural", gender: "Female", ageGroup: "Child", accent: "en-UK", isDefault: true },
-  // ── Female · Adult · en-US ──
-  { bundleName: "AZ-Sara-Friendly", voiceName: "en-US-SaraNeural", gender: "Female", ageGroup: "Adult", accent: "en-US", isDefault: true },
-  { bundleName: "AZ-Jenny-Cheerful", voiceName: "en-US-JennyNeural", gender: "Female", ageGroup: "Adult", accent: "en-US" },
   { bundleName: "TC-Harper-Default", voiceName: "Harper-v2", gender: "Female", ageGroup: "Adult", accent: "en-US" },
-  { bundleName: "GEMINI-Sulafat-Default", voiceName: "Sulafat", gender: "Female", ageGroup: "Adult", accent: "en-US" },
-  { bundleName: "GEMINI-Sulafat-Cheerful", voiceName: "Sulafat", gender: "Female", ageGroup: "Adult", accent: "en-US" },
-  { bundleName: "GEMINI-Sulafat-Gentle", voiceName: "Sulafat", gender: "Female", ageGroup: "Adult", accent: "en-US" },
-  { bundleName: "CHIRP-Zephyr-Default", voiceName: "Zephyr", gender: "Female", ageGroup: "Adult", accent: "en-US" },
-  // ── Female · Adult · en-UK ──
-  { bundleName: "AZ-Sonia-Cheerful", voiceName: "en-GB-SoniaNeural", gender: "Female", ageGroup: "Adult", accent: "en-UK", isDefault: true },
-  // ── Female · Senior ──
-  { bundleName: "AZ-Nancy-Default", voiceName: "en-US-NancyNeural", gender: "Female", ageGroup: "Senior", accent: "en-US", isDefault: true },
-  { bundleName: "AZ-Hollie-Default", voiceName: "en-GB-HollieNeural", gender: "Female", ageGroup: "Senior", accent: "en-UK", isDefault: true },
 ];
 
 export const VOICE_PROFILES: VoiceProfile[] = SEEDS.map((s) => ({

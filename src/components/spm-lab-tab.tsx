@@ -113,6 +113,11 @@ export function SpmLabTab() {
   const providerGroups = useMemo(() => groupProfilesByProvider(), []);
   const syllables = useMemo(() => countTextSyllables(text), [text]);
 
+  // 번들을 바꾸면 그리드 기준을 해당 VP의 서버 baseSpm(rate 1.0)으로 맞춤
+  useEffect(() => {
+    if (profile?.baseSpm != null) setGridBaseInput(String(Math.round(profile.baseSpm)));
+  }, [profile]);
+
   const spmValues = useMemo(() => parseSpmList(spmInput), [spmInput]);
 
   const patchRow = useCallback((id: string, patch: Partial<SweepRow>) => {
@@ -328,8 +333,15 @@ export function SpmLabTab() {
               <p className="text-[11px] leading-relaxed text-muted-foreground">
                 {voiceProfileLabel(profile)} · {TTS_PROVIDER_LABELS[profile.provider]}
                 {profile.isDefault ? " · 기본 번들" : ""}
+                {profile.baseSpm != null ? (
+                  <>
+                    {" · 서버 baseSpm "}
+                    <span className="font-mono text-foreground">{profile.baseSpm}</span>
+                    {" (rate 1.0)"}
+                  </>
+                ) : null}
                 {profile.provider === "TC"
-                  ? " — Typecast는 현 백엔드에서 spm 미지원일 수 있습니다."
+                  ? " — Typecast는 현 백엔드에서 spm 미지원(profile not found)입니다."
                   : ""}
               </p>
             ) : null}
@@ -391,7 +403,7 @@ export function SpmLabTab() {
 
           {recommendation ? (
             <Alert className="text-sm">
-              <AlertTitle className="text-sm">1차 추천 (실측 스윕 기반)</AlertTitle>
+              <AlertTitle className="text-sm">1차 추천 (서버 baseSpm 기반)</AlertTitle>
               <AlertDescription className="text-xs leading-relaxed">
                 Beginner {recommendation.beginner} · Intermediate {recommendation.intermediate} ·
                 Advanced {recommendation.advanced}
@@ -399,6 +411,12 @@ export function SpmLabTab() {
                   <>
                     {" "}
                     (안전 범위 {recommendation.safeMin}~{recommendation.safeMax})
+                  </>
+                ) : null}
+                {recommendation.serverBaseSpm != null ? (
+                  <>
+                    {" · rate 0.8/1.0/1.25 x baseSpm "}
+                    {recommendation.serverBaseSpm}
                   </>
                 ) : null}
                 {recommendation.note ? <> — {recommendation.note}</> : null}
