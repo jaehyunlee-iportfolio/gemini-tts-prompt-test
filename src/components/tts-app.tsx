@@ -59,6 +59,7 @@ import { cn } from "@/lib/utils";
 import { AuthButtons } from "@/components/auth-buttons";
 import { CsvBatchQaTab } from "@/components/csv-batch-qa-tab";
 import { PreviewTab } from "@/components/preview-tab";
+import { SpmLabTab } from "@/components/spm-lab-tab";
 import { ThemeToggle } from "@/components/theme-toggle";
 import type { PromptRegistryJson, RegistryGroup, RegistryPrompt } from "@/types/registry";
 import {
@@ -254,10 +255,15 @@ export function TtsApp() {
   }, [rootSessionStatus]);
 
   useEffect(() => {
+    // SPM 실험 탭은 로그인 사내 계정 전체 허용, 그 외 비-Preview 탭은 admin 전용
+    if (mainTab === "spm-lab") {
+      if (rootSessionStatus === "unauthenticated") setMainTab("preview");
+      return;
+    }
     if (adminAccessStatus === "non-admin" && mainTab !== "preview") {
       setMainTab("preview");
     }
-  }, [adminAccessStatus, mainTab]);
+  }, [adminAccessStatus, mainTab, rootSessionStatus]);
 
   useEffect(() => {
     if (rootSessionStatus !== "authenticated") {
@@ -929,7 +935,11 @@ export function TtsApp() {
           <TabsList
             className={cn(
               "grid h-auto w-full gap-1 p-1 sm:inline-flex sm:w-auto sm:max-w-none",
-              adminAccessStatus === "admin" ? "grid-cols-4" : "grid-cols-1",
+              adminAccessStatus === "admin"
+                ? "grid-cols-5"
+                : rootSessionStatus === "authenticated"
+                  ? "grid-cols-2"
+                  : "grid-cols-1",
             )}
           >
             <TabsTrigger
@@ -938,6 +948,14 @@ export function TtsApp() {
             >
               Preview
             </TabsTrigger>
+            {rootSessionStatus === "authenticated" ? (
+              <TabsTrigger
+                value="spm-lab"
+                className="touch-manipulation px-2 py-2.5 text-xs sm:flex-initial sm:px-3 sm:py-2 sm:text-sm"
+              >
+                SPM 실험
+              </TabsTrigger>
+            ) : null}
             {adminAccessStatus === "admin" ? (
               <>
                 <TabsTrigger
@@ -964,6 +982,10 @@ export function TtsApp() {
 
           <TabsContent value="preview" className="mt-0 space-y-3 sm:space-y-4">
             <PreviewTab />
+          </TabsContent>
+
+          <TabsContent value="spm-lab" className="mt-0 space-y-3 sm:space-y-4">
+            <SpmLabTab />
           </TabsContent>
 
           <TabsContent value="generate" className="mt-0 space-y-3 sm:space-y-4">
