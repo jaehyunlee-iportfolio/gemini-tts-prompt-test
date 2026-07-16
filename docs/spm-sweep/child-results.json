@@ -1,0 +1,5274 @@
+{
+  "text": "The little bird flew over the tall trees and landed on the old wooden fence near the river.",
+  "syllables": 23,
+  "words": 18,
+  "grid": [
+    100,
+    115,
+    130,
+    145,
+    160,
+    175,
+    190,
+    205,
+    220
+  ],
+  "results": [
+    {
+      "bundle": "GCP-Jeremy-Default",
+      "baseSpm": 239.8,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.417,
+          "speechSpm": 129.3,
+          "speechSpmAll": [
+            129.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.48,
+          "speechSpm": 149.0,
+          "speechSpmAll": [
+            149.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.542,
+          "speechSpm": 168.3,
+          "speechSpmAll": [
+            168.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.605,
+          "speechSpm": 188.2,
+          "speechSpmAll": [
+            188.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.667,
+          "speechSpm": 207.6,
+          "speechSpmAll": [
+            207.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.73,
+          "speechSpm": 226.1,
+          "speechSpmAll": [
+            226.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.792,
+          "speechSpm": 245.4,
+          "speechSpmAll": [
+            245.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.855,
+          "speechSpm": 264.5,
+          "speechSpmAll": [
+            264.5
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.917,
+          "speechSpm": 284.7,
+          "speechSpmAll": [
+            284.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 175,
+        "intermediate": 180,
+        "advanced": 190,
+        "cleanLo": 175,
+        "cleanHi": 220,
+        "baseSpm": 239.8,
+        "rateB": 0.73,
+        "rateA": 0.79
+      }
+    },
+    {
+      "bundle": "AWS-Kevin-Default",
+      "baseSpm": 227.8,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.439,
+          "speechSpm": 143.0,
+          "speechSpmAll": [
+            143.0
+          ],
+          "sttMedian": 0.977,
+          "sttMin": 0.977,
+          "sttAll": [
+            0.977
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.505,
+          "speechSpm": 165.3,
+          "speechSpmAll": [
+            165.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.571,
+          "speechSpm": 181.4,
+          "speechSpmAll": [
+            181.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.637,
+          "speechSpm": 207.2,
+          "speechSpmAll": [
+            207.2
+          ],
+          "sttMedian": 0.977,
+          "sttMin": 0.977,
+          "sttAll": [
+            0.977
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.702,
+          "speechSpm": 221.2,
+          "speechSpmAll": [
+            221.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.768,
+          "speechSpm": 238.6,
+          "speechSpmAll": [
+            238.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.834,
+          "speechSpm": 260.2,
+          "speechSpmAll": [
+            260.2
+          ],
+          "sttMedian": 0.978,
+          "sttMin": 0.978,
+          "sttAll": [
+            0.978
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.9,
+          "speechSpm": 279.1,
+          "speechSpmAll": [
+            279.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.966,
+          "speechSpm": 299.5,
+          "speechSpmAll": [
+            299.5
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 175,
+        "intermediate": 180,
+        "advanced": 190,
+        "cleanLo": 175,
+        "cleanHi": 220,
+        "baseSpm": 227.8,
+        "rateB": 0.77,
+        "rateA": 0.83
+      }
+    },
+    {
+      "bundle": "AWS-Justin-Default",
+      "baseSpm": 215.1,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.465,
+          "speechSpm": 138.6,
+          "speechSpmAll": [
+            138.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.535,
+          "speechSpm": 158.4,
+          "speechSpmAll": [
+            158.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.604,
+          "speechSpm": 178.6,
+          "speechSpmAll": [
+            178.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.674,
+          "speechSpm": 199.0,
+          "speechSpmAll": [
+            199.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.744,
+          "speechSpm": 218.6,
+          "speechSpmAll": [
+            218.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.814,
+          "speechSpm": 238.6,
+          "speechSpmAll": [
+            238.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.883,
+          "speechSpm": 259.0,
+          "speechSpmAll": [
+            259.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.953,
+          "speechSpm": 277.8,
+          "speechSpmAll": [
+            277.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.023,
+          "speechSpm": 296.4,
+          "speechSpmAll": [
+            296.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 160,
+        "intermediate": 170,
+        "advanced": 190,
+        "cleanLo": 160,
+        "cleanHi": 220,
+        "baseSpm": 215.1,
+        "rateB": 0.74,
+        "rateA": 0.88
+      }
+    },
+    {
+      "bundle": "AZ-TuningAna-Default",
+      "baseSpm": 149.3,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.67,
+          "speechSpm": 168.2,
+          "speechSpmAll": [
+            168.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.77,
+          "speechSpm": 193.4,
+          "speechSpmAll": [
+            193.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.871,
+          "speechSpm": 218.5,
+          "speechSpmAll": [
+            218.5
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.971,
+          "speechSpm": 243.9,
+          "speechSpmAll": [
+            243.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.072,
+          "speechSpm": 268.4,
+          "speechSpmAll": [
+            268.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.172,
+          "speechSpm": 293.7,
+          "speechSpmAll": [
+            293.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.273,
+          "speechSpm": 317.8,
+          "speechSpmAll": [
+            317.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.373,
+          "speechSpm": 342.6,
+          "speechSpmAll": [
+            342.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.474,
+          "speechSpm": 368.3,
+          "speechSpmAll": [
+            368.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 125,
+        "intermediate": 160,
+        "advanced": 190,
+        "cleanLo": 115,
+        "cleanHi": 220,
+        "baseSpm": 149.3,
+        "rateB": 0.84,
+        "rateA": 1.27
+      }
+    },
+    {
+      "bundle": "GEMINI-Rasalgethi-Default",
+      "baseSpm": 160.1,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.625,
+          "speechSpm": 129.8,
+          "speechSpmAll": [
+            129.8,
+            129.8,
+            129.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.718,
+          "speechSpm": 154.7,
+          "speechSpmAll": [
+            154.7,
+            154.7,
+            154.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.812,
+          "speechSpm": 123.1,
+          "speechSpmAll": [
+            123.1,
+            123.1,
+            123.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.906,
+          "speechSpm": 169.3,
+          "speechSpmAll": [
+            169.3,
+            169.3,
+            169.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.999,
+          "speechSpm": 198.3,
+          "speechSpmAll": [
+            198.3,
+            198.3,
+            198.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.093,
+          "speechSpm": 182.0,
+          "speechSpmAll": [
+            182.0,
+            182.0,
+            182.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.187,
+          "speechSpm": 219.5,
+          "speechSpmAll": [
+            219.5,
+            219.5,
+            219.5
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.28,
+          "speechSpm": 193.0,
+          "speechSpmAll": [
+            193.0,
+            193.0,
+            193.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.374,
+          "speechSpm": 278.5,
+          "speechSpmAll": [
+            278.5,
+            278.5,
+            278.5
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 130,
+        "intermediate": 120,
+        "advanced": 115,
+        "cleanLo": 130,
+        "cleanHi": 115,
+        "baseSpm": 160.1,
+        "rateB": 0.81,
+        "rateA": 0.72
+      }
+    },
+    {
+      "bundle": "GEMINI-Rasalgethi-Cheerful",
+      "baseSpm": 170.3,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.587,
+          "speechSpm": 126.6,
+          "speechSpmAll": [
+            126.6,
+            126.6,
+            126.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.675,
+          "speechSpm": 146.7,
+          "speechSpmAll": [
+            146.7,
+            146.7,
+            146.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.763,
+          "speechSpm": 160.2,
+          "speechSpmAll": [
+            160.2,
+            160.2,
+            160.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.851,
+          "speechSpm": 168.1,
+          "speechSpmAll": [
+            168.1,
+            168.1,
+            168.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.94,
+          "speechSpm": 196.9,
+          "speechSpmAll": [
+            196.9,
+            196.9,
+            196.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.028,
+          "speechSpm": 189.0,
+          "speechSpmAll": [
+            189.0,
+            189.0,
+            189.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.116,
+          "speechSpm": 215.2,
+          "speechSpmAll": [
+            215.2,
+            215.2,
+            215.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.204,
+          "speechSpm": 233.7,
+          "speechSpmAll": [
+            233.7,
+            233.7,
+            233.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.292,
+          "speechSpm": 282.7,
+          "speechSpmAll": [
+            282.7,
+            282.7,
+            282.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 130,
+        "intermediate": 150,
+        "advanced": 160,
+        "cleanLo": 130,
+        "cleanHi": 160,
+        "baseSpm": 170.3,
+        "rateB": 0.76,
+        "rateA": 0.94
+      }
+    },
+    {
+      "bundle": "GEMINI-Rasalgethi-Gentle",
+      "baseSpm": 160.7,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.622,
+          "speechSpm": 108.0,
+          "speechSpmAll": [
+            108.0,
+            108.0,
+            108.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.716,
+          "speechSpm": 127.0,
+          "speechSpmAll": [
+            127.0,
+            127.0,
+            127.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.809,
+          "speechSpm": 158.5,
+          "speechSpmAll": [
+            158.5,
+            158.5,
+            158.5
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.902,
+          "speechSpm": 120.6,
+          "speechSpmAll": [
+            120.6,
+            120.6,
+            120.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.996,
+          "speechSpm": 183.4,
+          "speechSpmAll": [
+            183.4,
+            183.4,
+            183.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.089,
+          "speechSpm": 200.0,
+          "speechSpmAll": [
+            200.0,
+            200.0,
+            200.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.182,
+          "speechSpm": 240.7,
+          "speechSpmAll": [
+            240.7,
+            240.7,
+            240.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.276,
+          "speechSpm": 195.3,
+          "speechSpmAll": [
+            195.3,
+            195.3,
+            195.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.369,
+          "speechSpm": 196.9,
+          "speechSpmAll": [
+            196.9,
+            196.9,
+            196.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 130,
+        "intermediate": 130,
+        "advanced": 130,
+        "cleanLo": 130,
+        "cleanHi": 130,
+        "baseSpm": 160.7,
+        "rateB": 0.81,
+        "rateA": 0.81
+      }
+    },
+    {
+      "bundle": "GEMINI-Puck-Default",
+      "baseSpm": 153.1,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.653,
+          "speechSpm": 101.6,
+          "speechSpmAll": [
+            101.6,
+            101.6,
+            101.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.751,
+          "speechSpm": 136.0,
+          "speechSpmAll": [
+            136.0,
+            136.0,
+            136.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.849,
+          "speechSpm": 139.3,
+          "speechSpmAll": [
+            139.3,
+            139.3,
+            139.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.947,
+          "speechSpm": 176.2,
+          "speechSpmAll": [
+            176.2,
+            176.2,
+            176.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.045,
+          "speechSpm": 163.2,
+          "speechSpmAll": [
+            163.2,
+            163.2,
+            163.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.143,
+          "speechSpm": 184.1,
+          "speechSpmAll": [
+            184.1,
+            184.1,
+            184.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.241,
+          "speechSpm": 248.6,
+          "speechSpmAll": [
+            248.6,
+            248.6,
+            248.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.339,
+          "speechSpm": 260.2,
+          "speechSpmAll": [
+            260.2,
+            260.2,
+            260.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.437,
+          "speechSpm": 260.2,
+          "speechSpmAll": [
+            260.2,
+            260.2,
+            260.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 125,
+        "intermediate": 135,
+        "advanced": 145,
+        "cleanLo": 115,
+        "cleanHi": 145,
+        "baseSpm": 153.1,
+        "rateB": 0.82,
+        "rateA": 0.95
+      }
+    },
+    {
+      "bundle": "GEMINI-Puck-Cheerful",
+      "baseSpm": 160.7,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.622,
+          "speechSpm": 114.3,
+          "speechSpmAll": [
+            114.3,
+            114.3,
+            114.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.716,
+          "speechSpm": 126.1,
+          "speechSpmAll": [
+            126.1,
+            126.1,
+            126.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.809,
+          "speechSpm": 155.2,
+          "speechSpmAll": [
+            155.2,
+            155.2,
+            155.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.902,
+          "speechSpm": 189.9,
+          "speechSpmAll": [
+            189.9,
+            189.9,
+            189.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.996,
+          "speechSpm": 192.5,
+          "speechSpmAll": [
+            192.5,
+            192.5,
+            192.5
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.089,
+          "speechSpm": 191.5,
+          "speechSpmAll": [
+            191.5,
+            191.5,
+            191.5
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.182,
+          "speechSpm": 242.6,
+          "speechSpmAll": [
+            242.6,
+            242.6,
+            242.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.276,
+          "speechSpm": 247.9,
+          "speechSpmAll": [
+            247.9,
+            247.9,
+            247.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.369,
+          "speechSpm": 270.0,
+          "speechSpmAll": [
+            270.0,
+            270.0,
+            270.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 130,
+        "intermediate": 135,
+        "advanced": 145,
+        "cleanLo": 130,
+        "cleanHi": 145,
+        "baseSpm": 160.7,
+        "rateB": 0.81,
+        "rateA": 0.9
+      }
+    },
+    {
+      "bundle": "GEMINI-Puck-Gentle",
+      "baseSpm": 146.7,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.682,
+          "speechSpm": 104.2,
+          "speechSpmAll": [
+            104.2,
+            104.2,
+            104.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.784,
+          "speechSpm": 175.0,
+          "speechSpmAll": [
+            175.0,
+            175.0,
+            175.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.886,
+          "speechSpm": 138.1,
+          "speechSpmAll": [
+            138.1,
+            138.1,
+            138.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.988,
+          "speechSpm": 200.3,
+          "speechSpmAll": [
+            200.3,
+            200.3,
+            200.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.091,
+          "speechSpm": 164.3,
+          "speechSpmAll": [
+            164.3,
+            164.3,
+            164.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.193,
+          "speechSpm": 199.1,
+          "speechSpmAll": [
+            199.1,
+            199.1,
+            199.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.295,
+          "speechSpm": 194.7,
+          "speechSpmAll": [
+            194.7,
+            194.7,
+            194.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.397,
+          "speechSpm": 219.5,
+          "speechSpmAll": [
+            219.5,
+            219.5,
+            219.5
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.5,
+          "speechSpm": 254.4,
+          "speechSpmAll": [
+            254.4,
+            254.4,
+            254.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 125,
+        "intermediate": 120,
+        "advanced": 115,
+        "cleanLo": 115,
+        "cleanHi": 115,
+        "baseSpm": 146.7,
+        "rateB": 0.85,
+        "rateA": 0.78
+      }
+    },
+    {
+      "bundle": "GEMINI-Fenrir-Default",
+      "baseSpm": 160.3,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.624,
+          "speechSpm": 92.4,
+          "speechSpmAll": [
+            92.4,
+            92.4,
+            92.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.717,
+          "speechSpm": 144.3,
+          "speechSpmAll": [
+            144.3,
+            144.3,
+            144.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.811,
+          "speechSpm": 158.3,
+          "speechSpmAll": [
+            158.3,
+            158.3,
+            158.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.905,
+          "speechSpm": 152.1,
+          "speechSpmAll": [
+            152.1,
+            152.1,
+            152.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.998,
+          "speechSpm": 148.4,
+          "speechSpmAll": [
+            148.4,
+            148.4,
+            148.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.092,
+          "speechSpm": 189.9,
+          "speechSpmAll": [
+            189.9,
+            189.9,
+            189.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.185,
+          "speechSpm": 164.3,
+          "speechSpmAll": [
+            164.3,
+            164.3,
+            164.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.279,
+          "speechSpm": 228.2,
+          "speechSpmAll": [
+            228.2,
+            228.2,
+            228.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.372,
+          "speechSpm": 284.7,
+          "speechSpmAll": [
+            284.7,
+            284.7,
+            284.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 130,
+        "intermediate": 130,
+        "advanced": 130,
+        "cleanLo": 130,
+        "cleanHi": 130,
+        "baseSpm": 160.3,
+        "rateB": 0.81,
+        "rateA": 0.81
+      }
+    },
+    {
+      "bundle": "GEMINI-Fenrir-Cheerful",
+      "baseSpm": 159.0,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.629,
+          "speechSpm": 96.6,
+          "speechSpmAll": [
+            96.6,
+            96.6,
+            96.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.723,
+          "speechSpm": 146.1,
+          "speechSpmAll": [
+            146.1,
+            146.1,
+            146.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.818,
+          "speechSpm": 151.9,
+          "speechSpmAll": [
+            151.9,
+            151.9,
+            151.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.912,
+          "speechSpm": 187.2,
+          "speechSpmAll": [
+            187.2,
+            187.2,
+            187.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.006,
+          "speechSpm": 199.5,
+          "speechSpmAll": [
+            199.5,
+            199.5,
+            199.5
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.101,
+          "speechSpm": 216.0,
+          "speechSpmAll": [
+            216.0,
+            216.0,
+            216.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.195,
+          "speechSpm": 213.8,
+          "speechSpmAll": [
+            213.8,
+            213.8,
+            213.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.289,
+          "speechSpm": 265.9,
+          "speechSpmAll": [
+            265.9,
+            265.9,
+            265.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.384,
+          "speechSpm": 217.8,
+          "speechSpmAll": [
+            217.8,
+            217.8,
+            217.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 125,
+        "intermediate": 160,
+        "advanced": 175,
+        "cleanLo": 115,
+        "cleanHi": 175,
+        "baseSpm": 159.0,
+        "rateB": 0.79,
+        "rateA": 1.1
+      }
+    },
+    {
+      "bundle": "GEMINI-Fenrir-Gentle",
+      "baseSpm": 147.3,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.679,
+          "speechSpm": 106.2,
+          "speechSpmAll": [
+            106.2,
+            106.2,
+            106.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.781,
+          "speechSpm": 108.5,
+          "speechSpmAll": [
+            108.5,
+            108.5,
+            108.5
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.883,
+          "speechSpm": 126.4,
+          "speechSpmAll": [
+            126.4,
+            126.4,
+            126.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.984,
+          "speechSpm": 163.8,
+          "speechSpmAll": [
+            163.8,
+            163.8,
+            163.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.086,
+          "speechSpm": 183.6,
+          "speechSpmAll": [
+            183.6,
+            183.6,
+            183.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.188,
+          "speechSpm": 248.7,
+          "speechSpmAll": [
+            248.7,
+            248.7,
+            248.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.29,
+          "speechSpm": 223.6,
+          "speechSpmAll": [
+            223.6,
+            223.6,
+            223.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.392,
+          "speechSpm": 195.6,
+          "speechSpmAll": [
+            195.6,
+            195.6,
+            195.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.494,
+          "speechSpm": 169.6,
+          "speechSpmAll": [
+            169.6,
+            169.6,
+            169.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 125,
+        "intermediate": 110,
+        "advanced": 100,
+        "cleanLo": 115,
+        "cleanHi": 100,
+        "baseSpm": 147.3,
+        "rateB": 0.85,
+        "rateA": 0.68
+      }
+    },
+    {
+      "bundle": "AZ-TuningEvelyn-Default",
+      "baseSpm": 162.7,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.615,
+          "speechSpm": 176.0,
+          "speechSpmAll": [
+            176.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.707,
+          "speechSpm": 202.5,
+          "speechSpmAll": [
+            202.5
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.799,
+          "speechSpm": 229.1,
+          "speechSpmAll": [
+            229.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.891,
+          "speechSpm": 244.3,
+          "speechSpmAll": [
+            244.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.983,
+          "speechSpm": 269.1,
+          "speechSpmAll": [
+            269.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.076,
+          "speechSpm": 294.1,
+          "speechSpmAll": [
+            294.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.168,
+          "speechSpm": 319.3,
+          "speechSpmAll": [
+            319.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.26,
+          "speechSpm": 343.8,
+          "speechSpmAll": [
+            343.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.352,
+          "speechSpm": 368.4,
+          "speechSpmAll": [
+            368.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 130,
+        "intermediate": 160,
+        "advanced": 190,
+        "cleanLo": 130,
+        "cleanHi": 220,
+        "baseSpm": 162.7,
+        "rateB": 0.8,
+        "rateA": 1.17
+      }
+    },
+    {
+      "bundle": "GCP-Rey-Default",
+      "baseSpm": 223.8,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.447,
+          "speechSpm": 142.1,
+          "speechSpmAll": [
+            142.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.514,
+          "speechSpm": 163.1,
+          "speechSpmAll": [
+            163.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.581,
+          "speechSpm": 183.6,
+          "speechSpmAll": [
+            183.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.648,
+          "speechSpm": 204.4,
+          "speechSpmAll": [
+            204.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.715,
+          "speechSpm": 225.8,
+          "speechSpmAll": [
+            225.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.782,
+          "speechSpm": 245.6,
+          "speechSpmAll": [
+            245.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.849,
+          "speechSpm": 267.1,
+          "speechSpmAll": [
+            267.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.916,
+          "speechSpm": 286.9,
+          "speechSpmAll": [
+            286.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.983,
+          "speechSpm": 307.8,
+          "speechSpmAll": [
+            307.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 175,
+        "intermediate": 180,
+        "advanced": 190,
+        "cleanLo": 175,
+        "cleanHi": 220,
+        "baseSpm": 223.8,
+        "rateB": 0.78,
+        "rateA": 0.85
+      }
+    },
+    {
+      "bundle": "AZ-TuningMaisie-Default",
+      "baseSpm": 155.8,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.642,
+          "speechSpm": 181.4,
+          "speechSpmAll": [
+            181.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.738,
+          "speechSpm": 208.3,
+          "speechSpmAll": [
+            208.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.834,
+          "speechSpm": 235.3,
+          "speechSpmAll": [
+            235.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.931,
+          "speechSpm": 262.1,
+          "speechSpmAll": [
+            262.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.027,
+          "speechSpm": 288.8,
+          "speechSpmAll": [
+            288.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.123,
+          "speechSpm": 316.1,
+          "speechSpmAll": [
+            316.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.22,
+          "speechSpm": 342.6,
+          "speechSpmAll": [
+            342.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.316,
+          "speechSpm": 369.4,
+          "speechSpmAll": [
+            369.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.412,
+          "speechSpm": 395.4,
+          "speechSpmAll": [
+            395.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 125,
+        "intermediate": 160,
+        "advanced": 190,
+        "cleanLo": 115,
+        "cleanHi": 220,
+        "baseSpm": 155.8,
+        "rateB": 0.8,
+        "rateA": 1.22
+      }
+    },
+    {
+      "bundle": "AZ-Guy-Friendly",
+      "baseSpm": 163.3,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.612,
+          "speechSpm": 223.1,
+          "speechSpmAll": [
+            223.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.704,
+          "speechSpm": 245.7,
+          "speechSpmAll": [
+            245.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.796,
+          "speechSpm": 277.8,
+          "speechSpmAll": [
+            277.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.888,
+          "speechSpm": 308.7,
+          "speechSpmAll": [
+            308.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.98,
+          "speechSpm": 340.7,
+          "speechSpmAll": [
+            340.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.072,
+          "speechSpm": 372.8,
+          "speechSpmAll": [
+            372.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.164,
+          "speechSpm": 404.2,
+          "speechSpmAll": [
+            404.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.255,
+          "speechSpm": 435.1,
+          "speechSpmAll": [
+            435.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.347,
+          "speechSpm": 466.1,
+          "speechSpmAll": [
+            466.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 130,
+        "intermediate": 160,
+        "advanced": 190,
+        "cleanLo": 130,
+        "cleanHi": 220,
+        "baseSpm": 163.3,
+        "rateB": 0.8,
+        "rateA": 1.16
+      }
+    },
+    {
+      "bundle": "AZ-Oliver-Default",
+      "baseSpm": 161.4,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.62,
+          "speechSpm": 191.1,
+          "speechSpmAll": [
+            191.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.713,
+          "speechSpm": 219.4,
+          "speechSpmAll": [
+            219.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.805,
+          "speechSpm": 247.6,
+          "speechSpmAll": [
+            247.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.898,
+          "speechSpm": 275.8,
+          "speechSpmAll": [
+            275.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.991,
+          "speechSpm": 303.9,
+          "speechSpmAll": [
+            303.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.084,
+          "speechSpm": 332.9,
+          "speechSpmAll": [
+            332.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.177,
+          "speechSpm": 360.6,
+          "speechSpmAll": [
+            360.6
+          ],
+          "sttMedian": null,
+          "sttMin": null,
+          "sttAll": []
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.27,
+          "speechSpm": 389.2,
+          "speechSpmAll": [
+            389.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.363,
+          "speechSpm": 416.3,
+          "speechSpmAll": [
+            416.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 130,
+        "intermediate": 160,
+        "advanced": 190,
+        "cleanLo": 130,
+        "cleanHi": 220,
+        "baseSpm": 161.4,
+        "rateB": 0.81,
+        "rateA": 1.18
+      }
+    },
+    {
+      "bundle": "AZ-Tony-Default",
+      "baseSpm": 168.9,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.592,
+          "speechSpm": 182.3,
+          "speechSpmAll": [
+            182.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.681,
+          "speechSpm": 209.4,
+          "speechSpmAll": [
+            209.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.77,
+          "speechSpm": 236.4,
+          "speechSpmAll": [
+            236.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.858,
+          "speechSpm": 263.2,
+          "speechSpmAll": [
+            263.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.947,
+          "speechSpm": 290.2,
+          "speechSpmAll": [
+            290.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.036,
+          "speechSpm": 317.1,
+          "speechSpmAll": [
+            317.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.125,
+          "speechSpm": 343.8,
+          "speechSpmAll": [
+            343.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.214,
+          "speechSpm": 371.8,
+          "speechSpmAll": [
+            371.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.303,
+          "speechSpm": 397.1,
+          "speechSpmAll": [
+            397.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 130,
+        "intermediate": 160,
+        "advanced": 190,
+        "cleanLo": 130,
+        "cleanHi": 220,
+        "baseSpm": 168.9,
+        "rateB": 0.77,
+        "rateA": 1.12
+      }
+    },
+    {
+      "bundle": "AZ-Alfie-Default",
+      "baseSpm": 162.5,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.615,
+          "speechSpm": 197.0,
+          "speechSpmAll": [
+            197.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.708,
+          "speechSpm": 226.1,
+          "speechSpmAll": [
+            226.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.8,
+          "speechSpm": 255.3,
+          "speechSpmAll": [
+            255.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.892,
+          "speechSpm": 284.1,
+          "speechSpmAll": [
+            284.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.985,
+          "speechSpm": 313.2,
+          "speechSpmAll": [
+            313.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.077,
+          "speechSpm": 342.8,
+          "speechSpmAll": [
+            342.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.169,
+          "speechSpm": 371.6,
+          "speechSpmAll": [
+            371.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.262,
+          "speechSpm": 401.1,
+          "speechSpmAll": [
+            401.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.354,
+          "speechSpm": 429.9,
+          "speechSpmAll": [
+            429.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 130,
+        "intermediate": 160,
+        "advanced": 190,
+        "cleanLo": 130,
+        "cleanHi": 220,
+        "baseSpm": 162.5,
+        "rateB": 0.8,
+        "rateA": 1.17
+      }
+    },
+    {
+      "bundle": "AZ-Ana-Default",
+      "baseSpm": 149.3,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.67,
+          "speechSpm": 168.3,
+          "speechSpmAll": [
+            168.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.77,
+          "speechSpm": 193.0,
+          "speechSpmAll": [
+            193.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.871,
+          "speechSpm": 218.2,
+          "speechSpmAll": [
+            218.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.971,
+          "speechSpm": 243.1,
+          "speechSpmAll": [
+            243.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.072,
+          "speechSpm": 268.8,
+          "speechSpmAll": [
+            268.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.172,
+          "speechSpm": 292.8,
+          "speechSpmAll": [
+            292.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.273,
+          "speechSpm": 317.8,
+          "speechSpmAll": [
+            317.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.373,
+          "speechSpm": 343.2,
+          "speechSpmAll": [
+            343.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.474,
+          "speechSpm": 367.9,
+          "speechSpmAll": [
+            367.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 125,
+        "intermediate": 160,
+        "advanced": 190,
+        "cleanLo": 115,
+        "cleanHi": 220,
+        "baseSpm": 149.3,
+        "rateB": 0.84,
+        "rateA": 1.27
+      }
+    },
+    {
+      "bundle": "AZ-Xiaoyou-Default",
+      "baseSpm": 197.7,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.506,
+          "speechSpm": 137.6,
+          "speechSpmAll": [
+            137.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.582,
+          "speechSpm": 158.3,
+          "speechSpmAll": [
+            158.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.658,
+          "speechSpm": 179.1,
+          "speechSpmAll": [
+            179.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.733,
+          "speechSpm": 199.7,
+          "speechSpmAll": [
+            199.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.809,
+          "speechSpm": 220.6,
+          "speechSpmAll": [
+            220.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.885,
+          "speechSpm": 241.2,
+          "speechSpmAll": [
+            241.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.961,
+          "speechSpm": 262.0,
+          "speechSpmAll": [
+            262.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.037,
+          "speechSpm": 269.1,
+          "speechSpmAll": [
+            269.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.113,
+          "speechSpm": 289.3,
+          "speechSpmAll": [
+            289.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 145,
+        "intermediate": 160,
+        "advanced": 190,
+        "cleanLo": 145,
+        "cleanHi": 220,
+        "baseSpm": 197.7,
+        "rateB": 0.73,
+        "rateA": 0.96
+      }
+    },
+    {
+      "bundle": "AZ-Maisie-Default",
+      "baseSpm": 155.8,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.642,
+          "speechSpm": 181.4,
+          "speechSpmAll": [
+            181.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.738,
+          "speechSpm": 208.0,
+          "speechSpmAll": [
+            208.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.834,
+          "speechSpm": 235.2,
+          "speechSpmAll": [
+            235.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.931,
+          "speechSpm": 262.0,
+          "speechSpmAll": [
+            262.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.027,
+          "speechSpm": 288.8,
+          "speechSpmAll": [
+            288.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.123,
+          "speechSpm": 315.6,
+          "speechSpmAll": [
+            315.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.22,
+          "speechSpm": 342.2,
+          "speechSpmAll": [
+            342.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.316,
+          "speechSpm": 368.5,
+          "speechSpmAll": [
+            368.5
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.412,
+          "speechSpm": 395.7,
+          "speechSpmAll": [
+            395.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 125,
+        "intermediate": 160,
+        "advanced": 190,
+        "cleanLo": 115,
+        "cleanHi": 220,
+        "baseSpm": 155.8,
+        "rateB": 0.8,
+        "rateA": 1.22
+      }
+    },
+    {
+      "bundle": "AZ-Sara-Friendly",
+      "baseSpm": 151.8,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.659,
+          "speechSpm": 203.1,
+          "speechSpmAll": [
+            203.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.758,
+          "speechSpm": 233.3,
+          "speechSpmAll": [
+            233.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.856,
+          "speechSpm": 263.4,
+          "speechSpmAll": [
+            263.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.955,
+          "speechSpm": 292.9,
+          "speechSpmAll": [
+            292.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.054,
+          "speechSpm": 323.4,
+          "speechSpmAll": [
+            323.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.153,
+          "speechSpm": 353.5,
+          "speechSpmAll": [
+            353.5
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.252,
+          "speechSpm": 383.3,
+          "speechSpmAll": [
+            383.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.35,
+          "speechSpm": 412.9,
+          "speechSpmAll": [
+            412.9
+          ],
+          "sttMedian": null,
+          "sttMin": null,
+          "sttAll": []
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.449,
+          "speechSpm": 442.3,
+          "speechSpmAll": [
+            442.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 125,
+        "intermediate": 160,
+        "advanced": 190,
+        "cleanLo": 115,
+        "cleanHi": 220,
+        "baseSpm": 151.8,
+        "rateB": 0.82,
+        "rateA": 1.25
+      }
+    },
+    {
+      "bundle": "AZ-Jenny-Cheerful",
+      "baseSpm": 154.9,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.646,
+          "speechSpm": 204.0,
+          "speechSpmAll": [
+            204.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.742,
+          "speechSpm": 225.9,
+          "speechSpmAll": [
+            225.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.839,
+          "speechSpm": 255.1,
+          "speechSpmAll": [
+            255.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.936,
+          "speechSpm": 284.0,
+          "speechSpmAll": [
+            284.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.033,
+          "speechSpm": 313.6,
+          "speechSpmAll": [
+            313.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.13,
+          "speechSpm": 342.2,
+          "speechSpmAll": [
+            342.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.227,
+          "speechSpm": 371.4,
+          "speechSpmAll": [
+            371.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.323,
+          "speechSpm": 399.8,
+          "speechSpmAll": [
+            399.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.42,
+          "speechSpm": 428.4,
+          "speechSpmAll": [
+            428.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 125,
+        "intermediate": 160,
+        "advanced": 190,
+        "cleanLo": 115,
+        "cleanHi": 220,
+        "baseSpm": 154.9,
+        "rateB": 0.81,
+        "rateA": 1.23
+      }
+    },
+    {
+      "bundle": "GEMINI-Sulafat-Default",
+      "baseSpm": 157.8,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.634,
+          "speechSpm": 138.1,
+          "speechSpmAll": [
+            138.1,
+            138.1,
+            138.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.729,
+          "speechSpm": 139.3,
+          "speechSpmAll": [
+            139.3,
+            139.3,
+            139.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.824,
+          "speechSpm": 166.7,
+          "speechSpmAll": [
+            166.7,
+            166.7,
+            166.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.919,
+          "speechSpm": 153.9,
+          "speechSpmAll": [
+            153.9,
+            153.9,
+            153.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.014,
+          "speechSpm": 197.2,
+          "speechSpmAll": [
+            197.2,
+            197.2,
+            197.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.109,
+          "speechSpm": 196.7,
+          "speechSpmAll": [
+            196.7,
+            196.7,
+            196.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.204,
+          "speechSpm": 248.3,
+          "speechSpmAll": [
+            248.3,
+            248.3,
+            248.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.299,
+          "speechSpm": 250.0,
+          "speechSpmAll": [
+            250.0,
+            250.0,
+            250.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.394,
+          "speechSpm": 270.0,
+          "speechSpmAll": [
+            270.0,
+            270.0,
+            270.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 125,
+        "intermediate": 110,
+        "advanced": 100,
+        "cleanLo": 115,
+        "cleanHi": 100,
+        "baseSpm": 157.8,
+        "rateB": 0.79,
+        "rateA": 0.63
+      }
+    },
+    {
+      "bundle": "GEMINI-Sulafat-Cheerful",
+      "baseSpm": 162.9,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.614,
+          "speechSpm": 100.0,
+          "speechSpmAll": [
+            100.0,
+            100.0,
+            100.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.706,
+          "speechSpm": 143.6,
+          "speechSpmAll": [
+            143.6,
+            143.6,
+            143.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.798,
+          "speechSpm": 162.8,
+          "speechSpmAll": [
+            162.8,
+            162.8,
+            162.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.89,
+          "speechSpm": 176.4,
+          "speechSpmAll": [
+            176.4,
+            176.4,
+            176.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.982,
+          "speechSpm": 204.1,
+          "speechSpmAll": [
+            204.1,
+            204.1,
+            204.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.074,
+          "speechSpm": 210.9,
+          "speechSpmAll": [
+            210.9,
+            210.9,
+            210.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.166,
+          "speechSpm": 225.4,
+          "speechSpmAll": [
+            225.4,
+            225.4,
+            225.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.258,
+          "speechSpm": 263.7,
+          "speechSpmAll": [
+            263.7,
+            263.7,
+            263.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.351,
+          "speechSpm": 268.7,
+          "speechSpmAll": [
+            268.7,
+            268.7,
+            268.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 130,
+        "intermediate": 160,
+        "advanced": 190,
+        "cleanLo": 130,
+        "cleanHi": 220,
+        "baseSpm": 162.9,
+        "rateB": 0.8,
+        "rateA": 1.17
+      }
+    },
+    {
+      "bundle": "GEMINI-Sulafat-Gentle",
+      "baseSpm": 153.9,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.65,
+          "speechSpm": 102.9,
+          "speechSpmAll": [
+            102.9,
+            102.9,
+            102.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.747,
+          "speechSpm": 122.9,
+          "speechSpmAll": [
+            122.9,
+            122.9,
+            122.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.845,
+          "speechSpm": 138.9,
+          "speechSpmAll": [
+            138.9,
+            138.9,
+            138.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 0.942,
+          "speechSpm": 123.6,
+          "speechSpmAll": [
+            123.6,
+            123.6,
+            123.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.04,
+          "speechSpm": 184.2,
+          "speechSpmAll": [
+            184.2,
+            184.2,
+            184.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.137,
+          "speechSpm": 199.0,
+          "speechSpmAll": [
+            199.0,
+            199.0,
+            199.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.235,
+          "speechSpm": 194.9,
+          "speechSpmAll": [
+            194.9,
+            194.9,
+            194.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.332,
+          "speechSpm": 247.8,
+          "speechSpmAll": [
+            247.8,
+            247.8,
+            247.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 3,
+          "rateReq": 1.429,
+          "speechSpm": 268.7,
+          "speechSpmAll": [
+            268.7,
+            268.7,
+            268.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 125,
+        "intermediate": 125,
+        "advanced": 130,
+        "cleanLo": 115,
+        "cleanHi": 130,
+        "baseSpm": 153.9,
+        "rateB": 0.81,
+        "rateA": 0.84
+      }
+    },
+    {
+      "bundle": "CHIRP-Zephyr-Default",
+      "baseSpm": 219.2,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.456,
+          "speechSpm": 122.2,
+          "speechSpmAll": [
+            122.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.525,
+          "speechSpm": 157.3,
+          "speechSpmAll": [
+            157.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.593,
+          "speechSpm": 186.3,
+          "speechSpmAll": [
+            186.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.661,
+          "speechSpm": 193.1,
+          "speechSpmAll": [
+            193.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.73,
+          "speechSpm": 213.5,
+          "speechSpmAll": [
+            213.5
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.798,
+          "speechSpm": 241.5,
+          "speechSpmAll": [
+            241.5
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.867,
+          "speechSpm": 259.9,
+          "speechSpmAll": [
+            259.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.935,
+          "speechSpm": 252.1,
+          "speechSpmAll": [
+            252.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.004,
+          "speechSpm": 301.1,
+          "speechSpmAll": [
+            301.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 160,
+        "intermediate": 170,
+        "advanced": 190,
+        "cleanLo": 160,
+        "cleanHi": 190,
+        "baseSpm": 219.2,
+        "rateB": 0.73,
+        "rateA": 0.87
+      }
+    },
+    {
+      "bundle": "AZ-Sonia-Cheerful",
+      "baseSpm": 190.3,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.525,
+          "speechSpm": 150.5,
+          "speechSpmAll": [
+            150.5
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.604,
+          "speechSpm": 173.2,
+          "speechSpmAll": [
+            173.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.683,
+          "speechSpm": 189.4,
+          "speechSpmAll": [
+            189.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.762,
+          "speechSpm": 211.4,
+          "speechSpmAll": [
+            211.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.841,
+          "speechSpm": 232.9,
+          "speechSpmAll": [
+            232.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.92,
+          "speechSpm": 254.5,
+          "speechSpmAll": [
+            254.5
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.998,
+          "speechSpm": 276.0,
+          "speechSpmAll": [
+            276.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.077,
+          "speechSpm": 298.2,
+          "speechSpmAll": [
+            298.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.156,
+          "speechSpm": 319.2,
+          "speechSpmAll": [
+            319.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 145,
+        "intermediate": 160,
+        "advanced": 190,
+        "cleanLo": 145,
+        "cleanHi": 220,
+        "baseSpm": 190.3,
+        "rateB": 0.76,
+        "rateA": 1.0
+      }
+    },
+    {
+      "bundle": "AZ-Nancy-Default",
+      "baseSpm": 148.0,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.676,
+          "speechSpm": 209.4,
+          "speechSpmAll": [
+            209.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.777,
+          "speechSpm": 240.6,
+          "speechSpmAll": [
+            240.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.878,
+          "speechSpm": 271.4,
+          "speechSpmAll": [
+            271.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.98,
+          "speechSpm": 302.2,
+          "speechSpmAll": [
+            302.2
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.081,
+          "speechSpm": 333.7,
+          "speechSpmAll": [
+            333.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.182,
+          "speechSpm": 364.5,
+          "speechSpmAll": [
+            364.5
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.284,
+          "speechSpm": 395.8,
+          "speechSpmAll": [
+            395.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.385,
+          "speechSpm": 425.8,
+          "speechSpmAll": [
+            425.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.486,
+          "speechSpm": 456.8,
+          "speechSpmAll": [
+            456.8
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 125,
+        "intermediate": 160,
+        "advanced": 190,
+        "cleanLo": 115,
+        "cleanHi": 220,
+        "baseSpm": 148.0,
+        "rateB": 0.84,
+        "rateA": 1.28
+      }
+    },
+    {
+      "bundle": "AZ-Hollie-Default",
+      "baseSpm": 157.2,
+      "points": [
+        {
+          "spm": 100,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.636,
+          "speechSpm": 184.6,
+          "speechSpmAll": [
+            184.6
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 115,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.732,
+          "speechSpm": 211.9,
+          "speechSpmAll": [
+            211.9
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 130,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.827,
+          "speechSpm": 239.3,
+          "speechSpmAll": [
+            239.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 145,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 0.922,
+          "speechSpm": 266.7,
+          "speechSpmAll": [
+            266.7
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 160,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.018,
+          "speechSpm": 294.3,
+          "speechSpmAll": [
+            294.3
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 175,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.113,
+          "speechSpm": 321.4,
+          "speechSpmAll": [
+            321.4
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 190,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.209,
+          "speechSpm": 348.1,
+          "speechSpmAll": [
+            348.1
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 205,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.304,
+          "speechSpm": 375.5,
+          "speechSpmAll": [
+            375.5
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        },
+        {
+          "spm": 220,
+          "ok": true,
+          "reps": 1,
+          "rateReq": 1.399,
+          "speechSpm": 402.0,
+          "speechSpmAll": [
+            402.0
+          ],
+          "sttMedian": 1.0,
+          "sttMin": 1.0,
+          "sttAll": [
+            1.0
+          ]
+        }
+      ],
+      "pick": {
+        "beginner": 125,
+        "intermediate": 160,
+        "advanced": 190,
+        "cleanLo": 115,
+        "cleanHi": 220,
+        "baseSpm": 157.2,
+        "rateB": 0.8,
+        "rateA": 1.21
+      }
+    }
+  ]
+}

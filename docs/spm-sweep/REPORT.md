@@ -1,106 +1,101 @@
-# TTS v2 SPM 스윕 1차 실측 리포트 (2026-07-14)
+# TTS v2 SPM 스윕 리포트 (2026-07-14~16)
 
 ## 개요
 
-- 목적: TTS v2 `spm` 파라미터로 전체 Voice Profile의 발화 속도 반응을 실측하고, VP별 beginner / intermediate / advanced SPM 1차 후보와 안전 범위(기계음, 깨짐 없는 구간)를 선정함
-- 대상: Confluence SS Voice Table 활성 번들 (Typecast 3종 포함). 백엔드 제공 서버 VoiceTable.json(2026-07-14)의 baseSpm을 authoritative 기준값으로 채택함
-- API: `POST https://speech-stage.spindlebooks.com/api/v2/text-to-speech/synthesize/save` (Stage, PLAYGROUND)
-- 스크립트: `scripts/spm_sweep.py` (본 스윕), `scripts/spm_postprocess.py` (극단값 추가 스윕, 무음 보정, STT)
+- 목적: TTS v2 `spm` 파라미터로 VP별 발화 속도를 실측하고, 7-9세 아동 학습자에게 맞는 beginner / intermediate / advanced 요청 spm을 VP별로 선정함
+- 대상: 서버 VoiceTable.json(백엔드 제공) 활성 번들 32종 + Typecast 3종(v2 미지원)
+- API: `POST https://speech-stage.spindlebooks.com/api/v2/text-to-speech/synthesize/save` (Stage, PLAYGROUND). curl 예시 그대로 호출하며, 음원 가공은 하지 않음(ffprobe/ffmpeg는 길이/무음 측정만, gpt-4o-transcribe는 명료도 전사만)
+- 스크립트: `spm_sweep.py`(전역 스윕), `spm_postprocess.py`(무음 보정), `spm_child_sweep.py`(아동 밴드), `spm_child_confirm.py`(최종값 청감 검증)
 
-## 방법
+## 결론 요약 (2차, 7-9세 기준)
 
-- 고정 텍스트 1문장(18단어, g2p_en 기준 23음절)으로 번들당 baseline(spm 미지정) + SPM 그리드 9점(90~250) + rate 극단 7점(역산 base의 0.5~2.4배) 생성, 총 545건 성공
-- 실측 속도: ffprobe 길이에서 ffmpeg silencedetect로 선행 및 후행 무음을 제거한 speech 길이 기준으로 SPM 계산 (프로바이더별 꼬리 무음이 0.3~0.9초로 달라 미보정 시 왜곡됨)
-- 서버 설정 baseSpm 역산: spm 지정 시 rate = spm / baseSpm 이므로, baseline 대비 길이 비율로 baseSpm = spm x (D_spm / D_base) 를 각 점에서 계산해 중앙값 채택
-- 명료도: gpt-4o-transcribe 전사와 원문 유사도(0~1) 519건 검증
-- 한계: 청감 품질(기계음, 어색한 운율)은 STT로 완전히 잡히지 않음. 2차 청취로 확정 필요
+- 목표 청감 속도: beginner 약 100 WPM / intermediate 120 / advanced 137 (advanced 과속 방지). 고정 문장(18단어, 23음절) 기준 실측
+- 핵심 발견: **같은 요청 spm이라도 VP마다 실제 들리는 속도가 크게 다름**. 서버 baseSpm이 청감 속도와 선형 비례가 아니라서(특히 Azure는 baseSpm이 실제 tempo를 크게 낮게 잡음), 요청값을 청감 WPM 기준으로 VP별 역산해야 함
+- 이 속도대(약 80~170 WPM)에서 **"너무 빨라 씹힘"은 전 VP 미발생**(STT 유사도 1.0). 실제 제약은 아래 3그룹으로 갈림
+- 기계음(저rate 음색)은 자동 판정 불가라, 최종은 2차 청취로 확정 필요
 
-## 서버 baseSpm 대조 검증 (2026-07-14 백엔드 제공분 적용)
+## VP 3그룹
 
-백엔드가 서버 VoiceTable.json의 VP별 baseSpm을 공유해, 스윕 역산값(measuredBaseSpm)과 대조함. 결과가 실측 방법론을 뒷받침함:
+- **clean (10종)**: 목표 WPM을 정확히 내고 저rate에서도 STT 1.0. GCP/AWS/CHIRP와 AZ-TuningAna/Ana/Xiaoyou/Sonia/Hollie. 아동 레벨 체계에 가장 적합
+- **floored (10종)**: 표준 Azure 다수(Guy/Sara/Nancy/Tony/Oliver/Alfie/Jenny/Maisie/TuningMaisie/TuningEvelyn). 최저 속도가 약 112~143 WPM에서 포화돼 그 이하로 안 느려짐 - 느린 beginner 불가. beginnerWpm이 실제 하한. 빠른 캐릭터나 상위 레벨 위주로만 적합
+- **gemini (12종)**: 발화 지터가 커서 레벨별 실측 WPM이 출렁임. rate 0.7 미만에서 문장 중간에 침묵이 삽입돼 beginner를 rate 0.75로 하한. 자연 tempo가 이미 브리스크(rate 1.0에서 약 155 WPM)해 3레벨 폭이 좁음
 
-- 32개 서버 번들 중 대조 가능한 31개에서 26개가 서버값과 +-3% 내 일치. Azure, GCP, AWS, CHIRP 계열은 사실상 정확(AZ-TuningEvelyn, AZ-Guy, AZ-Oliver, AZ-Tony, AZ-Alfie, AZ-Sonia, AZ-Nancy 등 다수가 소수점 오차)
-- 8% 넘게 벌어진 6개는 전부 GEMINI 계열로, 핵심 발견 2번의 발화 지터 때문임:
-  - GEMINI-Rasalgethi-Default: 서버 160.1 vs 실측 199.5 (+25%)
-  - GEMINI-Sulafat-Gentle: 서버 153.9 vs 실측 189.1 (+23%)
-  - GEMINI-Rasalgethi-Cheerful: 서버 170.3 vs 실측 205.5 (+21%)
-  - GEMINI-Fenrir-Cheerful: 서버 159.0 vs 실측 182.7 (+15%)
-  - GEMINI-Puck-Gentle: 서버 146.7 vs 실측 166.8 (+14%)
-  - GEMINI-Puck-Default: 서버 153.1 vs 실측 115.2 (-25%)
-- 조치: 단일 발화 역산이 흔들리는 GEMINI 지터 특성상 서버 baseSpm을 authoritative로 채택. 아래 추천표와 `src/lib/spm-recommendations.ts`, `src/lib/voice-table.ts`를 전부 서버값 기준으로 교체함
-- 신규 번들 반영: 서버 테이블에만 있던 AZ-Xiaoyou-Default(Female Child en-US, baseSpm 197.7) 추가. Typecast 3종은 서버 테이블에 없어 v2 미지원 확정
+## VP별 추천 (요청 spm / 실측 청감 wpm)
 
-## 핵심 발견
+요청 B/I/A는 API에 보낼 spm. 실측 wpm은 그 값으로 실제 들리는 속도(GEMINI는 3회 중앙값).
 
-1. Typecast 3종(TC-Tim, TC-Sindarin, TC-Harper)은 v2에서 "Voice profile not found" 로 사용 불가. 백엔드에 Typecast 프로바이더 자체가 없음(서버 VoiceTable.json에도 없음)
-2. 프로바이더별 rate 반영 특성이 뚜렷함
-   - Azure: 전 구간 완벽 선형. 단 rate 2.0에서 하드 클램프(2.1, 2.4를 요청해도 실효 1.97~1.98)
-   - GCP(Neural2, Chirp3HD): rate 0.38~2.3까지 수치상 선형이나, rate 1.9 이상에서 명료도 붕괴(GCP-Rey: rate 1.9에서 STT 0.76, rate 2.4에서 0.19)
-   - AWS Polly: rate 0.4~2.3 선형, STT 이상 없음
-   - GEMINI: speakingRate가 반영되긴 하나 발화별 지터가 커서 실효 rate가 요청 대비 +-20~30% 흔들림. Gentle 스타일이 가장 불안정. 레벨 간 간격을 지터보다 크게 잡아야 체감 구분 가능
-3. 같은 spm 값이라도 VP 간 실제 청감 속도가 벌어짐. 원인은 baseSpm 자체가 VP마다 다르기 때문(자연 발화 속도 차이). rate = spm / baseSpm 구조상, 절대 속도를 맞추려면 레벨별로 같은 목표 spm을 보내 서버가 rate로 정규화하게 하고, 발화 자체의 상대 완급을 맞추려면 본 리포트처럼 VP별 baseSpm 배수로 지정하면 됨. 서버 baseSpm이 확정됐으므로 둘 다 계산 가능
-4. API 하드 에러는 없음: rate 2.4 요청까지 전부 200 응답. 품질 경계만 존재(위 2번). TC 3종만 500(profile not found)
-5. 6/30 회의의 "rate 0.7 이하 기계음" 우려 구간: STT 점수는 rate 0.4에서도 유지되나(기계 인식은 됨), 사람 청감 기준 확인은 2차 청취 필요
+### clean 그룹 (목표 WPM 정확, 저rate 깔끔) - 아동 레벨 최적
 
-## VP별 1차 추천 (서버 baseSpm x rate: B 0.8 / I 1.0 / A 1.25)
-
-- 선정 논리: 각 VP의 서버 baseSpm(rate 1.0)을 intermediate로 두고, beginner는 0.8배, advanced는 1.25배. 6/30 결정사항(비기너 rate 하한 0.8, B-I 간격을 I-A보다 좁게) 반영. rate 절대폭은 B-I(0.2)가 I-A(0.25)보다 좁음
-- 안전 범위: rate 0.7 ~ 프로바이더 품질 상한(AZ 1.9, GCP / CHIRP 1.7, AWS 1.9, GEMINI 1.5)의 spm 환산
-- 값은 5 단위 반올림. 사이트 "SPM 실험" 탭에서 번들 선택 시 자동 표시되고 "B/I/A 추천값" 버튼으로 바로 재생 가능
-
-| Bundle | 서버 baseSpm | B (0.8) | I (1.0) | A (1.25) | 안전범위(spm) |
+| Bundle | baseSpm | 요청 B/I/A | 실측 wpm B/I/A | rate B/A | 그룹 |
 |---|---|---|---|---|---|
-| GCP-Jeremy-Default | 239.8 | 190 | 240 | 300 | 170~410 |
-| GCP-Rey-Default | 223.8 | 180 | 225 | 280 | 155~380 |
-| AWS-Justin-Default | 215.1 | 170 | 215 | 270 | 150~410 |
-| AWS-Kevin-Default | 227.8 | 180 | 230 | 285 | 160~435 |
-| AZ-Alfie-Default | 162.5 | 130 | 160 | 205 | 115~310 |
-| AZ-Ana-Default | 149.3 | 120 | 150 | 185 | 105~285 |
-| AZ-Guy-Friendly | 163.3 | 130 | 165 | 205 | 115~310 |
-| AZ-Hollie-Default | 157.2 | 125 | 155 | 195 | 110~300 |
-| AZ-Jenny-Cheerful | 154.9 | 125 | 155 | 195 | 110~295 |
-| AZ-Maisie-Default | 155.8 | 125 | 155 | 195 | 110~295 |
-| AZ-Nancy-Default | 148.0 | 120 | 150 | 185 | 105~280 |
-| AZ-Oliver-Default | 161.4 | 130 | 160 | 200 | 115~305 |
-| AZ-Sara-Friendly | 151.8 | 120 | 150 | 190 | 105~290 |
-| AZ-Sonia-Cheerful | 190.3 | 150 | 190 | 240 | 135~360 |
-| AZ-Tony-Default | 168.9 | 135 | 170 | 210 | 120~320 |
-| AZ-TuningAna-Default | 149.3 | 120 | 150 | 185 | 105~285 |
-| AZ-TuningEvelyn-Default | 162.7 | 130 | 165 | 205 | 115~310 |
-| AZ-TuningMaisie-Default | 155.8 | 125 | 155 | 195 | 110~295 |
-| AZ-Xiaoyou-Default | 197.7 | 160 | 200 | 245 | 140~375 |
-| GEMINI-Fenrir-Cheerful | 159.0 | 125 | 160 | 200 | 110~240 |
-| GEMINI-Fenrir-Default | 160.3 | 130 | 160 | 200 | 110~240 |
-| GEMINI-Fenrir-Gentle | 147.3 | 120 | 145 | 185 | 105~220 |
-| GEMINI-Puck-Cheerful | 160.7 | 130 | 160 | 200 | 110~240 |
-| GEMINI-Puck-Default | 153.1 | 120 | 155 | 190 | 105~230 |
-| GEMINI-Puck-Gentle | 146.7 | 115 | 145 | 185 | 105~220 |
-| GEMINI-Rasalgethi-Cheerful | 170.3 | 135 | 170 | 215 | 120~255 |
-| GEMINI-Rasalgethi-Default | 160.1 | 130 | 160 | 200 | 110~240 |
-| GEMINI-Rasalgethi-Gentle | 160.7 | 130 | 160 | 200 | 110~240 |
-| GEMINI-Sulafat-Cheerful | 162.9 | 130 | 165 | 205 | 115~245 |
-| GEMINI-Sulafat-Default | 157.8 | 125 | 160 | 195 | 110~235 |
-| GEMINI-Sulafat-Gentle | 153.9 | 125 | 155 | 190 | 110~230 |
-| CHIRP-Zephyr-Default | 219.2 | 175 | 220 | 275 | 155~375 |
-| TC-Tim-Default | - | - | - | - | v2 미지원 |
-| TC-Sindarin-Default | - | - | - | - | v2 미지원 |
-| TC-Harper-Default | - | - | - | - | v2 미지원 |
+| GCP-Jeremy-Default | 239.8 | 100 / 120 / 135 | 101 / 122 / 137 | 0.42 / 0.56 | clean |
+| GCP-Rey-Default | 223.8 | 90 / 110 / 125 | 100 / 122 / 138 | 0.4 / 0.56 | clean |
+| AWS-Justin-Default | 215.1 | 90 / 110 / 125 | 99 / 120 / 136 | 0.42 / 0.58 | clean |
+| AWS-Kevin-Default | 227.8 | 85 / 105 / 125 | 99 / 119 / 140 | 0.37 / 0.55 | clean |
+| CHIRP-Zephyr-Default | 219.2 | 95 / 115 / 130 | 104 / 123 / 146 | 0.43 / 0.59 | clean |
+| AZ-Ana-Default | 149.3 | 75 / 90 / 105 | 101 / 118 / 138 | 0.5 / 0.7 | clean |
+| AZ-Hollie-Default | 157.2 | 70 / 85 / 95 | 114 / 123 / 137 | 0.45 / 0.6 | clean |
+| AZ-Sonia-Cheerful | 190.3 | 85 / 105 / 120 | 112 / 124 / 137 | 0.45 / 0.63 | clean |
+| AZ-TuningAna-Default | 149.3 | 75 / 90 / 105 | 102 / 119 / 138 | 0.5 / 0.7 | clean |
+| AZ-Xiaoyou-Default | 197.7 | 90 / 110 / 125 | 107 / 118 / 135 | 0.46 / 0.63 | clean |
 
-## 절대 속도 표준화를 원할 경우
+### floored 그룹 (표준 Azure, 최저속 포화 - 느린 beginner 불가)
 
-- 서버 baseSpm이 확정돼, 레벨별로 같은 목표 spm(예: B 130 / I 160 / A 200)을 전 VP에 보내면 서버가 rate = 목표 spm / baseSpm 으로 자동 정규화해 출력 속도가 수렴함
-- 단, baseSpm이 큰 VP는 낮은 목표 spm에서 rate가 하한을 뚫음. 예: 목표 spm 130을 GCP-Jeremy(baseSpm 239.8)에 주면 rate 0.54로 기계음 위험. 반대로 baseSpm이 작은 GEMINI-Puck-Gentle(146.7)에 목표 200을 주면 rate 1.36
-- 따라서 절대 표준화는 레벨 목표 spm의 범위를 baseSpm 분포 중앙(약 150~165)에 가깝게 잡거나, GCP / AWS / CHIRP 고속 VP를 레벨 체계에서 별도 취급해야 안전함. 본 리포트의 VP별 배수 방식은 이 문제를 피함(각 VP를 자기 자연속도 기준 완급으로 조정)
+| Bundle | baseSpm | 요청 B/I/A | 실측 wpm B/I/A | rate B/A | 그룹 |
+|---|---|---|---|---|---|
+| AZ-Alfie-Default | 162.5 | 65 / 80 / 90 | 130 / 130 / 144 | 0.4 / 0.55 | floored |
+| AZ-Guy-Friendly | 163.3 | 55 / 70 / 80 | 143 / 143 / 143 | 0.34 / 0.49 | floored |
+| AZ-Jenny-Cheerful | 154.9 | 60 / 75 / 85 | 124 / 124 / 136 | 0.39 / 0.55 | floored |
+| AZ-Maisie-Default | 155.8 | 70 / 85 / 95 | 114 / 121 / 135 | 0.45 / 0.61 | floored |
+| AZ-Nancy-Default | 148.0 | 60 / 75 / 85 | 126 / 127 / 140 | 0.41 / 0.57 | floored |
+| AZ-Oliver-Default | 161.4 | 65 / 80 / 90 | 125 / 125 / 139 | 0.4 / 0.56 | floored |
+| AZ-Sara-Friendly | 151.8 | 60 / 75 / 85 | 125 / 125 / 135 | 0.4 / 0.56 | floored |
+| AZ-Tony-Default | 168.9 | 70 / 85 / 95 | 125 / 125 / 140 | 0.41 / 0.56 | floored |
+| AZ-TuningEvelyn-Default | 162.7 | 70 / 85 / 100 | 112 / 117 / 138 | 0.43 / 0.61 | floored |
+| AZ-TuningMaisie-Default | 155.8 | 70 / 85 / 95 | 114 / 121 / 135 | 0.45 / 0.61 | floored |
+
+### gemini 그룹 (지터 큼, 저rate 침묵, 3레벨 폭 좁음)
+
+| Bundle | baseSpm | 요청 B/I/A | 실측 wpm B/I/A | rate B/A | 그룹 |
+|---|---|---|---|---|---|
+| GEMINI-Fenrir-Cheerful | 159.0 | 120 / 130 / 150 | 116 / 119 / 134 | 0.75 / 0.94 | gemini |
+| GEMINI-Fenrir-Default | 160.3 | 120 / 145 / 160 | 105 / 119 / 116 | 0.75 / 1.0 | gemini |
+| GEMINI-Fenrir-Gentle | 147.3 | 115 / 140 / 165 | 85 / 148 / 122 | 0.78 / 1.12 | gemini |
+| GEMINI-Puck-Cheerful | 160.7 | 120 / 130 / 145 | 128 / 122 / 149 | 0.75 / 0.9 | gemini |
+| GEMINI-Puck-Default | 153.1 | 120 / 135 / 150 | 105 / 156 / 147 | 0.78 / 0.98 | gemini |
+| GEMINI-Puck-Gentle | 146.7 | 110 / 130 / 150 | 115 / 108 / 128 | 0.75 / 1.02 | gemini |
+| GEMINI-Rasalgethi-Cheerful | 170.3 | 130 / 135 / 145 | 125 / 87 / 132 | 0.76 / 0.85 | gemini |
+| GEMINI-Rasalgethi-Default | 160.1 | 120 / 130 / 150 | 101 / 96 / 160 | 0.75 / 0.94 | gemini |
+| GEMINI-Rasalgethi-Gentle | 160.7 | 120 / 140 / 165 | 96 / 129 / 173 | 0.75 / 1.03 | gemini |
+| GEMINI-Sulafat-Cheerful | 162.9 | 120 / 130 / 145 | 95 / 127 / 138 | 0.74 / 0.89 | gemini |
+| GEMINI-Sulafat-Default | 157.8 | 120 / 125 / 145 | 96 / 111 / 120 | 0.76 / 0.92 | gemini |
+| GEMINI-Sulafat-Gentle | 153.9 | 125 / 145 / 160 | 100 / 97 / 144 | 0.81 / 1.04 | gemini |
+
+| Typecast (v2 미지원) | - | - | - | - | TC-Tim / TC-Sindarin / TC-Harper |
+
+## 방법 상세
+
+- 각 VP를 아동 밴드 그리드(요청 100~220 spm)로 생성, ffmpeg silencedetect로 앞뒤 무음 제거한 speech 길이에서 청감 SPM/WPM 산출(WPM = 18단어 / speech분). GEMINI는 지점당 3회 반복 중앙값으로 지터 완화
+- 요청 spm -> 청감 WPM 관계를 VP별 선형 회귀로 적합해, 목표 WPM(100/120/137)을 내는 요청 spm 역산. GEMINI는 침묵 방지 위해 beginner rate 0.75 하한 클램프
+- 역산값으로 다시 실제 생성해 청감 WPM/STT 재확인(`child-confirm.json`)
+
+## 프로바이더별 rate 반영 특성(1차 전역 스윕)
+
+- Azure: rate 선형이나 2.0 하드 클램프. 단 이번에 확인된 하한 포화(느리게 안 됨)가 floored 그룹의 원인
+- GCP(Neural2, Chirp3HD): rate 1.9 이상에서 STT 붕괴(아동 밴드 밖). 저rate(0.4~0.6)에서도 아동 밴드에선 STT 1.0
+- AWS Polly: rate 0.4~2.3 선형
+- GEMINI: speakingRate 반영되나 발화 지터 +-20~30%, 저rate 침묵 삽입
 
 ## 산출물
 
-- `docs/spm-sweep/server-voicetable.json`: 백엔드 제공 서버 VoiceTable(baseSpm 원본)
-- `docs/spm-sweep/results.json`, `results.csv`: 전체 실측 데이터(요청 spm, 길이, 무음, 실측 SPM / WPM, 역산 baseSpm, STT 전사 및 점수, 오디오 URL)
-- `src/lib/voice-table.ts`: 서버 baseSpm 반영 VP 목록. `src/lib/spm-recommendations.ts`: 위 추천값. 둘 다 "SPM 실험" 탭에 연동됨
-- 오디오 mp3 545건: 세션 스크래치패드에 보관(임시). 각 행의 Stage URL로도 재생 가능하며, 같은 텍스트 + spm 조합은 서버 캐시로 즉시 재생됨
+- `docs/spm-sweep/server-voicetable.json`: 백엔드 제공 서버 baseSpm 원본
+- `docs/spm-sweep/child-results.json`, `child-confirm.json`: 아동 밴드 실측 및 최종값 청감 검증
+- `docs/spm-sweep/results.json`, `results.csv`: 1차 전역 스윕 원자료
+- `src/lib/spm-recommendations.ts`: 위 추천값(요청 spm + 실측 wpm + 그룹). "SPM 실험" 탭에 연동
+- 오디오 mp3: 세션 스크래치패드에 보관. 각 요청은 Stage URL로도 재생 가능(같은 텍스트+spm은 서버 캐시)
 
 ## 다음 단계
 
-- 2차 청취(이재현): "SPM 실험" 탭에서 VP별 B / I / A 추천값 청취, 기계음 하한과 상한 체감 확인 후 값 조정
-- 레벨 목표 방식 확정: VP별 배수(본 리포트) vs 절대 목표 spm 통일 중 택일. baseSpm이 확정됐으므로 어느 쪽이든 바로 산출 가능
-- Typecast 3종 처리 방침 확인: Voice Table에서 제거 또는 백엔드 지원 추가
+- 2차 청취(이재현): "SPM 실험" 탭에서 그룹별 대표 VP의 beginner를 우선 청취. clean 그룹 저rate(0.4~0.5) 기계음 여부, gemini beginner 침묵 여부 확인
+- 레벨 체계 VP 선정: 느린 beginner가 필요하면 clean 그룹 우선. floored Azure는 하한 속도 고지
+- Typecast 3종 처리 방침 확인

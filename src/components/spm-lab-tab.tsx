@@ -403,22 +403,28 @@ export function SpmLabTab() {
 
           {recommendation ? (
             <Alert className="text-sm">
-              <AlertTitle className="text-sm">1차 추천 (서버 baseSpm 기반)</AlertTitle>
+              <AlertTitle className="flex flex-wrap items-center gap-2 text-sm">
+                추천 요청 spm (7-9세 아동 기준)
+                {recommendation.category ? (
+                  <Badge
+                    variant={recommendation.category === "clean" ? "secondary" : "outline"}
+                    className="text-[10px]"
+                  >
+                    {recommendation.category === "clean"
+                      ? "clean"
+                      : recommendation.category === "floored"
+                        ? "floored · 느린 beginner 부적합"
+                        : "gemini · 지터"}
+                  </Badge>
+                ) : null}
+              </AlertTitle>
               <AlertDescription className="text-xs leading-relaxed">
-                Beginner {recommendation.beginner} · Intermediate {recommendation.intermediate} ·
+                Beginner {recommendation.beginner}
+                {recommendation.beginnerWpm != null ? ` (~${recommendation.beginnerWpm}wpm)` : ""} ·
+                Intermediate {recommendation.intermediate}
+                {recommendation.intermediateWpm != null ? ` (~${recommendation.intermediateWpm}wpm)` : ""} ·
                 Advanced {recommendation.advanced}
-                {recommendation.safeMin != null && recommendation.safeMax != null ? (
-                  <>
-                    {" "}
-                    (안전 범위 {recommendation.safeMin}~{recommendation.safeMax})
-                  </>
-                ) : null}
-                {recommendation.serverBaseSpm != null ? (
-                  <>
-                    {" · rate 0.8/1.0/1.25 x baseSpm "}
-                    {recommendation.serverBaseSpm}
-                  </>
-                ) : null}
+                {recommendation.advancedWpm != null ? ` (~${recommendation.advancedWpm}wpm)` : ""}
                 {recommendation.note ? <> — {recommendation.note}</> : null}
               </AlertDescription>
             </Alert>
