@@ -1,97 +1,94 @@
-# TTS v2 SPM 발화속도 리포트 (2026-07-14~16)
+# TTS v2 SPM 발화속도 리포트 (최종, 2026-07-14~18)
 
-## 방식 (사용자 확정)
+## 최종 방식 (사용자 확정)
 
-- 레벨 = 각 VP baseSpm x 공통 rate 배수. 비균등, beginner 하한으로 기계음 회피
-- rate: beginner 0.85 / intermediate 1.0 / advanced 1.18 (B-I 0.15 < I-A 0.18)
-- 레벨 spm(API 요청값) = round(baseSpm x rate). baseSpm은 백엔드 제공 서버값
-- API: curl 예시 그대로. ffprobe/ffmpeg는 길이/무음 측정만, gpt-4o-transcribe는 명료도 전사만(음원 가공 없음)
+레벨 간 간격을 전 VP 공통 고정(beginner->intermediate 25 SPM, intermediate->advanced 35 SPM)하되,
+beginner 앵커를 VP 성격에 따라 다르게 잡음:
 
-## 핵심 결과
+- **GEMINI**: 자연속도(rate 1.0 = baseSpm) 앵커. B = base-25, I = base, A = base+35.
+  자연 tempo가 이미 7-9세대(중앙 약 145 WPM)라 그대로 쓰고, 저rate 침묵을 피함
+- **비-GEMINI(Azure/GCP/AWS/CHIRP)**: 보수적 clean floor 0.6 앵커. B = round(base x0.6), I = B+25, A = B+60.
+  자연이 빨라(195~271 WPM) 품질 허용 한도까지 느리게 내림. 0.6은 비-GEMINI 전체가 기계음 없는
+  가장 안전한 floor(AWS-Justin이 0.55 밑에서 붕괴, 이를 보호하는 값)
 
-- 이 밴드에서 STT 1.0(전 VP 씹힘 없음). 27/32 VP가 B<I<A로 구분됨
-- **rate 배수(자연속도 기준)에선 아동 저속이 되는 건 자연 tempo가 느린 GEMINI뿐임.** 비-GEMINI 20종은 원래 발화가 빨라(rate 1.0에서 AZ-Guy 271 / GCP-Jeremy 243 / AZ-Sara 241 WPM) beginner(rate 0.85)조차 167~232 WPM로 7-9세엔 과속
-- GEMINI 12종 중 7종은 아동 적정(child), 5종은 지터로 레벨 뭉침(collapse)
+요청 spm은 VP마다 다르나 레벨 간 간격(폭)은 전 VP 25/35로 동일. API는 curl 예시 그대로(음원 가공 없음).
 
-## VP 3그룹
+## 왜 이렇게
 
-### child - 7-9세 적정 (GEMINI 7종)
+- "완벽히 같은 절대 SPM"은 baseSpm이 청감과 선형이 아니라 불가능. "간격 통일 + VP별 안전 앵커"가 실용 최적
+- 비-GEMINI를 rate 1.0(자연=너무 빠름)이 아니라 clean floor에 앵커해, 빠른 voice도 품질 한도 내에서 최대한 아동대로 내림
+- 전 VP 최종 rate가 약 0.6~1.24 -> rate 극단(기계음/씹힘) 회피
 
-| Bundle | baseSpm | 요청 spm B/I/A | 청감 wpm B/I/A |
-|---|---|---|---|
-| GEMINI-Fenrir-Cheerful | 159.0 | 135/159/188 | 124/167/209 |
-| GEMINI-Puck-Default | 153.1 | 130/153/181 | 109/140/178 |
-| GEMINI-Puck-Gentle | 146.7 | 125/147/173 | 113/145/178 |
-| GEMINI-Rasalgethi-Cheerful | 170.3 | 145/170/201 | 132/147/208 |
-| GEMINI-Rasalgethi-Default | 160.1 | 136/160/189 | 144/155/200 |
-| GEMINI-Sulafat-Cheerful | 162.9 | 138/163/192 | 142/165/181 |
-| GEMINI-Sulafat-Default | 157.8 | 134/158/186 | 107/143/168 |
+## 최종 VP별 spm (개발자 전달용)
 
-### fast - 전 레벨 과속 (비-GEMINI 20종)
+### GEMINI (자연속도 앵커)
 
-자연 tempo가 빨라 beginner도 167~232 WPM. 아동 저속용 부적합. 더 낮은 rate(0.4~0.6)면 아동 속도가 되나(STT 1.0 유지), 그건 확정 밴드 밖이라 별도 결정 필요.
+| Bundle | baseSpm | B | I | A | rate B/A | 청감 B~A WPM |
+|---|---|---|---|---|---|---|
+| GEMINI-Fenrir-Cheerful | 159.0 | 134 | 159 | 194 | 0.84/1.22 | 140~204 |
+| GEMINI-Fenrir-Default | 160.3 | 135 | 160 | 195 | 0.84/1.22 | 97~142 |
+| GEMINI-Fenrir-Gentle | 147.3 | 122 | 147 | 182 | 0.83/1.24 | 71~107 |
+| GEMINI-Puck-Cheerful | 160.7 | 136 | 161 | 196 | 0.85/1.22 | 162~232 |
+| GEMINI-Puck-Default | 153.1 | 128 | 153 | 188 | 0.84/1.23 | 118~172 |
+| GEMINI-Puck-Gentle | 146.7 | 122 | 147 | 182 | 0.83/1.24 | 120~180 |
+| GEMINI-Rasalgethi-Cheerful | 170.3 | 145 | 170 | 205 | 0.85/1.2 | 125~176 |
+| GEMINI-Rasalgethi-Default | 160.1 | 135 | 160 | 195 | 0.84/1.22 | 130~189 |
+| GEMINI-Rasalgethi-Gentle | 160.7 | 136 | 161 | 196 | 0.85/1.22 | 96~138 |
+| GEMINI-Sulafat-Cheerful | 162.9 | 138 | 163 | 198 | 0.85/1.22 | 140~201 |
+| GEMINI-Sulafat-Default | 157.8 | 133 | 158 | 193 | 0.84/1.22 | 120~174 |
+| GEMINI-Sulafat-Gentle | 153.9 | 129 | 154 | 189 | 0.84/1.23 | 96~140 |
 
-| Bundle | baseSpm | 요청 spm B/I/A | 청감 wpm B/I/A |
-|---|---|---|---|
-| AWS-Justin-Default | 215.1 | 183/215/254 | 196/227/266 |
-| AWS-Kevin-Default | 227.8 | 194/228/269 | 208/242/283 |
-| AZ-Alfie-Default | 162.5 | 138/162/192 | 212/248/294 |
-| AZ-Ana-Default | 149.3 | 127/149/176 | 167/195/231 |
-| AZ-Guy-Friendly | 163.3 | 139/163/193 | 232/271/321 |
-| AZ-Hollie-Default | 157.2 | 134/157/185 | 193/225/265 |
-| AZ-Jenny-Cheerful | 154.9 | 132/155/183 | 203/238/280 |
-| AZ-Maisie-Default | 155.8 | 132/156/184 | 187/221/260 |
-| AZ-Nancy-Default | 148.0 | 126/148/175 | 206/242/285 |
-| AZ-Oliver-Default | 161.4 | 137/161/190 | 204/239/282 |
-| AZ-Sara-Friendly | 151.8 | 129/152/179 | 205/241/283 |
-| AZ-Sonia-Cheerful | 190.3 | 162/190/225 | 184/216/256 |
-| AZ-Tony-Default | 168.9 | 144/169/199 | 205/240/282 |
-| AZ-TuningAna-Default | 149.3 | 127/149/176 | 167/196/231 |
-| AZ-TuningEvelyn-Default | 162.7 | 138/163/192 | 190/215/252 |
-| AZ-TuningMaisie-Default | 155.8 | 132/156/184 | 187/220/260 |
-| AZ-Xiaoyou-Default | 197.7 | 168/198/233 | 181/214/238 |
-| CHIRP-Zephyr-Default | 219.2 | 186/219/259 | 195/247/272 |
-| GCP-Jeremy-Default | 239.8 | 204/240/283 | 206/243/284 |
-| GCP-Rey-Default | 223.8 | 190/224/264 | 209/245/288 |
+### 비-GEMINI (clean floor 0.6 앵커)
 
-### collapse - 레벨 뭉침 (GEMINI 5종)
+| Bundle | baseSpm | B | I | A | rate B/A | 청감 B~A WPM |
+|---|---|---|---|---|---|---|
+| GCP-Jeremy-Default | 239.8 | 144 | 169 | 204 | 0.6/0.85 | 146~207 |
+| GCP-Rey-Default | 223.8 | 134 | 159 | 194 | 0.6/0.87 | 147~213 |
+| AWS-Justin-Default | 215.1 | 129 | 154 | 189 | 0.6/0.88 | 136~200 |
+| AWS-Kevin-Default | 227.8 | 137 | 162 | 197 | 0.6/0.86 | 145~208 |
+| CHIRP-Zephyr-Default | 219.2 | 132 | 157 | 192 | 0.6/0.88 | 148~217 |
+| AZ-Alfie-Default | 162.5 | 98 | 123 | 158 | 0.6/0.97 | 149~241 |
+| AZ-Ana-Default | 149.3 | 90 | 115 | 150 | 0.6/1.0 | 117~195 |
+| AZ-Guy-Friendly | 163.3 | 98 | 123 | 158 | 0.6/0.97 | 163~263 |
+| AZ-Hollie-Default | 157.2 | 94 | 119 | 154 | 0.6/0.98 | 135~220 |
+| AZ-Jenny-Cheerful | 154.9 | 93 | 118 | 153 | 0.6/0.99 | 143~236 |
+| AZ-Maisie-Default | 155.8 | 93 | 118 | 153 | 0.6/0.98 | 133~217 |
+| AZ-Nancy-Default | 148.0 | 89 | 114 | 149 | 0.6/1.01 | 145~244 |
+| AZ-Oliver-Default | 161.4 | 97 | 122 | 157 | 0.6/0.97 | 143~232 |
+| AZ-Sara-Friendly | 151.8 | 91 | 116 | 151 | 0.6/0.99 | 145~239 |
+| AZ-Sonia-Cheerful | 190.3 | 114 | 139 | 174 | 0.6/0.91 | 130~197 |
+| AZ-Tony-Default | 168.9 | 101 | 126 | 161 | 0.6/0.95 | 144~228 |
+| AZ-TuningAna-Default | 149.3 | 90 | 115 | 150 | 0.6/1.0 | 118~196 |
+| AZ-TuningEvelyn-Default | 162.7 | 98 | 123 | 158 | 0.6/0.97 | 129~209 |
+| AZ-TuningMaisie-Default | 155.8 | 93 | 118 | 153 | 0.6/0.98 | 132~216 |
+| AZ-Xiaoyou-Default | 197.7 | 119 | 144 | 179 | 0.6/0.91 | 128~195 |
 
-지터(20~30%)가 레벨 간격(15~18%)보다 커서 B/I/A 순서가 뒤섞임.
+TC(Typecast) 3종은 v2 미지원. 청감 WPM은 rate 1.0 실측 자연속도에 rate를 곱한 추정.
 
-| Bundle | baseSpm | 요청 spm B/I/A | 청감 wpm B/I/A |
-|---|---|---|---|
-| GEMINI-Fenrir-Default | 160.3 | 136/160/189 | 139/116/121 |
-| GEMINI-Fenrir-Gentle | 147.3 | 125/147/174 | 98/86/156 |
-| GEMINI-Puck-Cheerful | 160.7 | 137/161/190 | 144/190/190 |
-| GEMINI-Rasalgethi-Gentle | 160.7 | 137/161/190 | 160/113/188 |
-| GEMINI-Sulafat-Gentle | 153.9 | 131/154/182 | 120/114/156 |
+## 기계음 자동 탐지 (사람 귀 없이) - 방법 확립
 
-## GEMINI 밴드 확대 재검증 (레벨 뭉침 해소 시도)
+- 무참조 MOS 예측 신경망 DNSMOS(P.835 SIG/OVRL, onnxruntime)로 rate별 SIG 측정.
+  저rate에서 SIG가 자연 대비 크게 떨어지면 = 기계음. `scripts/spm_floor_find.py`, `spm_robotic_check.py`
+- 검증 결과: 비-GEMINI 거의 전부 rate 0.45까지 SIG 평평(3.5~3.7). AWS-Justin만 0.55 밑에서 붕괴
+  (SIG 3.21 -> 0.5에서 2.36, 0.45에서 1.44)를 정확히 포착. clean floor 0.6은 이 데이터 기반
+- GEMINI는 발화 지터로 SIG가 튀어 자동 floor 탐지가 불안정 -> 자연속도 앵커로 우회
+- 정밀 업그레이드: NISQA(TTS 전용, Coloration/Discontinuity). 최종 임계값은 1회 청취 캘리브레이션
 
-collapse 해소를 위해 GEMINI만 밴드를 넓혀 재측정(spm_gemini_band.py, 각 3회):
+## 남는 특성
 
-- wide-low 0.78/1.02/1.30: 레벨 구분 8/12로 늘지만 beginner 중간침묵 7/12(rate 0.78로 낮추니 문장 끊김)
-- wide-safe 0.85/1.08/1.35: 침묵 4/12로 적으나 advanced 과속(일부 210~275 WPM)
-- "레벨 구분" 판정이 실행마다 바뀜(지터 지배)
-
-결론: **GEMINI는 밴드를 넓혀도 안 됨.** 아래로 넓히면 침묵, 위로 넓히면 과속, 지터는 그대로. 깨끗한 아동 구간(rate 0.85~1.0, 약 130~170 WPM)이 3레벨을 뚜렷이 담기엔 좁음. 원안 0.85/1.0/1.18 유지
-
-## 회의 포인트 확인
-
-- beginner rate 0.7 기계음: 밴드 beginner를 0.85로 잡아 회피. rate 0.7 미만 GEMINI는 침묵 삽입 실측 확인
-- 비균등 분포(B-I 좁게): rate 0.85/1.0/1.18로 반영(B-I 0.15 < I-A 0.18)
-- GEMINI rate 유의미성: v2 spm에서 rate는 정상 작동(요청 100->220에서 실측 2.0~3.0배 증가, Azure/GCP와 동등). 단 발화별 지터로 이산 레벨이 흐려지는 게 실제 이슈(회의의 "rate 미흡"을 이렇게 정정)
+- 비-GEMINI 중 자연이 매우 빠른 voice(AZ-Guy 271, Nancy/Sara 240대)는 floor 0.6에서도
+  beginner가 145~163 WPM, advanced가 230~263 WPM로 빠른 편. 자연이 덜 빠른 voice(TuningAna/Ana/Xiaoyou)는
+  beginner 117~128 WPM로 아동대. 즉 fast voice는 완전한 아동 저속이 안 됨(보수 floor의 대가)
+- GEMINI는 지터(20~30%)로 인접 레벨이 겹칠 수 있음(엔진 한계)
 
 ## 산출물
 
-- `docs/spm-sweep/server-voicetable.json`: 서버 baseSpm 원본
-- `docs/spm-sweep/rate-band.json`: 확정 밴드 전 VP 실측
-- `docs/spm-sweep/gemini-band.json`: GEMINI 밴드 확대 재검증
-- `docs/spm-sweep/child-results.json`, `child-confirm.json`, `results.json`: 이전 단계 실측
-- `src/lib/spm-recommendations.ts`: 위 추천값(요청 spm + 실측 wpm + 그룹). "SPM 실험" 탭 연동
+- `src/lib/spm-recommendations.ts`: 최종 추천값(SPM_LEVEL_GAP 25/35, NON_GEMINI_FLOOR_RATE 0.6). "SPM 실험" 탭 연동
+- `docs/spm-sweep/`: floor-find.json(clean floor + rate별 SIG), rate-band.json, gemini-band.json, server-voicetable.json 등 전 단계 실측
+- 스크립트: spm_sweep / spm_postprocess / spm_child_sweep / spm_child_confirm / spm_rate_band / spm_gemini_band / spm_robotic_check / spm_floor_find
 
-## 다음 단계 (열린 결정)
+## 다음 단계
 
-- GEMINI 레벨 구조: 좁고 지터 있는 3레벨 그대로 vs 2레벨 축소 vs advanced 과속 감수 중 택일
-- fast 20종: 아동 제품 제외(older 콘텐츠용) vs 하이브리드(저rate 허용해 아동 속도로) 중 택일
-- 기계음(저rate 음색)은 청취로 최종 확정
+- 재현님 청취: 탭에서 대표 VP의 B/I/A 청취. 특히 비-GEMINI floor 0.6 저rate의 기계음 여부(DNSMOS는 clean 판정)
+- DNSMOS 임계값 1회 캘리브레이션으로 clean floor 확정(0.6이 과보수면 낮춰 더 느리게 가능)
+- 아동 제품 voice 선정: 저속 필요시 GEMINI 또는 자연이 덜 빠른 Azure(TuningAna/Ana/Xiaoyou) 우선

@@ -404,17 +404,15 @@ export function SpmLabTab() {
           {recommendation ? (
             <Alert className="text-sm">
               <AlertTitle className="flex flex-wrap items-center gap-2 text-sm">
-                추천 요청 spm (rate 배수 B 0.85 / I 1.0 / A 1.18)
+                추천 요청 spm (간격 25/35 고정 · GEMINI 자연앵커 / 비-GEMINI floor 0.6)
                 {recommendation.category ? (
                   <Badge
-                    variant={recommendation.category === "child" ? "secondary" : "destructive"}
+                    variant={recommendation.category === "child" ? "secondary" : "outline"}
                     className="text-[10px]"
                   >
                     {recommendation.category === "child"
-                      ? "child · 7-9세 적정"
-                      : recommendation.category === "fast"
-                        ? "fast · 전 레벨 과속"
-                        : "collapse · 레벨 뭉침(지터)"}
+                      ? "child · 자연속도 7-9세대"
+                      : "fast · 자연속도 빠름"}
                   </Badge>
                 ) : null}
               </AlertTitle>
