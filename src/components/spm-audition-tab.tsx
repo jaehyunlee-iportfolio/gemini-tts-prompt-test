@@ -138,6 +138,11 @@ export function SpmAuditionTab() {
                       {LEVELS.map(({ key, label }) => {
                         const spm = levelSpm(rec, key);
                         const wpm = levelWpm(rec, key);
+                        const rate =
+                          rec.serverBaseSpm && rec.serverBaseSpm > 0
+                            ? (spm / rec.serverBaseSpm).toFixed(2)
+                            : null;
+                        const meta = `spm ${spm}${rate != null ? ` · r${rate}` : ""}${wpm != null ? ` · ~${wpm}wpm` : ""}`;
                         const ck = `${p.bundleName}|${key}`;
                         const st = clips[ck] ?? { status: "idle" as const };
                         return (
@@ -145,8 +150,7 @@ export function SpmAuditionTab() {
                             {st.status === "ready" && st.url ? (
                               <div className="space-y-1">
                                 <span className="text-[10px] text-muted-foreground">
-                                  {label} · spm {spm}
-                                  {wpm != null ? ` · ~${wpm}wpm` : ""}
+                                  {label} · {meta}
                                 </span>
                                 {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
                                 <audio controls autoPlay preload="none" src={st.url} className="h-8 w-full" />
@@ -172,9 +176,7 @@ export function SpmAuditionTab() {
                                     st.status === "error" ? "text-destructive" : "text-muted-foreground",
                                   )}
                                 >
-                                  {st.status === "error"
-                                    ? "실패 - 재시도"
-                                    : `spm ${spm}${wpm != null ? ` · ~${wpm}wpm` : ""}`}
+                                  {st.status === "error" ? "실패 - 재시도" : meta}
                                 </span>
                               </Button>
                             )}
