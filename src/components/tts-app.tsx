@@ -61,6 +61,7 @@ import { CsvBatchQaTab } from "@/components/csv-batch-qa-tab";
 import { PreviewTab } from "@/components/preview-tab";
 import { SpmLabTab } from "@/components/spm-lab-tab";
 import { SpmAuditionTab } from "@/components/spm-audition-tab";
+import { SpmMatrixTab } from "@/components/spm-matrix-tab";
 import { ThemeToggle } from "@/components/theme-toggle";
 import type { PromptRegistryJson, RegistryGroup, RegistryPrompt } from "@/types/registry";
 import {
@@ -257,7 +258,7 @@ export function TtsApp() {
 
   useEffect(() => {
     // SPM 실험/청취 탭은 로그인 사내 계정 전체 허용, 그 외 비-Preview 탭은 admin 전용
-    if (mainTab === "spm-lab" || mainTab === "spm-audition") {
+    if (mainTab === "spm-lab" || mainTab === "spm-audition" || mainTab === "spm-matrix") {
       if (rootSessionStatus === "unauthenticated") setMainTab("preview");
       return;
     }
@@ -937,9 +938,9 @@ export function TtsApp() {
             className={cn(
               "grid h-auto w-full gap-1 p-1 sm:inline-flex sm:w-auto sm:max-w-none",
               adminAccessStatus === "admin"
-                ? "grid-cols-6"
+                ? "grid-cols-4"
                 : rootSessionStatus === "authenticated"
-                  ? "grid-cols-3"
+                  ? "grid-cols-4"
                   : "grid-cols-1",
             )}
           >
@@ -962,6 +963,12 @@ export function TtsApp() {
                   className="touch-manipulation px-2 py-2.5 text-xs sm:flex-initial sm:px-3 sm:py-2 sm:text-sm"
                 >
                   B/I/A 청취
+                </TabsTrigger>
+                <TabsTrigger
+                  value="spm-matrix"
+                  className="touch-manipulation px-2 py-2.5 text-xs sm:flex-initial sm:px-3 sm:py-2 sm:text-sm"
+                >
+                  Min/Max 청취
                 </TabsTrigger>
               </>
             ) : null}
@@ -999,6 +1006,10 @@ export function TtsApp() {
 
           <TabsContent value="spm-audition" className="mt-0 space-y-3 sm:space-y-4">
             <SpmAuditionTab />
+          </TabsContent>
+
+          <TabsContent value="spm-matrix" className="mt-0 space-y-3 sm:space-y-4">
+            <SpmMatrixTab />
           </TabsContent>
 
           <TabsContent value="generate" className="mt-0 space-y-3 sm:space-y-4">
