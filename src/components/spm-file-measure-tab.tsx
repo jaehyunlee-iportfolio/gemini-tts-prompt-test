@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { AudioWithMsTime } from "@/components/audio-with-ms-time";
 import {
   analyzeAudioFile,
   SILENCE_THRESHOLD_DB,
@@ -306,13 +307,7 @@ export function SpmFileMeasureTab() {
                       </>
                     ) : null}
 
-                    {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-                    <audio
-                      controls
-                      preload="metadata"
-                      src={r.objectUrl}
-                      className="mt-2 h-9 w-full max-w-md"
-                    />
+                    <AudioWithMsTime src={r.objectUrl} className="mt-2 max-w-md" />
                   </div>
                 );
               })}

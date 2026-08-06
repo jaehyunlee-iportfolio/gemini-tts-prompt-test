@@ -22,8 +22,8 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { AudioWithMsTime } from "@/components/audio-with-ms-time";
 import { MeasuredSpmLine } from "@/components/measured-spm-line";
-import { resolveAudioDurationMs } from "@/lib/audio-duration";
 import { computeSpm } from "@/lib/syllables";
 import { proxyPlayUrl } from "@/lib/tts-sse";
 import { cn } from "@/lib/utils";
@@ -522,18 +522,9 @@ function FragmentRow({
               <>
                 <span className="block text-[10px] text-muted-foreground">{meta}</span>
                 <MeasuredSpmLine requestSpm={spm} measuredSpm={c.measuredSpm} />
-                {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-                <audio
-                  controls
-                  preload="metadata"
+                <AudioWithMsTime
                   src={c.playUrl}
-                  className="h-8 w-full"
-                  onLoadedMetadata={(e) => {
-                    const el = e.currentTarget;
-                    void resolveAudioDurationMs(el).then((durationMs) => {
-                      if (durationMs != null) onDuration(key, durationMs);
-                    });
-                  }}
+                  onDurationMs={(durationMs) => onDuration(key, durationMs)}
                 />
               </>
             ) : (

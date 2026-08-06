@@ -13,8 +13,8 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { AudioWithMsTime } from "@/components/audio-with-ms-time";
 import { MeasuredSpmLine } from "@/components/measured-spm-line";
-import { resolveAudioDurationMs } from "@/lib/audio-duration";
 import { computeSpm } from "@/lib/syllables";
 import { proxyPlayUrl } from "@/lib/tts-sse";
 import { cn } from "@/lib/utils";
@@ -167,29 +167,21 @@ export function SpmAuditionTab() {
                                   {label} · {meta}
                                 </span>
                                 <MeasuredSpmLine requestSpm={spm} measuredSpm={st.measuredSpm} />
-                                {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-                                <audio
-                                  controls
-                                  autoPlay
-                                  preload="metadata"
+                                <AudioWithMsTime
                                   src={st.url}
-                                  className="h-8 w-full"
-                                  onLoadedMetadata={(e) => {
-                                    const el = e.currentTarget;
-                                    void resolveAudioDurationMs(el).then((durationMs) => {
-                                      if (durationMs == null) return;
-                                      setClips((p) => {
-                                        const prev = p[ck];
-                                        if (!prev) return p;
-                                        return {
-                                          ...p,
-                                          [ck]: {
-                                            ...prev,
-                                            durationMs,
-                                            measuredSpm: computeSpm(prev.text ?? text, durationMs),
-                                          },
-                                        };
-                                      });
+                                  autoPlay
+                                  onDurationMs={(durationMs) => {
+                                    setClips((p) => {
+                                      const prev = p[ck];
+                                      if (!prev) return p;
+                                      return {
+                                        ...p,
+                                        [ck]: {
+                                          ...prev,
+                                          durationMs,
+                                          measuredSpm: computeSpm(prev.text ?? text, durationMs),
+                                        },
+                                      };
                                     });
                                   }}
                                 />

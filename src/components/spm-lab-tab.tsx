@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { resolveAudioDurationMs } from "@/lib/audio-duration";
+import { AudioWithMsTime } from "@/components/audio-with-ms-time";
 import { computeSpm, countTextSyllables } from "@/lib/syllables";
 import { spmRecommendationFor } from "@/lib/spm-recommendations";
 import { verifyAudioFromSrc } from "@/lib/stt-qa";
@@ -579,20 +579,13 @@ export function SpmLabTab() {
                   </div>
                   {row.status === "success" && row.playUrl ? (
                     <div className="mt-2 flex flex-wrap items-center gap-2">
-                      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-                      <audio
-                        controls
-                        preload="metadata"
+                      <AudioWithMsTime
                         src={row.playUrl}
-                        className="h-9 w-full max-w-md"
-                        onLoadedMetadata={(e) => {
-                          const el = e.currentTarget;
-                          void resolveAudioDurationMs(el).then((durationMs) => {
-                            if (durationMs == null) return;
-                            patchRow(row.id, {
-                              durationMs,
-                              measuredSpm: computeSpm(sweepText, durationMs),
-                            });
+                        className="w-full max-w-md"
+                        onDurationMs={(durationMs) => {
+                          patchRow(row.id, {
+                            durationMs,
+                            measuredSpm: computeSpm(sweepText, durationMs),
                           });
                         }}
                       />
