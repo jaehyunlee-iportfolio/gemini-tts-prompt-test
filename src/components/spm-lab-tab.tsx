@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { resolveAudioDurationMs } from "@/lib/audio-duration";
 import { computeSpm, countTextSyllables } from "@/lib/syllables";
 import { spmRecommendationFor } from "@/lib/spm-recommendations";
 import { verifyAudioFromSrc } from "@/lib/stt-qa";
@@ -585,12 +586,13 @@ export function SpmLabTab() {
                         src={row.playUrl}
                         className="h-9 w-full max-w-md"
                         onLoadedMetadata={(e) => {
-                          const durationSec = e.currentTarget.duration;
-                          if (!Number.isFinite(durationSec) || durationSec <= 0) return;
-                          const durationMs = Math.round(durationSec * 1000);
-                          patchRow(row.id, {
-                            durationMs,
-                            measuredSpm: computeSpm(sweepText, durationMs),
+                          const el = e.currentTarget;
+                          void resolveAudioDurationMs(el).then((durationMs) => {
+                            if (durationMs == null) return;
+                            patchRow(row.id, {
+                              durationMs,
+                              measuredSpm: computeSpm(sweepText, durationMs),
+                            });
                           });
                         }}
                       />

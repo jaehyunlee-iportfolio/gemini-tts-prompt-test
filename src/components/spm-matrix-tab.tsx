@@ -22,6 +22,9 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { MeasuredSpmLine } from "@/components/measured-spm-line";
+import { resolveAudioDurationMs } from "@/lib/audio-duration";
+import { computeSpm } from "@/lib/syllables";
 import { proxyPlayUrl } from "@/lib/tts-sse";
 import { cn } from "@/lib/utils";
 import {
@@ -43,7 +46,16 @@ const RATE_SWEEP = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.4, 1.6] as const;
 
 type Mode = "spm" | "rate";
 type CellStatus = "idle" | "loading" | "success" | "error";
-type Cell = { status: CellStatus; playUrl?: string; error?: string; elapsedMs?: number };
+type Cell = {
+  status: CellStatus;
+  playUrl?: string;
+  error?: string;
+  elapsedMs?: number;
+  /** 생성 시점의 문장 — 이후 입력을 바꿔도 실측이 틀어지지 않게 고정 */
+  text?: string;
+  durationMs?: number;
+  measuredSpm?: number | null;
+};
 
 type Job = { key: string; bundleName: string; spm: number };
 
@@ -168,6 +180,7 @@ export function SpmMatrixTab() {
               status: "success",
               playUrl: proxyPlayUrl(j.url),
               elapsedMs: j.elapsedMs,
+              text: originalText,
             });
           } catch (err) {
             if (abort.signal.aborted) {
@@ -219,6 +232,21 @@ export function SpmMatrixTab() {
     abortRef.current?.abort();
     abortRef.current = null;
   }, []);
+
+  /** 오디오 길이가 확정되면 실측 SPM 계산 — 생성 시점 문장 기준 */
+  const handleDuration = useCallback(
+    (key: string, durationMs: number) => {
+      setCells((prev) => {
+        const c = prev[key];
+        if (!c) return prev;
+        return {
+          ...prev,
+          [key]: { ...c, durationMs, measuredSpm: computeSpm(c.text ?? text, durationMs) },
+        };
+      });
+    },
+    [text],
+  );
 
   const fillSweep = useCallback(() => {
     if (mode === "rate") {
@@ -444,6 +472,7 @@ export function SpmMatrixTab() {
                     mode={mode}
                     cells={cells}
                     onCell={runCell}
+                    onDuration={handleDuration}
                     hasText={!!text.trim()}
                   />
                 ))}
@@ -462,6 +491,7 @@ function FragmentRow({
   mode,
   cells,
   onCell,
+  onDuration,
   hasText,
 }: {
   profile: VoiceProfile;
@@ -469,6 +499,7 @@ function FragmentRow({
   mode: Mode;
   cells: Record<string, Cell>;
   onCell: (p: VoiceProfile, value: number) => void;
+  onDuration: (key: string, durationMs: number) => void;
   hasText: boolean;
 }) {
   const base = profile.baseSpm ?? 0;
@@ -489,9 +520,21 @@ function FragmentRow({
           <div key={key} className="flex min-h-[3.25rem] flex-col justify-center gap-1 bg-background px-2 py-1.5">
             {c.status === "success" && c.playUrl ? (
               <>
-                <span className="text-[10px] text-muted-foreground">{meta}</span>
+                <span className="block text-[10px] text-muted-foreground">{meta}</span>
+                <MeasuredSpmLine requestSpm={spm} measuredSpm={c.measuredSpm} />
                 {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-                <audio controls preload="none" src={c.playUrl} className="h-8 w-full" />
+                <audio
+                  controls
+                  preload="metadata"
+                  src={c.playUrl}
+                  className="h-8 w-full"
+                  onLoadedMetadata={(e) => {
+                    const el = e.currentTarget;
+                    void resolveAudioDurationMs(el).then((durationMs) => {
+                      if (durationMs != null) onDuration(key, durationMs);
+                    });
+                  }}
+                />
               </>
             ) : (
               <Button

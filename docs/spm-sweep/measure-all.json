@@ -1,0 +1,417 @@
+{
+  "text": "The little bird flew over the tall trees and landed on the old wooden fence near the river.",
+  "syllables": 23,
+  "levels": {
+    "B": 145,
+    "I": 165,
+    "A": 165
+  },
+  "providerRange": {
+    "GEMINI": [
+      120,
+      210
+    ],
+    "GCP": [
+      160,
+      220
+    ],
+    "AWS": [
+      180,
+      220
+    ],
+    "CHIRP": [
+      170,
+      230
+    ],
+    "AZ": [
+      130,
+      170
+    ]
+  },
+  "results": [
+    {
+      "bundle": "GCP-Jeremy-Default",
+      "provider": "GCP",
+      "baseSpm": 239.8,
+      "requestSpm": 165,
+      "rate": 0.688,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/278bcb6b-0785-4148-aef0-14169785ef3f.mp3",
+      "bytes": 60096,
+      "durationSec": 7.512,
+      "measuredSpm": 183.7,
+      "deltaPct": 11
+    },
+    {
+      "bundle": "AWS-Kevin-Default",
+      "provider": "AWS",
+      "baseSpm": 227.8,
+      "requestSpm": 180,
+      "rate": 0.79,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/dc8fad82-ee1b-412b-8b3f-feb0a1683e25.mp3",
+      "bytes": 33452,
+      "durationSec": 5.568,
+      "measuredSpm": 247.8,
+      "deltaPct": 38
+    },
+    {
+      "bundle": "AWS-Justin-Default",
+      "provider": "AWS",
+      "baseSpm": 215.1,
+      "requestSpm": 180,
+      "rate": 0.837,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/b9a1e2d4-264f-4d67-a050-374bd234fd73.mp3",
+      "bytes": 33884,
+      "durationSec": 5.64,
+      "measuredSpm": 244.7,
+      "deltaPct": 36
+    },
+    {
+      "bundle": "AZ-TuningAna-Default",
+      "provider": "AZ",
+      "baseSpm": 149.3,
+      "requestSpm": 165,
+      "rate": 1.105,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/8ff92691-b091-4ee3-ad7e-5b8af3e6bd3b.mp3",
+      "bytes": 92736,
+      "durationSec": 5.796,
+      "measuredSpm": 238.1,
+      "deltaPct": 44
+    },
+    {
+      "bundle": "GEMINI-Rasalgethi-Default",
+      "provider": "GEMINI",
+      "baseSpm": 160.1,
+      "requestSpm": 165,
+      "rate": 1.031,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/533cc134-b9eb-49d0-a5e7-1efd1fdecec4.mp3",
+      "bytes": 33408,
+      "durationSec": 8.352,
+      "measuredSpm": 165.2,
+      "deltaPct": 0
+    },
+    {
+      "bundle": "GEMINI-Rasalgethi-Cheerful",
+      "provider": "GEMINI",
+      "baseSpm": 170.3,
+      "requestSpm": 165,
+      "rate": 0.969,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/3d7611e9-ab4b-4089-8320-8239849625ed.mp3",
+      "bytes": 28416,
+      "durationSec": 7.104,
+      "measuredSpm": 194.3,
+      "deltaPct": 18
+    },
+    {
+      "bundle": "GEMINI-Rasalgethi-Gentle",
+      "provider": "GEMINI",
+      "baseSpm": 160.7,
+      "requestSpm": 165,
+      "rate": 1.027,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/e8df04a9-cc95-4e77-aba1-a938e3b587bd.mp3",
+      "bytes": 30720,
+      "durationSec": 7.68,
+      "measuredSpm": 179.7,
+      "deltaPct": 9
+    },
+    {
+      "bundle": "GEMINI-Puck-Default",
+      "provider": "GEMINI",
+      "baseSpm": 153.1,
+      "requestSpm": 165,
+      "rate": 1.078,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/ff779cf3-fb81-41bd-85dc-dc5987a9ed0e.mp3",
+      "bytes": 35328,
+      "durationSec": 8.832,
+      "measuredSpm": 156.2,
+      "deltaPct": -5
+    },
+    {
+      "bundle": "GEMINI-Puck-Cheerful",
+      "provider": "GEMINI",
+      "baseSpm": 160.7,
+      "requestSpm": 165,
+      "rate": 1.027,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/bfebb582-5ab0-4718-b434-05b43658aedc.mp3",
+      "bytes": 26304,
+      "durationSec": 6.576,
+      "measuredSpm": 209.9,
+      "deltaPct": 27
+    },
+    {
+      "bundle": "GEMINI-Puck-Gentle",
+      "provider": "GEMINI",
+      "baseSpm": 146.7,
+      "requestSpm": 165,
+      "rate": 1.125,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/d892def9-55f2-45ba-8389-dbdf1eeb0304.mp3",
+      "bytes": 32256,
+      "durationSec": 8.064,
+      "measuredSpm": 171.1,
+      "deltaPct": 4
+    },
+    {
+      "bundle": "GEMINI-Fenrir-Default",
+      "provider": "GEMINI",
+      "baseSpm": 160.3,
+      "requestSpm": 165,
+      "rate": 1.029,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/971c5006-031c-40f7-a07a-cf111bf9e63d.mp3",
+      "bytes": 30432,
+      "durationSec": 7.608,
+      "measuredSpm": 181.4,
+      "deltaPct": 10
+    },
+    {
+      "bundle": "GEMINI-Fenrir-Cheerful",
+      "provider": "GEMINI",
+      "baseSpm": 159.0,
+      "requestSpm": 165,
+      "rate": 1.038,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/cc2e21c5-e920-4e81-9335-9f8b0867a5f8.mp3",
+      "bytes": 32544,
+      "durationSec": 8.136,
+      "measuredSpm": 169.6,
+      "deltaPct": 3
+    },
+    {
+      "bundle": "GEMINI-Fenrir-Gentle",
+      "provider": "GEMINI",
+      "baseSpm": 147.3,
+      "requestSpm": 165,
+      "rate": 1.12,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/d94e08cd-6488-4614-b348-e8237367a885.mp3",
+      "bytes": 34272,
+      "durationSec": 8.568,
+      "measuredSpm": 161.1,
+      "deltaPct": -2
+    },
+    {
+      "bundle": "AZ-TuningEvelyn-Default",
+      "provider": "AZ",
+      "baseSpm": 162.7,
+      "requestSpm": 165,
+      "rate": 1.014,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/500116f8-0db4-486e-84a2-06eab6228d57.mp3",
+      "bytes": 89856,
+      "durationSec": 5.616,
+      "measuredSpm": 245.7,
+      "deltaPct": 49
+    },
+    {
+      "bundle": "GCP-Rey-Default",
+      "provider": "GCP",
+      "baseSpm": 223.8,
+      "requestSpm": 165,
+      "rate": 0.737,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/5df1fa72-5995-4345-89cd-4f8cc5ff3a0c.mp3",
+      "bytes": 54912,
+      "durationSec": 6.864,
+      "measuredSpm": 201.0,
+      "deltaPct": 22
+    },
+    {
+      "bundle": "AZ-TuningMaisie-Default",
+      "provider": "AZ",
+      "baseSpm": 155.8,
+      "requestSpm": 165,
+      "rate": 1.059,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/61a0d64e-acbe-4006-8dd5-9fda3a7daa59.mp3",
+      "bytes": 87552,
+      "durationSec": 5.472,
+      "measuredSpm": 252.2,
+      "deltaPct": 53
+    },
+    {
+      "bundle": "AZ-Guy-Friendly",
+      "provider": "AZ",
+      "baseSpm": 163.3,
+      "requestSpm": 165,
+      "rate": 1.01,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/dde5e6a9-ee77-408e-a8af-78988013cdc2.mp3",
+      "bytes": 77184,
+      "durationSec": 4.824,
+      "measuredSpm": 286.1,
+      "deltaPct": 73
+    },
+    {
+      "bundle": "AZ-Oliver-Default",
+      "provider": "AZ",
+      "baseSpm": 161.4,
+      "requestSpm": 165,
+      "rate": 1.022,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/19891e21-cf2b-4adf-855c-1fb97eda9aaa.mp3",
+      "bytes": 84672,
+      "durationSec": 5.292,
+      "measuredSpm": 260.8,
+      "deltaPct": 58
+    },
+    {
+      "bundle": "AZ-Tony-Default",
+      "provider": "AZ",
+      "baseSpm": 168.9,
+      "requestSpm": 165,
+      "rate": 0.977,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/b9280fd7-d62a-4c32-bf05-656e0e16f0de.mp3",
+      "bytes": 88704,
+      "durationSec": 5.544,
+      "measuredSpm": 248.9,
+      "deltaPct": 51
+    },
+    {
+      "bundle": "AZ-Alfie-Default",
+      "provider": "AZ",
+      "baseSpm": 162.5,
+      "requestSpm": 165,
+      "rate": 1.015,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/0dcec713-6a3e-4294-9eb3-41d1a19c946a.mp3",
+      "bytes": 82368,
+      "durationSec": 5.148,
+      "measuredSpm": 268.1,
+      "deltaPct": 62
+    },
+    {
+      "bundle": "AZ-Ana-Default",
+      "provider": "AZ",
+      "baseSpm": 149.3,
+      "requestSpm": 165,
+      "rate": 1.105,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/f1dcabfd-5033-4655-b628-5376369eeb5d.mp3",
+      "bytes": 92736,
+      "durationSec": 5.796,
+      "measuredSpm": 238.1,
+      "deltaPct": 44
+    },
+    {
+      "bundle": "AZ-Xiaoyou-Default",
+      "provider": "AZ",
+      "baseSpm": 197.7,
+      "requestSpm": 165,
+      "rate": 0.835,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/9e949d2a-dc92-48d6-88a5-420b383e407e.mp3",
+      "bytes": 112320,
+      "durationSec": 7.02,
+      "measuredSpm": 196.6,
+      "deltaPct": 19
+    },
+    {
+      "bundle": "AZ-Maisie-Default",
+      "provider": "AZ",
+      "baseSpm": 155.8,
+      "requestSpm": 165,
+      "rate": 1.059,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/aa071ef1-c1eb-4743-b85a-0e39f475db27.mp3",
+      "bytes": 87552,
+      "durationSec": 5.472,
+      "measuredSpm": 252.2,
+      "deltaPct": 53
+    },
+    {
+      "bundle": "AZ-Sara-Friendly",
+      "provider": "AZ",
+      "baseSpm": 151.8,
+      "requestSpm": 165,
+      "rate": 1.087,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/9bd16c8c-3243-4635-ac74-db0a07cbb4e5.mp3",
+      "bytes": 79488,
+      "durationSec": 4.968,
+      "measuredSpm": 277.8,
+      "deltaPct": 68
+    },
+    {
+      "bundle": "AZ-Jenny-Cheerful",
+      "provider": "AZ",
+      "baseSpm": 154.9,
+      "requestSpm": 165,
+      "rate": 1.065,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/e9ec2a02-8635-4c9f-ab0c-4f6e93f0f4e2.mp3",
+      "bytes": 81792,
+      "durationSec": 5.112,
+      "measuredSpm": 270.0,
+      "deltaPct": 64
+    },
+    {
+      "bundle": "GEMINI-Sulafat-Default",
+      "provider": "GEMINI",
+      "baseSpm": 157.8,
+      "requestSpm": 165,
+      "rate": 1.046,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/912296b4-d7b9-4491-8281-454063a79ce6.mp3",
+      "bytes": 29184,
+      "durationSec": 7.296,
+      "measuredSpm": 189.1,
+      "deltaPct": 15
+    },
+    {
+      "bundle": "GEMINI-Sulafat-Cheerful",
+      "provider": "GEMINI",
+      "baseSpm": 162.9,
+      "requestSpm": 165,
+      "rate": 1.013,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/fd051e4e-04c5-47d4-81f2-357c53d6c1dd.mp3",
+      "bytes": 26112,
+      "durationSec": 6.528,
+      "measuredSpm": 211.4,
+      "deltaPct": 28
+    },
+    {
+      "bundle": "GEMINI-Sulafat-Gentle",
+      "provider": "GEMINI",
+      "baseSpm": 153.9,
+      "requestSpm": 165,
+      "rate": 1.072,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/f6b29bf4-d016-4b92-ac00-a38cabe7d8d7.mp3",
+      "bytes": 36384,
+      "durationSec": 9.096,
+      "measuredSpm": 151.7,
+      "deltaPct": -8
+    },
+    {
+      "bundle": "CHIRP-Zephyr-Default",
+      "provider": "CHIRP",
+      "baseSpm": 219.2,
+      "requestSpm": 170,
+      "rate": 0.776,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/d843705f-59d5-40fa-b0e5-7a5006f83df3.mp3",
+      "bytes": 26304,
+      "durationSec": 6.576,
+      "measuredSpm": 209.9,
+      "deltaPct": 23
+    },
+    {
+      "bundle": "AZ-Sonia-Cheerful",
+      "provider": "AZ",
+      "baseSpm": 190.3,
+      "requestSpm": 165,
+      "rate": 0.867,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/412470c7-fceb-401a-9f0e-7ebdda6b2aa3.mp3",
+      "bytes": 99072,
+      "durationSec": 6.192,
+      "measuredSpm": 222.9,
+      "deltaPct": 35
+    },
+    {
+      "bundle": "AZ-Nancy-Default",
+      "provider": "AZ",
+      "baseSpm": 148.0,
+      "requestSpm": 165,
+      "rate": 1.115,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/e1c4a219-1ccc-452e-998d-906c947c4f3e.mp3",
+      "bytes": 77184,
+      "durationSec": 4.824,
+      "measuredSpm": 286.1,
+      "deltaPct": 73
+    },
+    {
+      "bundle": "AZ-Hollie-Default",
+      "provider": "AZ",
+      "baseSpm": 157.2,
+      "requestSpm": 165,
+      "rate": 1.05,
+      "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/b388ea99-ea27-4491-8f9c-63a5e5ce3be8.mp3",
+      "bytes": 85824,
+      "durationSec": 5.364,
+      "measuredSpm": 257.3,
+      "deltaPct": 56
+    }
+  ]
+}

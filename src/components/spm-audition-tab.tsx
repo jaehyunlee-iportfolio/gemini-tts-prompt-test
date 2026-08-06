@@ -13,6 +13,9 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { MeasuredSpmLine } from "@/components/measured-spm-line";
+import { resolveAudioDurationMs } from "@/lib/audio-duration";
+import { computeSpm } from "@/lib/syllables";
 import { proxyPlayUrl } from "@/lib/tts-sse";
 import { cn } from "@/lib/utils";
 import {
@@ -34,7 +37,15 @@ const LEVELS: { key: Level; label: string }[] = [
   { key: "advanced", label: "Advanced" },
 ];
 
-type ClipState = { status: "idle" | "loading" | "ready" | "error"; url?: string; error?: string };
+type ClipState = {
+  status: "idle" | "loading" | "ready" | "error";
+  url?: string;
+  error?: string;
+  /** 생성 시점의 문장 — 이후 입력을 바꿔도 실측이 틀어지지 않게 고정 */
+  text?: string;
+  durationMs?: number;
+  measuredSpm?: number | null;
+};
 
 function levelSpm(rec: SpmLevelRecommendation, lvl: Level): number {
   return rec[lvl];
@@ -60,7 +71,10 @@ export function SpmAuditionTab() {
         });
         const j = (await res.json()) as { url?: string; error?: string };
         if (!res.ok || !j.url) throw new Error(j.error || `요청 실패 (${res.status})`);
-        setClips((p) => ({ ...p, [key]: { status: "ready", url: proxyPlayUrl(j.url!) } }));
+        setClips((p) => ({
+          ...p,
+          [key]: { status: "ready", url: proxyPlayUrl(j.url!), text: text.trim() },
+        }));
       } catch (e) {
         setClips((p) => ({
           ...p,
@@ -149,11 +163,36 @@ export function SpmAuditionTab() {
                           <div key={key} className="min-w-0">
                             {st.status === "ready" && st.url ? (
                               <div className="space-y-1">
-                                <span className="text-[10px] text-muted-foreground">
+                                <span className="block text-[10px] text-muted-foreground">
                                   {label} · {meta}
                                 </span>
+                                <MeasuredSpmLine requestSpm={spm} measuredSpm={st.measuredSpm} />
                                 {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-                                <audio controls autoPlay preload="none" src={st.url} className="h-8 w-full" />
+                                <audio
+                                  controls
+                                  autoPlay
+                                  preload="metadata"
+                                  src={st.url}
+                                  className="h-8 w-full"
+                                  onLoadedMetadata={(e) => {
+                                    const el = e.currentTarget;
+                                    void resolveAudioDurationMs(el).then((durationMs) => {
+                                      if (durationMs == null) return;
+                                      setClips((p) => {
+                                        const prev = p[ck];
+                                        if (!prev) return p;
+                                        return {
+                                          ...p,
+                                          [ck]: {
+                                            ...prev,
+                                            durationMs,
+                                            measuredSpm: computeSpm(prev.text ?? text, durationMs),
+                                          },
+                                        };
+                                      });
+                                    });
+                                  }}
+                                />
                               </div>
                             ) : (
                               <Button

@@ -1,0 +1,86 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>실측 SPM 브라우저 검증</title>
+<style>
+ body{font:13px system-ui;margin:16px}
+ table{border-collapse:collapse}
+ td,th{border:1px solid #ddd;padding:4px 8px;text-align:right}
+ td:first-child,th:first-child,td:nth-child(2){text-align:left}
+ .ok{color:#0a0} .bad{color:#c00;font-weight:700}
+ #sum{font-size:15px;font-weight:700;margin:10px 0}
+</style>
+<h3>브라우저 audio.duration 기반 실측 SPM 검증</h3>
+<div id="sum">측정 중...</div>
+<table id="t"><thead><tr>
+<th>bundle</th><th>prov</th><th>요청 spm</th><th>duration</th>
+<th>실측 SPM (브라우저)</th><th>ffprobe SPM</th><th>차이</th><th>표시</th>
+</tr></thead><tbody></tbody></table>
+<script>
+const DATA = [{"bundle": "GCP-Jeremy-Default", "provider": "GCP", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/278bcb6b-0785-4148-aef0-14169785ef3f.mp3", "requestSpm": 165, "ffprobeSpm": 183.7}, {"bundle": "AWS-Kevin-Default", "provider": "AWS", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/dc8fad82-ee1b-412b-8b3f-feb0a1683e25.mp3", "requestSpm": 180, "ffprobeSpm": 247.8}, {"bundle": "AWS-Justin-Default", "provider": "AWS", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/b9a1e2d4-264f-4d67-a050-374bd234fd73.mp3", "requestSpm": 180, "ffprobeSpm": 244.7}, {"bundle": "AZ-TuningAna-Default", "provider": "AZ", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/8ff92691-b091-4ee3-ad7e-5b8af3e6bd3b.mp3", "requestSpm": 165, "ffprobeSpm": 238.1}, {"bundle": "GEMINI-Rasalgethi-Default", "provider": "GEMINI", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/533cc134-b9eb-49d0-a5e7-1efd1fdecec4.mp3", "requestSpm": 165, "ffprobeSpm": 165.2}, {"bundle": "GEMINI-Rasalgethi-Cheerful", "provider": "GEMINI", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/3d7611e9-ab4b-4089-8320-8239849625ed.mp3", "requestSpm": 165, "ffprobeSpm": 194.3}, {"bundle": "GEMINI-Rasalgethi-Gentle", "provider": "GEMINI", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/e8df04a9-cc95-4e77-aba1-a938e3b587bd.mp3", "requestSpm": 165, "ffprobeSpm": 179.7}, {"bundle": "GEMINI-Puck-Default", "provider": "GEMINI", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/ff779cf3-fb81-41bd-85dc-dc5987a9ed0e.mp3", "requestSpm": 165, "ffprobeSpm": 156.2}, {"bundle": "GEMINI-Puck-Cheerful", "provider": "GEMINI", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/bfebb582-5ab0-4718-b434-05b43658aedc.mp3", "requestSpm": 165, "ffprobeSpm": 209.9}, {"bundle": "GEMINI-Puck-Gentle", "provider": "GEMINI", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/d892def9-55f2-45ba-8389-dbdf1eeb0304.mp3", "requestSpm": 165, "ffprobeSpm": 171.1}, {"bundle": "GEMINI-Fenrir-Default", "provider": "GEMINI", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/971c5006-031c-40f7-a07a-cf111bf9e63d.mp3", "requestSpm": 165, "ffprobeSpm": 181.4}, {"bundle": "GEMINI-Fenrir-Cheerful", "provider": "GEMINI", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/cc2e21c5-e920-4e81-9335-9f8b0867a5f8.mp3", "requestSpm": 165, "ffprobeSpm": 169.6}, {"bundle": "GEMINI-Fenrir-Gentle", "provider": "GEMINI", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/d94e08cd-6488-4614-b348-e8237367a885.mp3", "requestSpm": 165, "ffprobeSpm": 161.1}, {"bundle": "AZ-TuningEvelyn-Default", "provider": "AZ", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/500116f8-0db4-486e-84a2-06eab6228d57.mp3", "requestSpm": 165, "ffprobeSpm": 245.7}, {"bundle": "GCP-Rey-Default", "provider": "GCP", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/5df1fa72-5995-4345-89cd-4f8cc5ff3a0c.mp3", "requestSpm": 165, "ffprobeSpm": 201.0}, {"bundle": "AZ-TuningMaisie-Default", "provider": "AZ", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/61a0d64e-acbe-4006-8dd5-9fda3a7daa59.mp3", "requestSpm": 165, "ffprobeSpm": 252.2}, {"bundle": "AZ-Guy-Friendly", "provider": "AZ", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/dde5e6a9-ee77-408e-a8af-78988013cdc2.mp3", "requestSpm": 165, "ffprobeSpm": 286.1}, {"bundle": "AZ-Oliver-Default", "provider": "AZ", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/19891e21-cf2b-4adf-855c-1fb97eda9aaa.mp3", "requestSpm": 165, "ffprobeSpm": 260.8}, {"bundle": "AZ-Tony-Default", "provider": "AZ", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/b9280fd7-d62a-4c32-bf05-656e0e16f0de.mp3", "requestSpm": 165, "ffprobeSpm": 248.9}, {"bundle": "AZ-Alfie-Default", "provider": "AZ", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/0dcec713-6a3e-4294-9eb3-41d1a19c946a.mp3", "requestSpm": 165, "ffprobeSpm": 268.1}, {"bundle": "AZ-Ana-Default", "provider": "AZ", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/f1dcabfd-5033-4655-b628-5376369eeb5d.mp3", "requestSpm": 165, "ffprobeSpm": 238.1}, {"bundle": "AZ-Xiaoyou-Default", "provider": "AZ", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/9e949d2a-dc92-48d6-88a5-420b383e407e.mp3", "requestSpm": 165, "ffprobeSpm": 196.6}, {"bundle": "AZ-Maisie-Default", "provider": "AZ", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/aa071ef1-c1eb-4743-b85a-0e39f475db27.mp3", "requestSpm": 165, "ffprobeSpm": 252.2}, {"bundle": "AZ-Sara-Friendly", "provider": "AZ", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/9bd16c8c-3243-4635-ac74-db0a07cbb4e5.mp3", "requestSpm": 165, "ffprobeSpm": 277.8}, {"bundle": "AZ-Jenny-Cheerful", "provider": "AZ", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/e9ec2a02-8635-4c9f-ab0c-4f6e93f0f4e2.mp3", "requestSpm": 165, "ffprobeSpm": 270.0}, {"bundle": "GEMINI-Sulafat-Default", "provider": "GEMINI", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/912296b4-d7b9-4491-8281-454063a79ce6.mp3", "requestSpm": 165, "ffprobeSpm": 189.1}, {"bundle": "GEMINI-Sulafat-Cheerful", "provider": "GEMINI", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/fd051e4e-04c5-47d4-81f2-357c53d6c1dd.mp3", "requestSpm": 165, "ffprobeSpm": 211.4}, {"bundle": "GEMINI-Sulafat-Gentle", "provider": "GEMINI", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/f6b29bf4-d016-4b92-ac00-a38cabe7d8d7.mp3", "requestSpm": 165, "ffprobeSpm": 151.7}, {"bundle": "CHIRP-Zephyr-Default", "provider": "CHIRP", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/d843705f-59d5-40fa-b0e5-7a5006f83df3.mp3", "requestSpm": 170, "ffprobeSpm": 209.9}, {"bundle": "AZ-Sonia-Cheerful", "provider": "AZ", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/412470c7-fceb-401a-9f0e-7ebdda6b2aa3.mp3", "requestSpm": 165, "ffprobeSpm": 222.9}, {"bundle": "AZ-Nancy-Default", "provider": "AZ", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/e1c4a219-1ccc-452e-998d-906c947c4f3e.mp3", "requestSpm": 165, "ffprobeSpm": 286.1}, {"bundle": "AZ-Hollie-Default", "provider": "AZ", "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/b388ea99-ea27-4491-8f9c-63a5e5ce3be8.mp3", "requestSpm": 165, "ffprobeSpm": 257.3}];
+const TEXT = "The little bird flew over the tall trees and landed on the old wooden fence near the river.";
+function countWordSyllables(rawWord){
+  const word = rawWord.toLowerCase().replace(/[^a-z]/g,"");
+  if(!word) return 0;
+  if(word.length<=2) return 1;
+  const groups = word.match(/[aeiouy]+/g);
+  let count = groups ? groups.length : 1;
+  if(/[^aeiouy]e$/.test(word) && !/[^aeiouy]le$/.test(word)) count -= 1;
+  if(/[^aeiouy]ed$/.test(word) && !/[td]ed$/.test(word)) count -= 1;
+  return Math.max(1,count);
+}
+function countTextSyllables(text){
+  let total=0;
+  for(const token of text.split(/\s+/)){
+    if(!token) continue;
+    total += token.replace(/\D/g,"").length;
+    total += countWordSyllables(token);
+  }
+  return total;
+}
+function computeSpm(text,durationMs){
+  if(!Number.isFinite(durationMs)||durationMs<=0) return null;
+  const s=countTextSyllables(text);
+  if(s===0) return null;
+  return Math.round((s/(durationMs/60000))*10)/10;
+}
+const SYL = countTextSyllables(TEXT);
+function readDuration(url){
+  return new Promise((resolve)=>{
+    const a=document.createElement("audio");
+    a.preload="metadata"; a.src=url;
+    let done=false;
+    const finish=(d)=>{ if(done) return; done=true; resolve(d); };
+    a.addEventListener("loadedmetadata",()=>finish(a.duration));
+    a.addEventListener("error",()=>finish(null));
+    setTimeout(()=>finish(null),20000);
+  });
+}
+(async()=>{
+  const tb=document.querySelector("#t tbody");
+  let shown=0, missing=0, mismatch=0;
+  for(const d of DATA){
+    const dur=await readDuration(d.url);
+    const ms=(dur!=null&&Number.isFinite(dur))?Math.round(dur*1000):NaN;
+    const spm=computeSpm(TEXT,ms);
+    const ok=spm!=null;
+    if(ok) shown++; else missing++;
+    let diff="";
+    if(ok&&d.ffprobeSpm){
+      const p=Math.abs(spm-d.ffprobeSpm)/d.ffprobeSpm*100;
+      diff=p.toFixed(1)+"%";
+      if(p>2) mismatch++;
+    }
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${d.bundle}</td><td>${d.provider}</td><td>${d.requestSpm}</td>`
+      +`<td>${dur==null?"null":(Number.isFinite(dur)?dur.toFixed(2)+"s":String(dur))}</td>`
+      +`<td>${ok?spm:"—"}</td><td>${d.ffprobeSpm??"-"}</td><td>${diff}</td>`
+      +`<td class="${ok?"ok":"bad"}">${ok?"표시됨":"실패"}</td>`;
+    tb.appendChild(tr);
+    document.querySelector("#sum").textContent =
+      `총 ${DATA.length} / 표시됨 ${shown} / 실패 ${missing} / ffprobe와 2%↑ 불일치 ${mismatch} (음절 ${SYL})`;
+  }
+  document.title = missing===0 ? "ALL_OK" : "HAS_FAILURE";
+  document.querySelector("#sum").textContent +=
+    missing===0 ? "  => 전 VP 표시 정상" : "  => 표시 실패 있음";
+})();
+</script>
