@@ -922,7 +922,7 @@ export function TtsApp() {
       <div className="mx-auto min-h-0 w-full min-w-0 max-w-[min(100%,1920px)] overflow-x-hidden px-3 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.5rem,env(safe-area-inset-top,0px))] sm:px-5 sm:py-8 lg:px-8 xl:px-10">
         <header className="mb-6 flex min-w-0 flex-col gap-3 border-b border-border pb-5 sm:mb-8 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4 sm:pb-6">
           <h1 className="min-w-0 bg-gradient-to-r from-primary to-violet-500 bg-clip-text text-xl font-bold leading-tight text-transparent dark:to-violet-300 sm:text-2xl lg:text-3xl">
-            Gemini TTS Prompt Tester
+            LAURA TTS Lab
           </h1>
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <AuthButtons />

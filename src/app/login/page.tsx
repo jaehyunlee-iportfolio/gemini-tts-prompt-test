@@ -20,7 +20,7 @@ function LoginForm() {
   return (
     <Card className="w-full max-w-md border-border shadow-lg">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-xl">Gemini TTS Prompt Tester</CardTitle>
+        <CardTitle className="text-xl">LAURA TTS Lab</CardTitle>
         <CardDescription>Google 계정으로 로그인해 주세요.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

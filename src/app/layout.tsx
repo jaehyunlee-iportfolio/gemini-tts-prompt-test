@@ -4,7 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Gemini TTS Prompt Tester",
+  title: "LAURA TTS Lab",
   description: "LAURA TTS stage prompt and voice tester",
   icons: {
     icon: [{ url: "/favicon.png", type: "image/png" }],
