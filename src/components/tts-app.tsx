@@ -62,6 +62,7 @@ import { PreviewTab } from "@/components/preview-tab";
 import { SpmLabTab } from "@/components/spm-lab-tab";
 import { SpmAuditionTab } from "@/components/spm-audition-tab";
 import { SpmMatrixTab } from "@/components/spm-matrix-tab";
+import { SpmFileMeasureTab } from "@/components/spm-file-measure-tab";
 import { ThemeToggle } from "@/components/theme-toggle";
 import type { PromptRegistryJson, RegistryGroup, RegistryPrompt } from "@/types/registry";
 import {
@@ -258,7 +259,12 @@ export function TtsApp() {
 
   useEffect(() => {
     // SPM 실험/청취 탭은 로그인 사내 계정 전체 허용, 그 외 비-Preview 탭은 admin 전용
-    if (mainTab === "spm-lab" || mainTab === "spm-audition" || mainTab === "spm-matrix") {
+    if (
+      mainTab === "spm-lab" ||
+      mainTab === "spm-audition" ||
+      mainTab === "spm-matrix" ||
+      mainTab === "spm-file"
+    ) {
       if (rootSessionStatus === "unauthenticated") setMainTab("preview");
       return;
     }
@@ -970,6 +976,12 @@ export function TtsApp() {
                 >
                   Min/Max 청취
                 </TabsTrigger>
+                <TabsTrigger
+                  value="spm-file"
+                  className="touch-manipulation px-2 py-2.5 text-xs sm:flex-initial sm:px-3 sm:py-2 sm:text-sm"
+                >
+                  파일 SPM 측정
+                </TabsTrigger>
               </>
             ) : null}
             {adminAccessStatus === "admin" ? (
@@ -1010,6 +1022,10 @@ export function TtsApp() {
 
           <TabsContent value="spm-matrix" className="mt-0 space-y-3 sm:space-y-4">
             <SpmMatrixTab />
+          </TabsContent>
+
+          <TabsContent value="spm-file" className="mt-0 space-y-3 sm:space-y-4">
+            <SpmFileMeasureTab />
           </TabsContent>
 
           <TabsContent value="generate" className="mt-0 space-y-3 sm:space-y-4">

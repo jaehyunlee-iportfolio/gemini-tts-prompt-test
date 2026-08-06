@@ -1,0 +1,58 @@
+<!doctype html><meta charset="utf-8"><title>ANALYSIS_RUNNING</title>
+<style>body{font:12px system-ui;margin:14px}table{border-collapse:collapse}
+td,th{border:1px solid #ddd;padding:3px 7px;text-align:right}
+td:first-child{text-align:left}.ok{color:#0a0}.bad{color:#c00;font-weight:700}
+#s{font-size:15px;font-weight:700;margin:8px 0}</style>
+<h3>브라우저 무음 분석 vs Python(ffmpeg silencedetect) 대조</h3>
+<div id="s">측정 중...</div>
+<table id="t"><thead><tr><th>파일</th>
+<th>total(py)</th><th>total(js)</th><th>lead(py)</th><th>lead(js)</th>
+<th>tail(py)</th><th>tail(js)</th><th>speech(py)</th><th>speech(js)</th>
+<th>speech 차이</th><th>판정</th></tr></thead><tbody></tbody></table>
+<script>
+const EXPECTED = [{"file": "AZ-Jenny-Cheerful__baseline.mp3", "total": 5.436, "lead": 0.0, "tail": 0.888, "speech": 4.548}, {"file": "AZ-Nancy-Default__baseline.mp3", "total": 5.364, "lead": 0.0, "tail": 0.895, "speech": 4.469}, {"file": "GEMINI-Rasalgethi-Default__baseline.mp3", "total": 8.352, "lead": 0.311, "tail": 0.0, "speech": 8.041}, {"file": "GCP-Jeremy-Default__baseline.mp3", "total": 5.184, "lead": 0.0, "tail": 0.731, "speech": 4.453}, {"file": "AWS-Kevin-Default__baseline.mp3", "total": 4.464, "lead": 0.0, "tail": 0.0, "speech": 4.464}, {"file": "CHIRP-Zephyr-Default__baseline.mp3", "total": 5.136, "lead": 0.549, "tail": 0.0, "speech": 4.587}];
+const SILENCE_THRESHOLD_DB=-35, SILENCE_MIN_SEC=0.25, HOP_MS=20;
+function toMono(buffer){const{numberOfChannels,length}=buffer;
+ if(numberOfChannels===1)return buffer.getChannelData(0);
+ const m=new Float32Array(length);
+ for(let c=0;c<numberOfChannels;c++){const d=buffer.getChannelData(c);
+  for(let i=0;i<length;i++)m[i]+=d[i];}
+ for(let i=0;i<length;i++)m[i]/=numberOfChannels;return m;}
+function analyze(buffer,thresholdDb=SILENCE_THRESHOLD_DB){
+ const s=toMono(buffer),sr=buffer.sampleRate;
+ const hop=Math.max(1,Math.round(sr*HOP_MS/1000));
+ const th=Math.pow(10,thresholdDb/20), totalSec=buffer.duration;
+ let first=-1,last=-1;
+ for(let st=0;st<s.length;st+=hop){const en=Math.min(s.length,st+hop);let sum=0;
+  for(let i=st;i<en;i++)sum+=s[i]*s[i];
+  const rms=Math.sqrt(sum/Math.max(1,en-st));
+  if(rms>=th){if(first<0)first=st;last=en;}}
+ if(first<0)return{totalSec,leadSilenceSec:totalSec,tailSilenceSec:0,speechSec:0};
+ const lr=first/sr, tr=totalSec-last/sr;
+ const lead=lr>=SILENCE_MIN_SEC?lr:0, tail=tr>=SILENCE_MIN_SEC?tr:0;
+ return{totalSec,leadSilenceSec:lead,tailSilenceSec:tail,
+  speechSec:Math.max(0.01,totalSec-lead-tail)};}
+(async()=>{const tb=document.querySelector("#t tbody");let okN=0;
+ const ctx=new AudioContext();
+ for(const e of EXPECTED){
+  let a=null;
+  try{const r=await fetch("/deviation-diag-audio/"+e.file);
+   a=analyze(await ctx.decodeAudioData(await r.arrayBuffer()));}catch(err){}
+  const f=(v)=>v==null?"-":v.toFixed(2);
+  let diff="-",pass=false;
+  if(a){diff=Math.abs(a.speechSec-e.speech).toFixed(2)+"s";
+   pass=Math.abs(a.speechSec-e.speech)<=0.25;}
+  if(pass)okN++;
+  const tr=document.createElement("tr");
+  tr.innerHTML=`<td>${e.file.replace("__baseline.mp3","")}</td>`
+   +`<td>${f(e.total)}</td><td>${f(a&&a.totalSec)}</td>`
+   +`<td>${f(e.lead)}</td><td>${f(a&&a.leadSilenceSec)}</td>`
+   +`<td>${f(e.tail)}</td><td>${f(a&&a.tailSilenceSec)}</td>`
+   +`<td>${f(e.speech)}</td><td>${f(a&&a.speechSec)}</td>`
+   +`<td>${diff}</td><td class="${pass?"ok":"bad"}">${pass?"일치":"불일치"}</td>`;
+  tb.appendChild(tr);
+  document.querySelector("#s").textContent=`일치 ${okN}/${EXPECTED.length} (허용 0.25s)`;
+ }
+ document.title = okN===EXPECTED.length ? "ANALYSIS_MATCH" : "ANALYSIS_MISMATCH";
+})();
+</script>

@@ -1,0 +1,306 @@
+{
+  "text": "The little bird flew over the tall trees and landed on the old wooden fence near the river.",
+  "syllables": 23,
+  "results": [
+    {
+      "bundle": "AZ-Jenny-Cheerful",
+      "serverBaseSpm": 154.9,
+      "realBaseSpmMeasured": 303.4,
+      "baseSpmErrorRatio": 1.959,
+      "rows": [
+        {
+          "tag": "baseline",
+          "requestSpm": null,
+          "totalSec": 5.436,
+          "totalSpm": 253.9,
+          "leadSilenceSec": 0.0,
+          "tailSilenceSec": 0.888,
+          "speechSec": 4.548,
+          "speechSpm": 303.4,
+          "transcript": "The little bird flew over the tall trees and landed on the old wooden fence near the river.",
+          "wordsExpected": 18,
+          "wordsHeard": 18,
+          "wordKeepPct": 100
+        },
+        {
+          "tag": "at_basespm",
+          "requestSpm": 154.9,
+          "totalSec": 5.436,
+          "totalSpm": 253.9,
+          "leadSilenceSec": 0.0,
+          "tailSilenceSec": 0.888,
+          "speechSec": 4.548,
+          "speechSpm": 303.4,
+          "transcript": "The little bird flew over the tall trees and landed on the old wooden fence near the river.",
+          "wordsExpected": 18,
+          "wordsHeard": 18,
+          "wordKeepPct": 100
+        },
+        {
+          "tag": "at_165",
+          "requestSpm": 165,
+          "totalSec": 5.112,
+          "totalSpm": 270.0,
+          "leadSilenceSec": 0.0,
+          "tailSilenceSec": 0.841,
+          "speechSec": 4.271,
+          "speechSpm": 323.1,
+          "transcript": "The little bird flew over the tall trees and landed on the old wooden fence near the river.",
+          "wordsExpected": 18,
+          "wordsHeard": 18,
+          "wordKeepPct": 100
+        }
+      ]
+    },
+    {
+      "bundle": "AZ-Nancy-Default",
+      "serverBaseSpm": 148.0,
+      "realBaseSpmMeasured": 308.8,
+      "baseSpmErrorRatio": 2.086,
+      "rows": [
+        {
+          "tag": "baseline",
+          "requestSpm": null,
+          "totalSec": 5.364,
+          "totalSpm": 257.3,
+          "leadSilenceSec": 0.0,
+          "tailSilenceSec": 0.895,
+          "speechSec": 4.469,
+          "speechSpm": 308.8,
+          "transcript": "The little bird flew over the tall trees and landed on the old wooden fence near the river.",
+          "wordsExpected": 18,
+          "wordsHeard": 18,
+          "wordKeepPct": 100
+        },
+        {
+          "tag": "at_basespm",
+          "requestSpm": 148.0,
+          "totalSec": 5.364,
+          "totalSpm": 257.3,
+          "leadSilenceSec": 0.0,
+          "tailSilenceSec": 0.895,
+          "speechSec": 4.469,
+          "speechSpm": 308.8,
+          "transcript": "The little bird flew over the tall trees and landed on the old wooden fence near the river.",
+          "wordsExpected": 18,
+          "wordsHeard": 18,
+          "wordKeepPct": 100
+        },
+        {
+          "tag": "at_165",
+          "requestSpm": 165,
+          "totalSec": 4.824,
+          "totalSpm": 286.1,
+          "leadSilenceSec": 0.0,
+          "tailSilenceSec": 0.819,
+          "speechSec": 4.005,
+          "speechSpm": 344.5,
+          "transcript": "The little bird flew over the tall trees and landed on the old wooden fence near the river.",
+          "wordsExpected": 18,
+          "wordsHeard": 18,
+          "wordKeepPct": 100
+        }
+      ]
+    },
+    {
+      "bundle": "GEMINI-Rasalgethi-Default",
+      "serverBaseSpm": 160.1,
+      "realBaseSpmMeasured": 171.6,
+      "baseSpmErrorRatio": 1.072,
+      "rows": [
+        {
+          "tag": "baseline",
+          "requestSpm": null,
+          "totalSec": 8.352,
+          "totalSpm": 165.2,
+          "leadSilenceSec": 0.311,
+          "tailSilenceSec": 0.0,
+          "speechSec": 8.041,
+          "speechSpm": 171.6,
+          "transcript": "The little bird flew over the tall trees and landed on the old wooden fence near the river.",
+          "wordsExpected": 18,
+          "wordsHeard": 18,
+          "wordKeepPct": 100
+        },
+        {
+          "tag": "at_basespm",
+          "requestSpm": 160.1,
+          "totalSec": 8.352,
+          "totalSpm": 165.2,
+          "leadSilenceSec": 0.311,
+          "tailSilenceSec": 0.0,
+          "speechSec": 8.041,
+          "speechSpm": 171.6,
+          "transcript": "The little bird flew over the tall trees and landed on the old wooden fence near the river.",
+          "wordsExpected": 18,
+          "wordsHeard": 18,
+          "wordKeepPct": 100
+        },
+        {
+          "tag": "at_165",
+          "requestSpm": 165,
+          "totalSec": 8.352,
+          "totalSpm": 165.2,
+          "leadSilenceSec": 0.313,
+          "tailSilenceSec": 0.0,
+          "speechSec": 8.039,
+          "speechSpm": 171.7,
+          "transcript": "The little bird flew over the tall trees and landed on the old wooden fence near the river.",
+          "wordsExpected": 18,
+          "wordsHeard": 18,
+          "wordKeepPct": 100
+        }
+      ]
+    },
+    {
+      "bundle": "GCP-Jeremy-Default",
+      "serverBaseSpm": 239.8,
+      "realBaseSpmMeasured": 309.9,
+      "baseSpmErrorRatio": 1.292,
+      "rows": [
+        {
+          "tag": "baseline",
+          "requestSpm": null,
+          "totalSec": 5.184,
+          "totalSpm": 266.2,
+          "leadSilenceSec": 0.0,
+          "tailSilenceSec": 0.731,
+          "speechSec": 4.453,
+          "speechSpm": 309.9,
+          "transcript": "The little bird flew over the tall trees and landed on the old wooden fence near the river.",
+          "wordsExpected": 18,
+          "wordsHeard": 18,
+          "wordKeepPct": 100
+        },
+        {
+          "tag": "at_basespm",
+          "requestSpm": 239.8,
+          "totalSec": 5.184,
+          "totalSpm": 266.2,
+          "leadSilenceSec": 0.0,
+          "tailSilenceSec": 0.731,
+          "speechSec": 4.453,
+          "speechSpm": 309.9,
+          "transcript": "The little bird flew over the tall trees and landed on the old wooden fence near the river.",
+          "wordsExpected": 18,
+          "wordsHeard": 18,
+          "wordKeepPct": 100
+        },
+        {
+          "tag": "at_165",
+          "requestSpm": 165,
+          "totalSec": 7.512,
+          "totalSpm": 183.7,
+          "leadSilenceSec": 0.0,
+          "tailSilenceSec": 1.035,
+          "speechSec": 6.477,
+          "speechSpm": 213.1,
+          "transcript": "The little bird flew over the tall trees and landed on the old wooden fence near the river.",
+          "wordsExpected": 18,
+          "wordsHeard": 18,
+          "wordKeepPct": 100
+        }
+      ]
+    },
+    {
+      "bundle": "AWS-Kevin-Default",
+      "serverBaseSpm": 227.8,
+      "realBaseSpmMeasured": 309.1,
+      "baseSpmErrorRatio": 1.357,
+      "rows": [
+        {
+          "tag": "baseline",
+          "requestSpm": null,
+          "totalSec": 4.464,
+          "totalSpm": 309.1,
+          "leadSilenceSec": 0.0,
+          "tailSilenceSec": 0.0,
+          "speechSec": 4.464,
+          "speechSpm": 309.1,
+          "transcript": "Little Bird flew over the tall trees and landed on the old wooden fence near the river.",
+          "wordsExpected": 18,
+          "wordsHeard": 17,
+          "wordKeepPct": 100
+        },
+        {
+          "tag": "at_basespm",
+          "requestSpm": 227.8,
+          "totalSec": 4.464,
+          "totalSpm": 309.1,
+          "leadSilenceSec": 0.0,
+          "tailSilenceSec": 0.0,
+          "speechSec": 4.464,
+          "speechSpm": 309.1,
+          "transcript": "The little bird flew over the tall trees and landed on the old wooden fence near the river.",
+          "wordsExpected": 18,
+          "wordsHeard": 18,
+          "wordKeepPct": 100
+        },
+        {
+          "tag": "at_165",
+          "requestSpm": 165,
+          "totalSec": 6.072,
+          "totalSpm": 227.3,
+          "leadSilenceSec": 0.0,
+          "tailSilenceSec": 0.0,
+          "speechSec": 6.072,
+          "speechSpm": 227.3,
+          "transcript": "The little bird flew over the tall trees and landed on the old wooden fence near the river.",
+          "wordsExpected": 18,
+          "wordsHeard": 18,
+          "wordKeepPct": 100
+        }
+      ]
+    },
+    {
+      "bundle": "CHIRP-Zephyr-Default",
+      "serverBaseSpm": 219.2,
+      "realBaseSpmMeasured": 300.9,
+      "baseSpmErrorRatio": 1.373,
+      "rows": [
+        {
+          "tag": "baseline",
+          "requestSpm": null,
+          "totalSec": 5.136,
+          "totalSpm": 268.7,
+          "leadSilenceSec": 0.549,
+          "tailSilenceSec": 0.0,
+          "speechSec": 4.587,
+          "speechSpm": 300.9,
+          "transcript": "The little bird flew over the tall trees and landed on the old wooden fence near the river.",
+          "wordsExpected": 18,
+          "wordsHeard": 18,
+          "wordKeepPct": 100
+        },
+        {
+          "tag": "at_basespm",
+          "requestSpm": 219.2,
+          "totalSec": 5.136,
+          "totalSpm": 268.7,
+          "leadSilenceSec": 0.549,
+          "tailSilenceSec": 0.0,
+          "speechSec": 4.587,
+          "speechSpm": 300.9,
+          "transcript": "The little bird flew over the tall trees and landed on the old wooden fence near the river.",
+          "wordsExpected": 18,
+          "wordsHeard": 18,
+          "wordKeepPct": 100
+        },
+        {
+          "tag": "at_165",
+          "requestSpm": 165,
+          "totalSec": 6.768,
+          "totalSpm": 203.9,
+          "leadSilenceSec": 0.708,
+          "tailSilenceSec": 0.0,
+          "speechSec": 6.06,
+          "speechSpm": 227.7,
+          "transcript": "The little bird flew over the tall trees and landed on the old wooden fence near the river.",
+          "wordsExpected": 18,
+          "wordsHeard": 18,
+          "wordKeepPct": 100
+        }
+      ]
+    }
+  ]
+}
