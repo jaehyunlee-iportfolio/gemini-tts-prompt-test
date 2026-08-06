@@ -1,6 +1,8 @@
-# Gemini TTS Prompt Tester
+# LAURA TTS Lab
 
 LAURA TTS 생성형 음성의 프롬프트 안정성을 테스트하기 위한 **Next.js** 웹 앱 + 프롬프트 버전 가이드 Confluence 자동 동기화.
+
+배포 주소: <https://laura-tts-lab.vercel.app> (메인) / <https://gemin-tts-prompt-test.vercel.app> (기존 주소, 계속 접근 가능)
 
 ## 기능
 
