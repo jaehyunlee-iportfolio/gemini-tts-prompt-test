@@ -15,7 +15,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AudioWithMsTime } from "@/components/audio-with-ms-time";
 import { MeasuredSpmLine } from "@/components/measured-spm-line";
-import { computeSpm } from "@/lib/syllables";
+import { spmFromSyllables } from "@/lib/syllables";
+import { useSyllableCount } from "@/lib/use-syllable-count";
 import { proxyPlayUrl } from "@/lib/tts-sse";
 import { cn } from "@/lib/utils";
 import {
@@ -41,8 +42,9 @@ type ClipState = {
   status: "idle" | "loading" | "ready" | "error";
   url?: string;
   error?: string;
-  /** 생성 시점의 문장 — 이후 입력을 바꿔도 실측이 틀어지지 않게 고정 */
+  /** 생성 시점의 문장과 음절 수 — 이후 입력을 바꿔도 실측이 틀어지지 않게 고정 */
   text?: string;
+  syllables?: number;
   durationMs?: number;
   measuredSpm?: number | null;
 };
@@ -58,6 +60,7 @@ export function SpmAuditionTab() {
   const [text, setText] = useState(DEFAULT_TEXT);
   const [clips, setClips] = useState<Record<string, ClipState>>({});
   const groups = useMemo(() => groupProfilesByProvider(), []);
+  const syl = useSyllableCount(text);
 
   const generate = useCallback(
     async (bundleName: string, lvl: Level, spm: number) => {
@@ -73,7 +76,12 @@ export function SpmAuditionTab() {
         if (!res.ok || !j.url) throw new Error(j.error || `요청 실패 (${res.status})`);
         setClips((p) => ({
           ...p,
-          [key]: { status: "ready", url: proxyPlayUrl(j.url!), text: text.trim() },
+          [key]: {
+            status: "ready",
+            url: proxyPlayUrl(j.url!),
+            text: text.trim(),
+            syllables: syl.syllables,
+          },
         }));
       } catch (e) {
         setClips((p) => ({
@@ -82,7 +90,7 @@ export function SpmAuditionTab() {
         }));
       }
     },
-    [text],
+    [text, syl.syllables],
   );
 
   return (
@@ -179,7 +187,10 @@ export function SpmAuditionTab() {
                                         [ck]: {
                                           ...prev,
                                           durationMs,
-                                          measuredSpm: computeSpm(prev.text ?? text, durationMs),
+                                          measuredSpm: spmFromSyllables(
+                                            prev.syllables ?? syl.syllables,
+                                            durationMs,
+                                          ),
                                         },
                                       };
                                     });

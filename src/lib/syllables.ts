@@ -40,8 +40,77 @@ export function countTextSyllables(text: string): number {
 
 /** 실측 SPM = 음절 수 / (duration분). durationMs가 유효하지 않으면 null */
 export function computeSpm(text: string, durationMs: number): number | null {
+  return spmFromSyllables(countTextSyllables(text), durationMs);
+}
+
+/** 음절 수를 이미 아는 경우(사전 조회 결과·사용자 지정값)의 SPM 계산 */
+export function spmFromSyllables(syllables: number, durationMs: number): number | null {
   if (!Number.isFinite(durationMs) || durationMs <= 0) return null;
-  const syllables = countTextSyllables(text);
-  if (syllables === 0) return null;
+  if (!Number.isFinite(syllables) || syllables <= 0) return null;
   return Math.round((syllables / (durationMs / 60000)) * 10) / 10;
+}
+
+/** 사전 조회용 토큰 정규화 — 소문자, a-z와 어퍼스트로피만 (scripts/build_syllable_dict.py와 동일) */
+export function normalizeToken(token: string): string {
+  return token.toLowerCase().replace(/[^a-z']/g, "");
+}
+
+export type SyllableWord = {
+  token: string;
+  syllables: number;
+  /** dict = CMU 발음사전 값, heuristic = 모음군 추정 */
+  source: "dict" | "heuristic";
+};
+
+export type SyllableAnalysis = {
+  total: number;
+  words: SyllableWord[];
+  /** 사전에서 찾은 단어 수 */
+  dictHits: number;
+  /** 사전에 없어 추정으로 센 단어들 */
+  oov: string[];
+};
+
+/**
+ * 텍스트 음절 분석. dict(예외 사전)가 있으면 그 값을 우선 쓰고, 없는 단어는 휴리스틱으로 센다.
+ * 예외 사전은 "휴리스틱이 CMUdict와 다른 단어"만 담으므로, 사전에 없다고 해서 곧바로
+ * 부정확한 것은 아니다(사전에 없으면서 휴리스틱이 맞는 경우가 대부분).
+ */
+export function analyzeTextSyllables(
+  text: string,
+  dict?: Readonly<Record<string, number>>,
+): SyllableAnalysis {
+  const words: SyllableWord[] = [];
+  let total = 0;
+  let dictHits = 0;
+  const oov: string[] = [];
+
+  for (const token of text.split(/\s+/)) {
+    if (!token) continue;
+    // 숫자는 자릿수만큼 음절로 근사 ("2026" -> 4)
+    const digits = token.replace(/\D/g, "").length;
+    if (digits > 0) total += digits;
+
+    const key = normalizeToken(token);
+    if (!key) {
+      if (digits > 0) words.push({ token, syllables: digits, source: "heuristic" });
+      continue;
+    }
+
+    const fromDict = dict ? dict[key] : undefined;
+    const syllables = typeof fromDict === "number" ? fromDict : countWordSyllables(token);
+    if (typeof fromDict === "number") {
+      dictHits += 1;
+    } else if (dict) {
+      oov.push(key);
+    }
+    total += syllables;
+    words.push({
+      token,
+      syllables: syllables + digits,
+      source: typeof fromDict === "number" ? "dict" : "heuristic",
+    });
+  }
+
+  return { total, words, dictHits, oov };
 }

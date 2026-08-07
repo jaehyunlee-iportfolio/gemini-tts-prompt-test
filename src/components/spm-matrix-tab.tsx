@@ -24,7 +24,8 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { AudioWithMsTime } from "@/components/audio-with-ms-time";
 import { MeasuredSpmLine } from "@/components/measured-spm-line";
-import { computeSpm } from "@/lib/syllables";
+import { spmFromSyllables } from "@/lib/syllables";
+import { useSyllableCount } from "@/lib/use-syllable-count";
 import { proxyPlayUrl } from "@/lib/tts-sse";
 import { cn } from "@/lib/utils";
 import {
@@ -51,8 +52,9 @@ type Cell = {
   playUrl?: string;
   error?: string;
   elapsedMs?: number;
-  /** 생성 시점의 문장 — 이후 입력을 바꿔도 실측이 틀어지지 않게 고정 */
+  /** 생성 시점의 문장과 음절 수 — 이후 입력을 바꿔도 실측이 틀어지지 않게 고정 */
   text?: string;
+  syllables?: number;
   durationMs?: number;
   measuredSpm?: number | null;
 };
@@ -107,6 +109,7 @@ export function SpmMatrixTab() {
   const [mode, setMode] = useState<Mode>("rate");
   const [valueInput, setValueInput] = useState(RATE_SWEEP.join(", "));
   const [text, setText] = useState(DEFAULT_TEXT);
+  const syl = useSyllableCount(text);
   const [cacheBust, setCacheBust] = useState(false);
   const [cells, setCells] = useState<Record<string, Cell>>({});
 
@@ -181,6 +184,7 @@ export function SpmMatrixTab() {
               playUrl: proxyPlayUrl(j.url),
               elapsedMs: j.elapsedMs,
               text: originalText,
+              syllables: syl.syllables,
             });
           } catch (err) {
             if (abort.signal.aborted) {
@@ -198,7 +202,7 @@ export function SpmMatrixTab() {
         Array.from({ length: Math.min(MATRIX_CONCURRENCY, jobs.length) }, worker),
       );
     },
-    [text, cacheBust, getAbort, patchCell],
+    [text, syl.syllables, cacheBust, getAbort, patchCell],
   );
 
   const jobFor = useCallback(
@@ -241,11 +245,15 @@ export function SpmMatrixTab() {
         if (!c) return prev;
         return {
           ...prev,
-          [key]: { ...c, durationMs, measuredSpm: computeSpm(c.text ?? text, durationMs) },
+          [key]: {
+            ...c,
+            durationMs,
+            measuredSpm: spmFromSyllables(c.syllables ?? syl.syllables, durationMs),
+          },
         };
       });
     },
-    [text],
+    [syl.syllables],
   );
 
   const fillSweep = useCallback(() => {

@@ -26,7 +26,8 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { AudioWithMsTime } from "@/components/audio-with-ms-time";
-import { computeSpm, countTextSyllables } from "@/lib/syllables";
+import { spmFromSyllables } from "@/lib/syllables";
+import { useSyllableCount } from "@/lib/use-syllable-count";
 import { spmRecommendationFor } from "@/lib/spm-recommendations";
 import { verifyAudioFromSrc } from "@/lib/stt-qa";
 import { proxyPlayUrl } from "@/lib/tts-sse";
@@ -112,7 +113,10 @@ export function SpmLabTab() {
   const profile = useMemo(() => findVoiceProfile(bundleName), [bundleName]);
   const recommendation = useMemo(() => spmRecommendationFor(bundleName), [bundleName]);
   const providerGroups = useMemo(() => groupProfilesByProvider(), []);
-  const syllables = useMemo(() => countTextSyllables(text), [text]);
+  const syl = useSyllableCount(text);
+  const syllables = syl.syllables;
+  /** 스윕 시작 시점의 음절 수 — 이후 입력을 바꿔도 실측이 틀어지지 않게 고정 */
+  const [sweepSyllables, setSweepSyllables] = useState(syllables);
 
   // 번들을 바꾸면 그리드 기준을 해당 VP의 서버 baseSpm(rate 1.0)으로 맞춤
   useEffect(() => {
@@ -186,6 +190,7 @@ export function SpmLabTab() {
     abortRef.current = abort;
     setRunning(true);
     setSweepText(originalText);
+    setSweepSyllables(syllables);
     setSweepBundle(bundleName);
 
     const newRows: SweepRow[] = jobs.map((spm) => ({
@@ -262,6 +267,7 @@ export function SpmLabTab() {
   }, [
     running,
     text,
+    syllables,
     includeBaseline,
     spmValues,
     bundleName,
@@ -354,7 +360,7 @@ export function SpmLabTab() {
                 Text (발화 텍스트)
               </Label>
               <span className="text-[10px] text-muted-foreground sm:text-[11px]">
-                추정 {syllables}음절 — 실측 SPM 계산에 사용
+                {syl.accurate ? "사전" : "추정"} {syllables}음절 — 실측 SPM 계산에 사용
               </span>
             </div>
             <Textarea
@@ -585,7 +591,7 @@ export function SpmLabTab() {
                         onDurationMs={(durationMs) => {
                           patchRow(row.id, {
                             durationMs,
-                            measuredSpm: computeSpm(sweepText, durationMs),
+                            measuredSpm: spmFromSyllables(sweepSyllables, durationMs),
                           });
                         }}
                       />

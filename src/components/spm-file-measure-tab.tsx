@@ -20,7 +20,7 @@ import {
   SILENCE_THRESHOLD_DB,
   type AudioAnalysis,
 } from "@/lib/audio-analysis";
-import { countTextSyllables } from "@/lib/syllables";
+import { useSyllableCount } from "@/lib/use-syllable-count";
 import { cn } from "@/lib/utils";
 import { Loader2, Upload, X } from "lucide-react";
 
@@ -68,7 +68,13 @@ export function SpmFileMeasureTab() {
     };
   }, []);
 
-  const syllables = useMemo(() => countTextSyllables(text), [text]);
+  const auto = useSyllableCount(text);
+  /** 비어 있으면 자동(사전) 값 사용, 숫자를 넣으면 그 값으로 덮어씀 */
+  const [syllableOverride, setSyllableOverride] = useState("");
+  const overrideNum = Number(syllableOverride);
+  const overrideActive =
+    syllableOverride.trim() !== "" && Number.isFinite(overrideNum) && overrideNum > 0;
+  const syllables = overrideActive ? Math.round(overrideNum) : auto.syllables;
   const words = useMemo(() => countWords(text), [text]);
 
   const addFiles = useCallback(async (files: FileList | null) => {
@@ -178,15 +184,65 @@ export function SpmFileMeasureTab() {
             onChange={(e) => setText(e.target.value)}
             placeholder="음원이 읽은 문장을 그대로 입력하세요."
           />
-          <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-            <Badge variant="secondary" className="font-mono text-[10px]">
-              {syllables}음절
-            </Badge>
+          <div className="flex flex-wrap items-center gap-2">
+            <Label htmlFor="syl-override" className="text-[11px] text-muted-foreground">
+              음절 수
+            </Label>
+            <Input
+              id="syl-override"
+              inputMode="numeric"
+              className="h-8 w-20 font-mono text-xs"
+              placeholder={String(auto.syllables)}
+              value={syllableOverride}
+              onChange={(e) => setSyllableOverride(e.target.value.replace(/[^\d]/g, ""))}
+            />
+            {overrideActive ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2 text-[11px]"
+                onClick={() => setSyllableOverride("")}
+              >
+                자동으로
+              </Button>
+            ) : null}
             <Badge variant="outline" className="font-mono text-[10px]">
               {words}단어
             </Badge>
-            <span>음절 수는 추정치(모음군 휴리스틱)이며 SPM 계산의 분자입니다.</span>
+            {overrideActive ? (
+              <Badge variant="secondary" className="text-[10px]">
+                직접 지정 {syllables}음절
+              </Badge>
+            ) : auto.loading ? (
+              <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                <Loader2 className="h-3 w-3 animate-spin" /> 사전 조회 중 (추정 {auto.syllables})
+              </span>
+            ) : auto.accurate ? (
+              <Badge variant="secondary" className="text-[10px]">
+                CMU 발음사전 {syllables}음절
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="text-[10px]">
+                추정 {syllables}음절
+              </Badge>
+            )}
           </div>
+          <p className="text-[11px] leading-relaxed text-muted-foreground">
+            음절 수는 SPM 계산의 분자입니다. 기본은 CMU 발음사전 기준(팀 표준 g2p_en과 동일)이며,
+            사전에 없는 단어만 모음군 추정으로 셉니다. 값이 이상하면 위 칸에 직접 입력해 덮어쓸 수
+            있습니다.
+            {auto.oov.length > 0 && !overrideActive ? (
+              <>
+                {" "}사전에 없어 추정으로 센 단어:{" "}
+                <span className="font-mono">{auto.oov.slice(0, 8).join(", ")}</span>
+                {auto.oov.length > 8 ? ` 외 ${auto.oov.length - 8}개` : ""}
+              </>
+            ) : null}
+            {auto.error && !overrideActive ? (
+              <span className="text-destructive"> 사전 조회 실패: {auto.error} (추정값 사용)</span>
+            ) : null}
+          </p>
         </CardContent>
       </Card>
 
