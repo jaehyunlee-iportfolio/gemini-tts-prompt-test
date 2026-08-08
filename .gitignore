@@ -16,3 +16,8 @@ tsconfig.tsbuildinfo
 # SPM 스윕 생성 오디오(용량 큼, Stage URL/캐시로 재생 가능) — 레포에 커밋 안 함
 docs/spm-sweep/audio/
 docs/spm-sweep/*-audio/
+# CMU 발음사전 원본 캐시(3.6MB) — scripts/build_syllable_dict.py가 없으면 자동 내려받음.
+# 사전에서 생성한 src/data/cmudict-syllables.json 만 커밋한다.
+docs/spm-sweep/.cmudict.dict
+# humanize-korean 스킬 임시 산출물
+_workspace/
