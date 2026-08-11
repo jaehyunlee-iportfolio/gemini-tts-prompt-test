@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AudioWithMsTime } from "@/components/audio-with-ms-time";
+import { SentencePresetSelect } from "@/components/sentence-preset-select";
 import {
   analyzeAudioFile,
   SILENCE_THRESHOLD_DB,
@@ -176,6 +177,7 @@ export function SpmFileMeasureTab() {
           <Label htmlFor="measure-text" className="sr-only">
             타겟 문장
           </Label>
+          <SentencePresetSelect value={text} onChange={setText} />
           <Textarea
             id="measure-text"
             rows={3}

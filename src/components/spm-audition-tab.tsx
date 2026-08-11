@@ -14,6 +14,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AudioWithMsTime } from "@/components/audio-with-ms-time";
+import { SentencePresetSelect } from "@/components/sentence-preset-select";
 import { MeasuredSpmLine } from "@/components/measured-spm-line";
 import { spmFromSyllables } from "@/lib/syllables";
 import { useSyllableCount } from "@/lib/use-syllable-count";
@@ -115,6 +116,7 @@ export function SpmAuditionTab() {
           <Label htmlFor="aud-text" className="sr-only">
             청취 문장
           </Label>
+          <SentencePresetSelect value={text} onChange={setText} className="mb-2" />
           <Textarea
             id="aud-text"
             rows={2}

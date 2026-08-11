@@ -26,6 +26,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { AudioWithMsTime } from "@/components/audio-with-ms-time";
+import { SentencePresetSelect } from "@/components/sentence-preset-select";
 import { spmFromSyllables } from "@/lib/syllables";
 import { useSyllableCount } from "@/lib/use-syllable-count";
 import { spmRecommendationFor } from "@/lib/spm-recommendations";
@@ -363,6 +364,7 @@ export function SpmLabTab() {
                 {syl.accurate ? "사전" : "추정"} {syllables}음절 — 실측 SPM 계산에 사용
               </span>
             </div>
+            <SentencePresetSelect value={text} onChange={setText} />
             <Textarea
               id="spm-text"
               rows={3}

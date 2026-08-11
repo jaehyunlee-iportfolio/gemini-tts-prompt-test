@@ -23,6 +23,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { AudioWithMsTime } from "@/components/audio-with-ms-time";
+import { SentencePresetSelect } from "@/components/sentence-preset-select";
 import { MeasuredSpmLine } from "@/components/measured-spm-line";
 import { spmFromSyllables } from "@/lib/syllables";
 import { useSyllableCount } from "@/lib/use-syllable-count";
@@ -376,6 +377,7 @@ export function SpmMatrixTab() {
             <Label htmlFor="matrix-text" className="text-sm">
               청취 문장
             </Label>
+            <SentencePresetSelect value={text} onChange={setText} />
             <Textarea
               id="matrix-text"
               rows={2}
