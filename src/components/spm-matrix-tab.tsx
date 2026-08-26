@@ -32,6 +32,7 @@ import { cn } from "@/lib/utils";
 import {
   groupProfilesByProvider,
   voiceProfileLabel,
+  PROVIDER_SPM_BANDS,
   TTS_PROVIDER_LABELS,
   type TtsProvider,
   type VoiceProfile,
@@ -257,6 +258,23 @@ export function SpmMatrixTab() {
     [syl.syllables],
   );
 
+  const band = PROVIDER_SPM_BANDS[provider];
+
+  /** 클램핑 구간 안을 균등하게 훑는다. 구간 밖 요청은 서버가 경계값으로 바꿔서 들어봐야 소용이 없다. */
+  const fillBand = useCallback(() => {
+    if (!band) return;
+    const steps = 7;
+    const spms = Array.from({ length: steps }, (_, i) =>
+      Math.round(band.min + ((band.max - band.min) * i) / (steps - 1)),
+    );
+    if (mode === "spm") {
+      setValueInput(spms.join(", "));
+    } else {
+      const base = medianBase > 0 ? medianBase : 160;
+      setValueInput(spms.map((v) => (v / base).toFixed(2)).join(", "));
+    }
+  }, [band, mode, medianBase]);
+
   const fillSweep = useCallback(() => {
     if (mode === "rate") {
       setValueInput(RATE_SWEEP.join(", "));
@@ -325,6 +343,16 @@ export function SpmMatrixTab() {
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-[11px] text-muted-foreground">
+                {band ? (
+                  <>
+                    클램핑 구간 <span className="font-mono text-foreground">{band.min} ~ {band.max}</span> SPM.
+                    구간 밖으로 요청하면 서버가 경계값으로 바꿔 생성합니다.
+                  </>
+                ) : (
+                  <>이 프로바이더는 클램핑 구간이 정해져 있지 않습니다.</>
+                )}
+              </p>
             </div>
             <div className="space-y-2">
               <Label className="text-sm">입력 단위</Label>
@@ -365,6 +393,11 @@ export function SpmMatrixTab() {
               onChange={(e) => setValueInput(e.target.value)}
             />
             <div className="flex flex-wrap items-center gap-2 pt-1">
+              {band ? (
+                <Button type="button" variant="default" size="sm" className="h-9" onClick={fillBand}>
+                  클램핑 구간 {band.min}~{band.max} 훑기
+                </Button>
+              ) : null}
               <Button type="button" variant="outline" size="sm" className="h-9" onClick={fillSweep}>
                 {mode === "rate"
                   ? "rate 0.5~1.6 스윕 채우기"
