@@ -79,7 +79,7 @@ const SEEDS: ProfileSeed[] = [
   { bundleName: "AZ-TuningEvelyn-Default", voiceName: "en-US-EvelynMultilingualNeural", gender: "Male", ageGroup: "Child", accent: "en-US", baseSpm: 162.7 },
   { bundleName: "AZ-TuningJaneM-Friendly", voiceName: "en-US-JaneNeural", gender: "Male", ageGroup: "Child", accent: "en-US", baseSpm: 140.2 },
   { bundleName: "CARTESIA-Tony-Default", voiceName: "fafe247f-404f-4c06-9bb1-60a8eb7892ff", gender: "Male", ageGroup: "Child", accent: "en-US", baseSpm: 193.0 },
-  { bundleName: "CARTESIA-CoCo-Default", voiceName: "e3e52ab6-edd7-478c-8de5-6cf2255b446d", gender: "Male", ageGroup: "Child", accent: "en-US", baseSpm: 198.8 },
+  { bundleName: "CARTESIA-Coco-Default", voiceName: "e3e52ab6-edd7-478c-8de5-6cf2255b446d", gender: "Male", ageGroup: "Child", accent: "en-US", baseSpm: 198.8 },
   // Male · Child · en-UK
   { bundleName: "GCP-Rey-Default", voiceName: "en-GB-Neural2-B", gender: "Male", ageGroup: "Child", accent: "en-UK", isDefault: true, baseSpm: 223.8 },
   { bundleName: "AZ-TuningMaisie-Default", voiceName: "en-GB-MaisieNeural", gender: "Male", ageGroup: "Child", accent: "en-UK", baseSpm: 155.8 },
