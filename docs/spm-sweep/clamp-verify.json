@@ -1,0 +1,1098 @@
+{
+  "text": "The little bird flew over the tall trees and landed on the old wooden fence near the river.",
+  "range": {
+    "GEMINI": [
+      120,
+      210
+    ],
+    "GCP": [
+      160,
+      220
+    ],
+    "AWS": [
+      180,
+      220
+    ],
+    "CHIRP": [
+      170,
+      230
+    ],
+    "AZ": [
+      130,
+      170
+    ]
+  },
+  "results": [
+    {
+      "bundle": "GEMINI-Puck-Gentle",
+      "provider": "GEMINI",
+      "baseSpm": 146.7,
+      "rows": {
+        "below_far": {
+          "spm": 90,
+          "durationSec": 10.152,
+          "durations": [
+            10.152,
+            10.152,
+            10.152
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/cac78ea5-b51d-4797-a0d2-4f015516326f.mp3",
+          "urlAllSame": false,
+          "tag": "below_far",
+          "rateIfNoClamp": 0.613
+        },
+        "below_near": {
+          "spm": 110,
+          "durationSec": 10.152,
+          "durations": [
+            10.152,
+            10.152,
+            10.152
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/0137726e-5ce1-4b02-a716-4762f0b77e3a.mp3",
+          "urlAllSame": false,
+          "tag": "below_near",
+          "rateIfNoClamp": 0.75
+        },
+        "at_min": {
+          "spm": 120,
+          "durationSec": 10.152,
+          "durations": [
+            10.152,
+            10.152,
+            10.152
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/83b540b2-dcb1-40b4-86f3-0008eec84a2e.mp3",
+          "urlAllSame": false,
+          "tag": "at_min",
+          "rateIfNoClamp": 0.818
+        },
+        "inside_mid": {
+          "spm": 165,
+          "durationSec": 6.168,
+          "durations": [
+            6.168,
+            6.168,
+            6.168
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/ffe45f88-e4ed-44ac-9501-6acb561e5bcc.mp3",
+          "urlAllSame": false,
+          "tag": "inside_mid",
+          "rateIfNoClamp": 1.125
+        },
+        "at_max": {
+          "spm": 210,
+          "durationSec": 6.96,
+          "durations": [
+            6.96,
+            6.96,
+            6.96
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/5b215b08-7407-43fd-a3ec-6669353b1652.mp3",
+          "urlAllSame": false,
+          "tag": "at_max",
+          "rateIfNoClamp": 1.431
+        },
+        "above_near": {
+          "spm": 220,
+          "durationSec": 6.96,
+          "durations": [
+            6.96,
+            6.96,
+            6.96
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/9e920053-eceb-4411-823f-260d817e546c.mp3",
+          "urlAllSame": false,
+          "tag": "above_near",
+          "rateIfNoClamp": 1.5
+        },
+        "above_far": {
+          "spm": 240,
+          "durationSec": 6.96,
+          "durations": [
+            6.96,
+            6.96,
+            6.96
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/e1a39671-94fc-4751-9e89-ee6073ae8724.mp3",
+          "urlAllSame": false,
+          "tag": "above_far",
+          "rateIfNoClamp": 1.636
+        }
+      },
+      "verdict": {
+        "A_min_clamp": {
+          "pass": true,
+          "diffsVsAtMin": {
+            "below_far": 0.0,
+            "below_near": 0.0
+          }
+        },
+        "B_max_clamp": {
+          "pass": true,
+          "diffsVsAtMax": {
+            "above_near": 0.0,
+            "above_far": 0.0
+          }
+        },
+        "C_monotonic_inside": {
+          "pass": false,
+          "durations": {
+            "at_min": 10.152,
+            "inside_mid": 6.168,
+            "at_max": 6.96
+          }
+        }
+      },
+      "toleranceSec": 0.6
+    },
+    {
+      "bundle": "GEMINI-Rasalgethi-Cheerful",
+      "provider": "GEMINI",
+      "baseSpm": 170.3,
+      "rows": {
+        "below_far": {
+          "spm": 90,
+          "durationSec": 10.296,
+          "durations": [
+            10.296,
+            10.296,
+            10.296
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/a3e4ce70-9365-4d5a-ac4e-edea59c9f4f0.mp3",
+          "urlAllSame": false,
+          "tag": "below_far",
+          "rateIfNoClamp": 0.528
+        },
+        "below_near": {
+          "spm": 110,
+          "durationSec": 10.296,
+          "durations": [
+            10.296,
+            10.296,
+            10.296
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/11adc45f-2c0d-4060-a75c-f359129a81bd.mp3",
+          "urlAllSame": false,
+          "tag": "below_near",
+          "rateIfNoClamp": 0.646
+        },
+        "at_min": {
+          "spm": 120,
+          "durationSec": 10.296,
+          "durations": [
+            10.296,
+            10.296,
+            10.296
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/861ac9f0-c9ed-4f8f-9366-3ad52dbe9aaa.mp3",
+          "urlAllSame": false,
+          "tag": "at_min",
+          "rateIfNoClamp": 0.705
+        },
+        "inside_mid": {
+          "spm": 165,
+          "durationSec": 7.152,
+          "durations": [
+            7.152,
+            7.152,
+            7.152
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/38de268e-c12a-47b6-ae7c-e90420c1033a.mp3",
+          "urlAllSame": false,
+          "tag": "inside_mid",
+          "rateIfNoClamp": 0.969
+        },
+        "at_max": {
+          "spm": 210,
+          "durationSec": 4.8,
+          "durations": [
+            4.8,
+            4.8,
+            4.8
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/d4bf5a7b-f823-4bd4-954d-302bd68a8272.mp3",
+          "urlAllSame": false,
+          "tag": "at_max",
+          "rateIfNoClamp": 1.233
+        },
+        "above_near": {
+          "spm": 220,
+          "durationSec": 4.8,
+          "durations": [
+            4.8,
+            4.8,
+            4.8
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/6ed6491e-21dc-4f6e-952c-75d09d92f14f.mp3",
+          "urlAllSame": false,
+          "tag": "above_near",
+          "rateIfNoClamp": 1.292
+        },
+        "above_far": {
+          "spm": 240,
+          "durationSec": 4.8,
+          "durations": [
+            4.8,
+            4.8,
+            4.8
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/fb1470ce-52b6-4fc7-a7f9-d66bd124cd10.mp3",
+          "urlAllSame": false,
+          "tag": "above_far",
+          "rateIfNoClamp": 1.409
+        }
+      },
+      "verdict": {
+        "A_min_clamp": {
+          "pass": true,
+          "diffsVsAtMin": {
+            "below_far": 0.0,
+            "below_near": 0.0
+          }
+        },
+        "B_max_clamp": {
+          "pass": true,
+          "diffsVsAtMax": {
+            "above_near": 0.0,
+            "above_far": 0.0
+          }
+        },
+        "C_monotonic_inside": {
+          "pass": true,
+          "durations": {
+            "at_min": 10.296,
+            "inside_mid": 7.152,
+            "at_max": 4.8
+          }
+        }
+      },
+      "toleranceSec": 0.6
+    },
+    {
+      "bundle": "GCP-Rey-Default",
+      "provider": "GCP",
+      "baseSpm": 223.8,
+      "rows": {
+        "below_far": {
+          "spm": 130,
+          "durationSec": 7.08,
+          "durations": [
+            7.08
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/76bb761f-4c11-49ce-9eb1-b8f3e9fbb8a5.mp3",
+          "urlAllSame": true,
+          "tag": "below_far",
+          "rateIfNoClamp": 0.581
+        },
+        "below_near": {
+          "spm": 150,
+          "durationSec": 7.08,
+          "durations": [
+            7.08
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/2cc0930e-4006-4ce6-979a-1f48b2c1bd30.mp3",
+          "urlAllSame": true,
+          "tag": "below_near",
+          "rateIfNoClamp": 0.67
+        },
+        "at_min": {
+          "spm": 160,
+          "durationSec": 7.08,
+          "durations": [
+            7.08
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/0e82ab0e-d7ed-4d08-89ae-13bf97cb8cc0.mp3",
+          "urlAllSame": true,
+          "tag": "at_min",
+          "rateIfNoClamp": 0.715
+        },
+        "inside_mid": {
+          "spm": 190,
+          "durationSec": 5.976,
+          "durations": [
+            5.976
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/6b16754f-eec9-4eb3-b87b-dfb2620a30de.mp3",
+          "urlAllSame": true,
+          "tag": "inside_mid",
+          "rateIfNoClamp": 0.849
+        },
+        "at_max": {
+          "spm": 220,
+          "durationSec": 5.184,
+          "durations": [
+            5.184
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/d182bd3a-ebaf-4478-80c9-a6a7951829e8.mp3",
+          "urlAllSame": true,
+          "tag": "at_max",
+          "rateIfNoClamp": 0.983
+        },
+        "above_near": {
+          "spm": 230,
+          "durationSec": 5.184,
+          "durations": [
+            5.184
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/7a0743ef-2daf-495a-ba64-d7ea40c6de8b.mp3",
+          "urlAllSame": true,
+          "tag": "above_near",
+          "rateIfNoClamp": 1.028
+        },
+        "above_far": {
+          "spm": 250,
+          "durationSec": 5.184,
+          "durations": [
+            5.184
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/0796b89d-3916-47e6-9736-9921494d1ccb.mp3",
+          "urlAllSame": true,
+          "tag": "above_far",
+          "rateIfNoClamp": 1.117
+        }
+      },
+      "verdict": {
+        "A_min_clamp": {
+          "pass": true,
+          "diffsVsAtMin": {
+            "below_far": 0.0,
+            "below_near": 0.0
+          }
+        },
+        "B_max_clamp": {
+          "pass": true,
+          "diffsVsAtMax": {
+            "above_near": 0.0,
+            "above_far": 0.0
+          }
+        },
+        "C_monotonic_inside": {
+          "pass": true,
+          "durations": {
+            "at_min": 7.08,
+            "inside_mid": 5.976,
+            "at_max": 5.184
+          }
+        }
+      },
+      "toleranceSec": 0.05
+    },
+    {
+      "bundle": "GCP-Jeremy-Default",
+      "provider": "GCP",
+      "baseSpm": 239.8,
+      "rows": {
+        "below_far": {
+          "spm": 130,
+          "durationSec": 7.728,
+          "durations": [
+            7.728
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/7ff6137c-df7e-4d40-b496-61a19dab7a34.mp3",
+          "urlAllSame": true,
+          "tag": "below_far",
+          "rateIfNoClamp": 0.542
+        },
+        "below_near": {
+          "spm": 150,
+          "durationSec": 7.728,
+          "durations": [
+            7.728
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/e88ec65e-ad29-4d33-9ba2-919a462f72bf.mp3",
+          "urlAllSame": true,
+          "tag": "below_near",
+          "rateIfNoClamp": 0.626
+        },
+        "at_min": {
+          "spm": 160,
+          "durationSec": 7.728,
+          "durations": [
+            7.728
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/b71344fc-57ff-420e-bbce-ae8070968b3d.mp3",
+          "urlAllSame": true,
+          "tag": "at_min",
+          "rateIfNoClamp": 0.667
+        },
+        "inside_mid": {
+          "spm": 190,
+          "durationSec": 6.552,
+          "durations": [
+            6.552
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/b7e749dc-b990-4cd3-ad99-a24cb8728721.mp3",
+          "urlAllSame": true,
+          "tag": "inside_mid",
+          "rateIfNoClamp": 0.792
+        },
+        "at_max": {
+          "spm": 220,
+          "durationSec": 5.664,
+          "durations": [
+            5.664
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/2df9d240-9717-42b0-94e5-2a29a9cb8b21.mp3",
+          "urlAllSame": true,
+          "tag": "at_max",
+          "rateIfNoClamp": 0.917
+        },
+        "above_near": {
+          "spm": 230,
+          "durationSec": 5.664,
+          "durations": [
+            5.664
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/402eacd3-43e3-481c-a3d3-b8fc17903ed2.mp3",
+          "urlAllSame": true,
+          "tag": "above_near",
+          "rateIfNoClamp": 0.959
+        },
+        "above_far": {
+          "spm": 250,
+          "durationSec": 5.664,
+          "durations": [
+            5.664
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/4ae69cb4-a3c4-4109-81a0-5b8de892492c.mp3",
+          "urlAllSame": true,
+          "tag": "above_far",
+          "rateIfNoClamp": 1.043
+        }
+      },
+      "verdict": {
+        "A_min_clamp": {
+          "pass": true,
+          "diffsVsAtMin": {
+            "below_far": 0.0,
+            "below_near": 0.0
+          }
+        },
+        "B_max_clamp": {
+          "pass": true,
+          "diffsVsAtMax": {
+            "above_near": 0.0,
+            "above_far": 0.0
+          }
+        },
+        "C_monotonic_inside": {
+          "pass": true,
+          "durations": {
+            "at_min": 7.728,
+            "inside_mid": 6.552,
+            "at_max": 5.664
+          }
+        }
+      },
+      "toleranceSec": 0.05
+    },
+    {
+      "bundle": "AWS-Justin-Default",
+      "provider": "AWS",
+      "baseSpm": 215.1,
+      "rows": {
+        "below_far": {
+          "spm": 150,
+          "durationSec": 5.64,
+          "durations": [
+            5.64
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/8671373b-93e9-46d1-a8df-91e1f4f4a0fb.mp3",
+          "urlAllSame": true,
+          "tag": "below_far",
+          "rateIfNoClamp": 0.697
+        },
+        "below_near": {
+          "spm": 170,
+          "durationSec": 5.64,
+          "durations": [
+            5.64
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/4d5c7cf1-a5e2-470f-b0d1-b4b84902381a.mp3",
+          "urlAllSame": true,
+          "tag": "below_near",
+          "rateIfNoClamp": 0.79
+        },
+        "at_min": {
+          "spm": 180,
+          "durationSec": 5.64,
+          "durations": [
+            5.64
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/1eccf9ef-93b8-4bc6-bea7-3f2a839f5357.mp3",
+          "urlAllSame": true,
+          "tag": "at_min",
+          "rateIfNoClamp": 0.837
+        },
+        "inside_mid": {
+          "spm": 200,
+          "durationSec": 5.112,
+          "durations": [
+            5.112
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/47760827-6b0d-4962-aff2-618c9bbe8f11.mp3",
+          "urlAllSame": true,
+          "tag": "inside_mid",
+          "rateIfNoClamp": 0.93
+        },
+        "at_max": {
+          "spm": 220,
+          "durationSec": 4.656,
+          "durations": [
+            4.656
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/6561f582-b35b-475c-b11c-153ee41ddab2.mp3",
+          "urlAllSame": true,
+          "tag": "at_max",
+          "rateIfNoClamp": 1.023
+        },
+        "above_near": {
+          "spm": 230,
+          "durationSec": 4.656,
+          "durations": [
+            4.656
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/94f38c54-a21f-4739-893d-9f5fe2688cef.mp3",
+          "urlAllSame": true,
+          "tag": "above_near",
+          "rateIfNoClamp": 1.069
+        },
+        "above_far": {
+          "spm": 250,
+          "durationSec": 4.656,
+          "durations": [
+            4.656
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/a1e7b523-f2a6-421c-8b43-19d597bd24fd.mp3",
+          "urlAllSame": true,
+          "tag": "above_far",
+          "rateIfNoClamp": 1.162
+        }
+      },
+      "verdict": {
+        "A_min_clamp": {
+          "pass": true,
+          "diffsVsAtMin": {
+            "below_far": 0.0,
+            "below_near": 0.0
+          }
+        },
+        "B_max_clamp": {
+          "pass": true,
+          "diffsVsAtMax": {
+            "above_near": 0.0,
+            "above_far": 0.0
+          }
+        },
+        "C_monotonic_inside": {
+          "pass": true,
+          "durations": {
+            "at_min": 5.64,
+            "inside_mid": 5.112,
+            "at_max": 4.656
+          }
+        }
+      },
+      "toleranceSec": 0.05
+    },
+    {
+      "bundle": "AWS-Kevin-Default",
+      "provider": "AWS",
+      "baseSpm": 227.8,
+      "rows": {
+        "below_far": {
+          "spm": 150,
+          "durationSec": 5.568,
+          "durations": [
+            5.568
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/c4ef992e-0d09-498b-b52b-af8803dc6ae1.mp3",
+          "urlAllSame": true,
+          "tag": "below_far",
+          "rateIfNoClamp": 0.658
+        },
+        "below_near": {
+          "spm": 170,
+          "durationSec": 5.568,
+          "durations": [
+            5.568
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/d6fb21c7-c484-443b-b6ab-cff880cd3f97.mp3",
+          "urlAllSame": true,
+          "tag": "below_near",
+          "rateIfNoClamp": 0.746
+        },
+        "at_min": {
+          "spm": 180,
+          "durationSec": 5.568,
+          "durations": [
+            5.568
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/92d3b3cd-04f2-4171-a260-05923fa99c21.mp3",
+          "urlAllSame": true,
+          "tag": "at_min",
+          "rateIfNoClamp": 0.79
+        },
+        "inside_mid": {
+          "spm": 200,
+          "durationSec": 5.064,
+          "durations": [
+            5.064
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/b7c7507d-f3c9-4ca3-932a-5937adaaaf24.mp3",
+          "urlAllSame": true,
+          "tag": "inside_mid",
+          "rateIfNoClamp": 0.878
+        },
+        "at_max": {
+          "spm": 220,
+          "durationSec": 4.608,
+          "durations": [
+            4.608
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/7ae66dc2-cad3-4277-b18b-6e7df63b387a.mp3",
+          "urlAllSame": true,
+          "tag": "at_max",
+          "rateIfNoClamp": 0.966
+        },
+        "above_near": {
+          "spm": 230,
+          "durationSec": 4.608,
+          "durations": [
+            4.608
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/ff108172-ec3c-4276-81a2-5be68f8240d2.mp3",
+          "urlAllSame": true,
+          "tag": "above_near",
+          "rateIfNoClamp": 1.01
+        },
+        "above_far": {
+          "spm": 250,
+          "durationSec": 4.608,
+          "durations": [
+            4.608
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/07b23616-f2bb-498b-a5ea-530ba9d426df.mp3",
+          "urlAllSame": true,
+          "tag": "above_far",
+          "rateIfNoClamp": 1.097
+        }
+      },
+      "verdict": {
+        "A_min_clamp": {
+          "pass": true,
+          "diffsVsAtMin": {
+            "below_far": 0.0,
+            "below_near": 0.0
+          }
+        },
+        "B_max_clamp": {
+          "pass": true,
+          "diffsVsAtMax": {
+            "above_near": 0.0,
+            "above_far": 0.0
+          }
+        },
+        "C_monotonic_inside": {
+          "pass": true,
+          "durations": {
+            "at_min": 5.568,
+            "inside_mid": 5.064,
+            "at_max": 4.608
+          }
+        }
+      },
+      "toleranceSec": 0.05
+    },
+    {
+      "bundle": "CHIRP-Zephyr-Default",
+      "provider": "CHIRP",
+      "baseSpm": 219.2,
+      "rows": {
+        "below_far": {
+          "spm": 140,
+          "durationSec": 6.576,
+          "durations": [
+            6.576
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/3a2f42ed-bf7e-4e54-b1fc-324324143567.mp3",
+          "urlAllSame": true,
+          "tag": "below_far",
+          "rateIfNoClamp": 0.639
+        },
+        "below_near": {
+          "spm": 160,
+          "durationSec": 6.576,
+          "durations": [
+            6.576
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/f71f5384-cce6-4c8e-8e32-0ad58c323315.mp3",
+          "urlAllSame": true,
+          "tag": "below_near",
+          "rateIfNoClamp": 0.73
+        },
+        "at_min": {
+          "spm": 170,
+          "durationSec": 6.576,
+          "durations": [
+            6.576
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/bcb8ce43-d58d-4c3f-9c44-08d5aba69ea0.mp3",
+          "urlAllSame": true,
+          "tag": "at_min",
+          "rateIfNoClamp": 0.776
+        },
+        "inside_mid": {
+          "spm": 200,
+          "durationSec": 6.264,
+          "durations": [
+            6.264
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/a691a351-a0b4-4828-9b04-bc433018fbe1.mp3",
+          "urlAllSame": true,
+          "tag": "inside_mid",
+          "rateIfNoClamp": 0.912
+        },
+        "at_max": {
+          "spm": 230,
+          "durationSec": 4.872,
+          "durations": [
+            4.872
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/13b3930d-20a8-4cc7-8c15-09a627aa0f84.mp3",
+          "urlAllSame": true,
+          "tag": "at_max",
+          "rateIfNoClamp": 1.049
+        },
+        "above_near": {
+          "spm": 240,
+          "durationSec": 4.872,
+          "durations": [
+            4.872
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/7663d906-39b9-421b-aa75-bf61e9cb8c32.mp3",
+          "urlAllSame": true,
+          "tag": "above_near",
+          "rateIfNoClamp": 1.095
+        },
+        "above_far": {
+          "spm": 260,
+          "durationSec": 4.872,
+          "durations": [
+            4.872
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/3a5006a7-3305-45da-901e-bca0037078c1.mp3",
+          "urlAllSame": true,
+          "tag": "above_far",
+          "rateIfNoClamp": 1.186
+        }
+      },
+      "verdict": {
+        "A_min_clamp": {
+          "pass": true,
+          "diffsVsAtMin": {
+            "below_far": 0.0,
+            "below_near": 0.0
+          }
+        },
+        "B_max_clamp": {
+          "pass": true,
+          "diffsVsAtMax": {
+            "above_near": 0.0,
+            "above_far": 0.0
+          }
+        },
+        "C_monotonic_inside": {
+          "pass": true,
+          "durations": {
+            "at_min": 6.576,
+            "inside_mid": 6.264,
+            "at_max": 4.872
+          }
+        }
+      },
+      "toleranceSec": 0.05
+    },
+    {
+      "bundle": "AZ-Nancy-Default",
+      "provider": "AZ",
+      "baseSpm": 148.0,
+      "rows": {
+        "below_far": {
+          "spm": 100,
+          "durationSec": 6.12,
+          "durations": [
+            6.12
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/fff55e02-af9b-4c95-803e-f6c2e6c5cb60.mp3",
+          "urlAllSame": true,
+          "tag": "below_far",
+          "rateIfNoClamp": 0.676
+        },
+        "below_near": {
+          "spm": 120,
+          "durationSec": 6.12,
+          "durations": [
+            6.12
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/ba5235a5-a985-4f2e-835f-18bb9e7f6f4e.mp3",
+          "urlAllSame": true,
+          "tag": "below_near",
+          "rateIfNoClamp": 0.811
+        },
+        "at_min": {
+          "spm": 130,
+          "durationSec": 6.12,
+          "durations": [
+            6.12
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/8456f05f-9c91-483d-af5f-851bef039920.mp3",
+          "urlAllSame": true,
+          "tag": "at_min",
+          "rateIfNoClamp": 0.878
+        },
+        "inside_mid": {
+          "spm": 150,
+          "durationSec": 5.292,
+          "durations": [
+            5.292
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/68cfc3b3-fd9c-40ee-b41b-60f4035380c9.mp3",
+          "urlAllSame": true,
+          "tag": "inside_mid",
+          "rateIfNoClamp": 1.014
+        },
+        "at_max": {
+          "spm": 170,
+          "durationSec": 4.68,
+          "durations": [
+            4.68
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/babed9e9-b2cd-488c-83e3-69daccc9fca2.mp3",
+          "urlAllSame": true,
+          "tag": "at_max",
+          "rateIfNoClamp": 1.149
+        },
+        "above_near": {
+          "spm": 180,
+          "durationSec": 4.68,
+          "durations": [
+            4.68
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/67ff5965-2c39-44b7-862b-3719b110ff5a.mp3",
+          "urlAllSame": true,
+          "tag": "above_near",
+          "rateIfNoClamp": 1.216
+        },
+        "above_far": {
+          "spm": 200,
+          "durationSec": 4.68,
+          "durations": [
+            4.68
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/d2d31564-3175-498e-8114-decec72f1c74.mp3",
+          "urlAllSame": true,
+          "tag": "above_far",
+          "rateIfNoClamp": 1.351
+        }
+      },
+      "verdict": {
+        "A_min_clamp": {
+          "pass": true,
+          "diffsVsAtMin": {
+            "below_far": 0.0,
+            "below_near": 0.0
+          }
+        },
+        "B_max_clamp": {
+          "pass": true,
+          "diffsVsAtMax": {
+            "above_near": 0.0,
+            "above_far": 0.0
+          }
+        },
+        "C_monotonic_inside": {
+          "pass": true,
+          "durations": {
+            "at_min": 6.12,
+            "inside_mid": 5.292,
+            "at_max": 4.68
+          }
+        }
+      },
+      "toleranceSec": 0.05
+    },
+    {
+      "bundle": "AZ-Xiaoyou-Default",
+      "provider": "AZ",
+      "baseSpm": 197.7,
+      "rows": {
+        "below_far": {
+          "spm": 100,
+          "durationSec": 8.892,
+          "durations": [
+            8.892
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/baffef88-ba2b-465b-81e0-c28ee7128a24.mp3",
+          "urlAllSame": true,
+          "tag": "below_far",
+          "rateIfNoClamp": 0.506
+        },
+        "below_near": {
+          "spm": 120,
+          "durationSec": 8.892,
+          "durations": [
+            8.892
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/1f44ab34-6441-4e55-b8da-ea74c513d78d.mp3",
+          "urlAllSame": true,
+          "tag": "below_near",
+          "rateIfNoClamp": 0.607
+        },
+        "at_min": {
+          "spm": 130,
+          "durationSec": 8.892,
+          "durations": [
+            8.892
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/66aeee57-edbe-4d26-a4c3-ac35bf993c64.mp3",
+          "urlAllSame": true,
+          "tag": "at_min",
+          "rateIfNoClamp": 0.658
+        },
+        "inside_mid": {
+          "spm": 150,
+          "durationSec": 7.704,
+          "durations": [
+            7.704
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/2f09fd5e-2621-422c-aba7-a9d250572cde.mp3",
+          "urlAllSame": true,
+          "tag": "inside_mid",
+          "rateIfNoClamp": 0.759
+        },
+        "at_max": {
+          "spm": 170,
+          "durationSec": 6.804,
+          "durations": [
+            6.804
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/e395a0f5-5fdb-4fa5-bd36-3442e1abf2f6.mp3",
+          "urlAllSame": true,
+          "tag": "at_max",
+          "rateIfNoClamp": 0.86
+        },
+        "above_near": {
+          "spm": 180,
+          "durationSec": 6.804,
+          "durations": [
+            6.804
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/b7c4b4f5-8ce2-4756-b4bd-09f35d03c5bc.mp3",
+          "urlAllSame": true,
+          "tag": "above_near",
+          "rateIfNoClamp": 0.91
+        },
+        "above_far": {
+          "spm": 200,
+          "durationSec": 6.804,
+          "durations": [
+            6.804
+          ],
+          "url": "https://speech-tts-contents-stage.spindlebooks.com/audio/PLAYGROUND/000/000/000/000/0/00/00/02/1d993aa5-e658-4eeb-9ae2-eb22242175bd.mp3",
+          "urlAllSame": true,
+          "tag": "above_far",
+          "rateIfNoClamp": 1.012
+        }
+      },
+      "verdict": {
+        "A_min_clamp": {
+          "pass": true,
+          "diffsVsAtMin": {
+            "below_far": 0.0,
+            "below_near": 0.0
+          }
+        },
+        "B_max_clamp": {
+          "pass": true,
+          "diffsVsAtMax": {
+            "above_near": 0.0,
+            "above_far": 0.0
+          }
+        },
+        "C_monotonic_inside": {
+          "pass": true,
+          "durations": {
+            "at_min": 8.892,
+            "inside_mid": 7.704,
+            "at_max": 6.804
+          }
+        }
+      },
+      "toleranceSec": 0.05
+    }
+  ],
+  "vpConsistency": {
+    "GEMINI": {
+      "pass": true,
+      "bundles": {
+        "GEMINI-Puck-Gentle": {
+          "baseSpm": 146.7,
+          "A": true,
+          "B": true
+        },
+        "GEMINI-Rasalgethi-Cheerful": {
+          "baseSpm": 170.3,
+          "A": true,
+          "B": true
+        }
+      }
+    },
+    "GCP": {
+      "pass": true,
+      "bundles": {
+        "GCP-Rey-Default": {
+          "baseSpm": 223.8,
+          "A": true,
+          "B": true
+        },
+        "GCP-Jeremy-Default": {
+          "baseSpm": 239.8,
+          "A": true,
+          "B": true
+        }
+      }
+    },
+    "AWS": {
+      "pass": true,
+      "bundles": {
+        "AWS-Justin-Default": {
+          "baseSpm": 215.1,
+          "A": true,
+          "B": true
+        },
+        "AWS-Kevin-Default": {
+          "baseSpm": 227.8,
+          "A": true,
+          "B": true
+        }
+      }
+    },
+    "AZ": {
+      "pass": true,
+      "bundles": {
+        "AZ-Nancy-Default": {
+          "baseSpm": 148.0,
+          "A": true,
+          "B": true
+        },
+        "AZ-Xiaoyou-Default": {
+          "baseSpm": 197.7,
+          "A": true,
+          "B": true
+        }
+      }
+    }
+  }
+}

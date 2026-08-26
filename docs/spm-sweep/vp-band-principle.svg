@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="770" viewBox="0 0 1240 770"
+     font-family="Apple SD Gothic Neo, AppleGothic, sans-serif">
+  <defs>
+    <marker id="bpArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6b7280"/>
+    </marker>
+  </defs>
+  <rect width="1240" height="770" fill="#ffffff"/>
+
+  <text x="40" y="46" font-size="23" font-weight="700" fill="#1f2328">vp_band_find.py 작업 원리</text>
+  <text x="40" y="72" font-size="14" fill="#6b7280">VP 하나를 측정해 클램핑 구간을 제안하고, 여러 개를 모아 프로바이더 값을 확정한다</text>
+
+  <!-- stage labels -->
+  <text x="40"  y="118" font-size="13" font-weight="700" fill="#6b7280">1. 측정</text>
+  <text x="340" y="118" font-size="13" font-weight="700" fill="#6b7280">2. 계산</text>
+  <text x="890" y="118" font-size="13" font-weight="700" fill="#6b7280">3. 확정</text>
+
+  <!-- ── stage 1 ── -->
+  <rect x="40" y="132" width="250" height="86" rx="8" fill="#f6f8fa" stroke="#d0d7de"/>
+  <text x="62" y="163" font-size="17" font-weight="700" fill="#1f2328">baseSpm</text>
+  <text x="62" y="188" font-size="13" fill="#6b7280">VoiceTable 에서 읽는다</text>
+  <text x="62" y="207" font-size="13" fill="#6b7280">API 호출 없음</text>
+
+  <rect x="40" y="238" width="250" height="140" rx="8" fill="#f6f8fa" stroke="#d0d7de"/>
+  <text x="62" y="269" font-size="17" font-weight="700" fill="#1f2328">자연 발화 속도</text>
+  <text x="62" y="294" font-size="13" fill="#6b7280">SPM 지정 없이 음원 1회 생성</text>
+  <text x="62" y="315" font-size="13" fill="#6b7280">앞뒤 무음을 뺀 구간의</text>
+  <text x="62" y="336" font-size="13" fill="#6b7280">분당 음절 수</text>
+  <text x="62" y="362" font-size="12" fill="#9aa0a6">ffmpeg 로 무음 검출</text>
+
+  <line x1="298" y1="255" x2="332" y2="255" stroke="#6b7280" stroke-width="1.6" marker-end="url(#bpArrow)"/>
+
+  <!-- ── stage 2 ── -->
+  <rect x="340" y="132" width="500" height="86" rx="8" fill="#ffffff" stroke="#d0d7de" stroke-width="1.4"/>
+  <text x="364" y="163" font-size="13" font-weight="700" fill="#6b7280">min</text>
+  <text x="364" y="196" font-size="18" fill="#1f2328">min = 0.766 x baseSpm</text>
+
+  <rect x="340" y="238" width="500" height="250" rx="8" fill="#fbfcfd" stroke="#d0d7de" stroke-width="1.4"/>
+  <text x="364" y="266" font-size="13" font-weight="700" fill="#6b7280">max = 두 제약 중 작은 쪽</text>
+
+  <rect x="364" y="282" width="452" height="76" rx="6" fill="#ffffff" stroke="#1971c2" stroke-width="1.6"/>
+  <text x="384" y="308" font-size="13" font-weight="700" fill="#1971c2">rate 상한</text>
+  <text x="384" y="337" font-size="17" fill="#1f2328">1.30 x baseSpm</text>
+  <text x="640" y="337" font-size="12.5" fill="#6b7280">rate 가 높으면 음이 뭉갠다</text>
+
+  <rect x="364" y="374" width="452" height="90" rx="6" fill="#ffffff" stroke="#d9480f" stroke-width="1.6"/>
+  <text x="384" y="400" font-size="13" font-weight="700" fill="#d9480f">전달 속도 상한</text>
+  <text x="384" y="429" font-size="17" fill="#1f2328">305 x baseSpm / 자연발화SPM</text>
+  <text x="384" y="452" font-size="12.5" fill="#6b7280">원래 빠른 엔진은 학습자에게 너무 빠르다</text>
+
+  <line x1="848" y1="255" x2="882" y2="255" stroke="#6b7280" stroke-width="1.6" marker-end="url(#bpArrow)"/>
+
+  <!-- ── stage 3 ── -->
+  <rect x="890" y="132" width="310" height="86" rx="8" fill="#f6f8fa" stroke="#d0d7de"/>
+  <text x="912" y="163" font-size="16" font-weight="700" fill="#1f2328">VP 한 개 결과</text>
+  <text x="912" y="188" font-size="13" fill="#6b7280">제안 min / max</text>
+  <text x="912" y="207" font-size="12" fill="#9aa0a6">API 3회, 약 20초</text>
+
+  <line x1="1045" y1="228" x2="1045" y2="272" stroke="#6b7280" stroke-width="1.6" marker-end="url(#bpArrow)"/>
+
+  <rect x="890" y="282" width="310" height="120" rx="8" fill="#f6f8fa" stroke="#d0d7de"/>
+  <text x="912" y="313" font-size="16" font-weight="700" fill="#1f2328">프로바이더 확정</text>
+  <text x="912" y="339" font-size="13" fill="#6b7280">VP 3개 이상의 중앙값</text>
+  <text x="912" y="360" font-size="13" fill="#6b7280">이 값을 설정에 넣는다</text>
+  <text x="912" y="386" font-size="12" fill="#9aa0a6">--rollup 이 계산</text>
+
+  <text x="890" y="432" font-size="12.5" fill="#9aa0a6">min/max 는 VP 가 아니라</text>
+  <text x="890" y="452" font-size="12.5" fill="#9aa0a6">프로바이더 단위로 정하는 값이다</text>
+
+  <!-- ── 분기 예시 ── -->
+  <line x1="40" y1="530" x2="1200" y2="530" stroke="#e6e8eb" stroke-width="1"/>
+  <text x="40" y="562" font-size="15" font-weight="700" fill="#1f2328">어느 제약이 걸리는가는 엔진 속도가 정한다</text>
+
+  <rect x="40" y="582" width="565" height="140" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="64" y="610" font-size="14" font-weight="700" fill="#1f2328">느린 엔진</text>
+  <text x="150" y="610" font-size="13" fill="#6b7280">GEMINI-Rasalgethi   base 160 / 자연 215</text>
+  <text x="64" y="644" font-size="14" fill="#1971c2">rate 상한</text>
+  <text x="180" y="644" font-size="15" font-weight="700" fill="#1971c2">208</text>
+  <text x="255" y="644" font-size="14" fill="#9aa0a6">전달 속도 상한</text>
+  <text x="395" y="644" font-size="15" fill="#9aa0a6">228</text>
+  <rect x="64" y="664" width="230" height="34" rx="6" fill="#e7f0f9"/>
+  <text x="80" y="687" font-size="14" fill="#1971c2">채택 208  (rate 가 먼저 걸림)</text>
+
+  <rect x="635" y="582" width="565" height="140" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="659" y="610" font-size="14" font-weight="700" fill="#1f2328">빠른 엔진</text>
+  <text x="745" y="610" font-size="13" fill="#6b7280">AWS-Kevin   base 228 / 자연 309</text>
+  <text x="659" y="644" font-size="14" fill="#9aa0a6">rate 상한</text>
+  <text x="775" y="644" font-size="15" fill="#9aa0a6">296</text>
+  <text x="850" y="644" font-size="14" fill="#d9480f">전달 속도 상한</text>
+  <text x="990" y="644" font-size="15" font-weight="700" fill="#d9480f">225</text>
+  <rect x="659" y="664" width="285" height="34" rx="6" fill="#fdeee7"/>
+  <text x="675" y="687" font-size="14" fill="#d9480f">채택 225  (전달 속도가 먼저 걸림)</text>
+
+  <text x="40" y="750" font-size="12" fill="#9aa0a6">※ 상수 세 개는 사람이 확정한 프로바이더 5쌍에 맞춰 보정한 값이다. 속도만 잴 뿐 음질은 판정하지 않는다.</text>
+</svg>
