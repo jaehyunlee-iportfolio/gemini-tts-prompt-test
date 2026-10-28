@@ -63,6 +63,8 @@ import { SpmLabTab } from "@/components/spm-lab-tab";
 import { SpmAuditionTab } from "@/components/spm-audition-tab";
 import { SpmMatrixTab } from "@/components/spm-matrix-tab";
 import { SpmFileMeasureTab } from "@/components/spm-file-measure-tab";
+import { ModelAbTab } from "@/components/model-ab-tab";
+import { HallucinationCompareTab } from "@/components/hallucination-compare-tab";
 import { ThemeToggle } from "@/components/theme-toggle";
 import type { PromptRegistryJson, RegistryGroup, RegistryPrompt } from "@/types/registry";
 import {
@@ -982,6 +984,18 @@ export function TtsApp() {
                 >
                   파일 SPM 측정
                 </TabsTrigger>
+                <TabsTrigger
+                  value="model-ab"
+                  className="touch-manipulation px-2 py-2.5 text-xs sm:flex-initial sm:px-3 sm:py-2 sm:text-sm"
+                >
+                  2.5 vs 3.8 청취
+                </TabsTrigger>
+                <TabsTrigger
+                  value="halluc-compare"
+                  className="touch-manipulation px-2 py-2.5 text-xs sm:flex-initial sm:px-3 sm:py-2 sm:text-sm"
+                >
+                  할루시네이션 비교
+                </TabsTrigger>
               </>
             ) : null}
             {adminAccessStatus === "admin" ? (
@@ -1026,6 +1040,14 @@ export function TtsApp() {
 
           <TabsContent value="spm-file" className="mt-0 space-y-3 sm:space-y-4">
             <SpmFileMeasureTab />
+          </TabsContent>
+
+          <TabsContent value="model-ab" className="mt-0 space-y-3 sm:space-y-4">
+            <ModelAbTab />
+          </TabsContent>
+
+          <TabsContent value="halluc-compare" className="mt-0 space-y-3 sm:space-y-4">
+            <HallucinationCompareTab />
           </TabsContent>
 
           <TabsContent value="generate" className="mt-0 space-y-3 sm:space-y-4">

@@ -21,3 +21,6 @@ docs/spm-sweep/*-audio/
 docs/spm-sweep/.cmudict.dict
 # humanize-korean 스킬 임시 산출물
 _workspace/
+
+# 회사 콘텐츠 문장 표본(공개 레포라 커밋하지 않음)
+local-data/

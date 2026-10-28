@@ -15,6 +15,8 @@ type SpmSynthesizeBody = {
   bundleName: string;
   /** 미지정(null) 시 Voice Profile의 baseSpm으로 발화 (rate 1.0) */
   spm?: number | null;
+  /** Gemini 3.8 번들(…38) 전용 speechMetadata.style. 그 외 번들은 Spindle이 무시 */
+  style?: string;
   platform?: string;
   userId?: number;
   cacheBust?: boolean;
@@ -34,6 +36,7 @@ function parseBody(raw: unknown): SpmSynthesizeBody | null {
     text: o.text,
     bundleName: o.bundleName.trim(),
     spm,
+    style: typeof o.style === "string" && o.style.trim() ? o.style.trim() : undefined,
     platform: typeof o.platform === "string" ? o.platform : undefined,
     userId: typeof o.userId === "number" ? o.userId : undefined,
     cacheBust: typeof o.cacheBust === "boolean" ? o.cacheBust : false,
@@ -94,6 +97,7 @@ export async function POST(req: Request) {
       typeof parsed.userId === "number" && Number.isFinite(parsed.userId) ? parsed.userId : 2,
   };
   if (parsed.spm != null) upstreamBody.spm = parsed.spm;
+  if (parsed.style) upstreamBody.style = parsed.style;
 
   const startedAt = Date.now();
   try {
