@@ -150,7 +150,27 @@ export function HallucinationCompareTab() {
   const onFile = async (file: File) => {
     setLoadError(null);
     try {
-      const parsed = parseSample(await file.text());
+      const raw = await file.text();
+      // scripts/halluc_batch.mjs 결과 파일: 문장, 설정, 결과를 통째로 불러옴 (이 브라우저의 기존 결과와 판정은 바뀜)
+      if (file.name.toLowerCase().endsWith(".json")) {
+        const s = JSON.parse(raw) as Partial<Stored>;
+        if (!Array.isArray(s.rows) || !s.rows.length || !s.config || typeof s.results !== "object" || !s.results) {
+          throw new Error("결과 파일 형식이 아님 (rows, config, results 필요)");
+        }
+        const stored: Stored = {
+          sourceName: s.sourceName || file.name,
+          rows: s.rows,
+          config: s.config,
+          results: s.results,
+        };
+        setRows(stored.rows);
+        setSourceName(stored.sourceName);
+        setConfig(stored.config);
+        setResults(stored.results);
+        saveJson(STORE_KEY, stored);
+        return;
+      }
+      const parsed = parseSample(raw);
       setRows(parsed);
       setSourceName(file.name);
       setResults({});
@@ -369,10 +389,12 @@ export function HallucinationCompareTab() {
         </CardHeader>
         <CardContent className="space-y-4 px-4 sm:px-6">
           <div className="space-y-1.5">
-            <Label className="text-[11px] text-muted-foreground">문장 CSV (헤더: no, voice, category, text, june12)</Label>
+            <Label className="text-[11px] text-muted-foreground">
+              문장 CSV (헤더: no, voice, category, text, june12) 또는 배치 스크립트 결과 JSON
+            </Label>
             <Input
               type="file"
-              accept=".csv,text/csv"
+              accept=".csv,text/csv,.json,application/json"
               disabled={running}
               onChange={(e) => {
                 const f = e.target.files?.[0];

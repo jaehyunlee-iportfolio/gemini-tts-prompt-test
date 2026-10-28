@@ -24,3 +24,4 @@ _workspace/
 
 # 회사 콘텐츠 문장 표본(공개 레포라 커밋하지 않음)
 local-data/
+.env*.local
