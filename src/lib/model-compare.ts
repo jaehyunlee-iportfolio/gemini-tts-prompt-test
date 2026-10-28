@@ -64,6 +64,23 @@ export const STYLE_CANDIDATES: Record<VoiceGroup, Record<CompareEmotion, string[
   },
 };
 
+/** 할루시네이션 표본 CSV의 category 열 — 길이와 유형별로 할루시네이션이 다르게 나오는지 보기 위함 */
+export const SAMPLE_CATEGORY_LABEL: Record<string, string> = {
+  word: "한 단어",
+  pseudoword: "없는 낱말",
+  instruction: "지시문",
+  s1_short: "1문장 (8단어 이하)",
+  s1_long: "1문장 (9단어 이상)",
+  s2: "2문장",
+  s3_4: "3~4문장",
+  format: "줄바꿈, 선택지 목록",
+  known_tts_error: "6/12 TTS 오류 문장",
+};
+
+export function sampleCategoryLabel(c: string) {
+  return SAMPLE_CATEGORY_LABEL[c] ?? (c || "분류 없음");
+}
+
 /** 학습자용 또박또박 발화 — 2026-10-27 #spindle-speech 이장록 프로 테스트 문구 */
 export const ANNOUNCER_STYLE =
   "Speak like a news announcer, pronouncing every word clearly and distinctly for English learners.";

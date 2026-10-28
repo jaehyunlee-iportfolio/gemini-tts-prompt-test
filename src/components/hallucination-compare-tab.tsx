@@ -26,6 +26,7 @@ import {
   loadJson,
   parseCsv,
   pct,
+  sampleCategoryLabel,
   saveJson,
   synthesizeV2,
   toCsv,
@@ -41,7 +42,7 @@ import { Loader2 } from "lucide-react";
 const STORE_KEY = "model-compare-halluc-v1";
 const MODELS: ModelKey[] = ["g25", "g38"];
 
-type SampleRow = { no: string; voice: CompareVoice; text: string; june12: string };
+type SampleRow = { no: string; voice: CompareVoice; text: string; june12: string; category?: string };
 
 /** 사람이 들어 보고 붙이는 판정 */
 type Label = "tts" | "stt" | "hold";
@@ -87,6 +88,7 @@ function parseSample(raw: string): SampleRow[] {
   const iNo = header.indexOf("no");
   const iVoice = header.indexOf("voice");
   const iJune = header.indexOf("june12");
+  const iCat = header.indexOf("category");
   const out: SampleRow[] = [];
   table.slice(1).forEach((cells, i) => {
     const text = (cells[iText] ?? "").trim();
@@ -97,6 +99,7 @@ function parseSample(raw: string): SampleRow[] {
       voice: isCompareVoice(v) ? v : "Sulafat",
       text,
       june12: iJune >= 0 ? (cells[iJune] ?? "").trim() : "",
+      category: iCat >= 0 ? (cells[iCat] ?? "").trim() : "",
     });
   });
   return out;
@@ -117,6 +120,7 @@ export function HallucinationCompareTab() {
   const [running, setRunning] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [reviewFilter, setReviewFilter] = useState<"all" | "unlabeled" | "tts">("all");
+  const [catFilter, setCatFilter] = useState("all");
   const [confirmReset, setConfirmReset] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const resultsRef = useRef(results);
@@ -291,11 +295,38 @@ export function HallucinationCompareTab() {
     );
   }, [rows, results]);
 
+  const categories = useMemo(
+    () => Array.from(new Set(rows.map((r) => r.category ?? ""))).filter(Boolean),
+    [rows],
+  );
+
+  /** 유형(한 단어, 없는 낱말, 지시문, 문장 길이 등)별 집계 */
+  const catStats = useMemo(
+    () =>
+      categories.map((cat) => {
+        const per = MODELS.map((m) => {
+          let n = 0, pass = 0, tts = 0;
+          rows.forEach((row, idx) => {
+            if (row.category !== cat) return;
+            const r = results[jobKey(idx, m)];
+            if (r?.status !== "done") return;
+            n++;
+            if (r.verdict === "pass") pass++;
+            if (r.label === "tts") tts++;
+          });
+          return { m, n, pass, tts };
+        });
+        return { cat, total: rows.filter((r) => r.category === cat).length, per };
+      }),
+    [categories, rows, results],
+  );
+
   /** STT가 걸러낸 문장 + 6/12에 TTS 오류였던 문장 */
   const reviewRows = useMemo(() => {
     return rows
       .map((row, idx) => ({ row, idx }))
       .filter(({ row, idx }) => {
+        if (catFilter !== "all" && row.category !== catFilter) return false;
         const rs = MODELS.map((m) => results[jobKey(idx, m)]);
         const flagged = rs.some((r) => r?.status === "done" && r.verdict !== "pass");
         const knownTts = row.june12.startsWith("TTS_");
@@ -305,18 +336,18 @@ export function HallucinationCompareTab() {
         if (reviewFilter === "tts") return rs.some((r) => r?.label === "tts");
         return true;
       });
-  }, [rows, results, reviewFilter]);
+  }, [rows, results, reviewFilter, catFilter]);
 
   const exportCsv = () =>
     downloadText(
       `할루시네이션-2.5-vs-3.8-${new Date().toISOString().slice(0, 10)}.csv`,
       toCsv([
-        ["no", "보이스", "문장", "6/12 분류", "모델", "번들", "style", "STT 판정", "STT 일치율", "STT 결과", "사람 판정", "오디오", "오류"],
+        ["no", "보이스", "유형", "문장", "6/12 분류", "모델", "번들", "style", "STT 판정", "STT 일치율", "STT 결과", "사람 판정", "오디오", "오류"],
         ...rows.flatMap((row, idx) =>
           MODELS.map((m) => {
             const r = results[jobKey(idx, m)];
             return [
-              row.no, row.voice, row.text, row.june12, MODEL_LABEL[m],
+              row.no, row.voice, sampleCategoryLabel(row.category ?? ""), row.text, row.june12, MODEL_LABEL[m],
               bundleFor(m, row.voice, config.emotion), m === "g38" ? styleFor(row.voice) : "",
               r?.verdict ? verdictLabelKo(r.verdict) : "", r?.score != null ? (r.score * 100).toFixed(0) : "",
               r?.transcript ?? "", r?.label ? LABEL_TEXT[r.label] : "", r?.url ?? "", r?.error ?? "",
@@ -338,7 +369,7 @@ export function HallucinationCompareTab() {
         </CardHeader>
         <CardContent className="space-y-4 px-4 sm:px-6">
           <div className="space-y-1.5">
-            <Label className="text-[11px] text-muted-foreground">문장 CSV (헤더: no, voice, text, june12)</Label>
+            <Label className="text-[11px] text-muted-foreground">문장 CSV (헤더: no, voice, category, text, june12)</Label>
             <Input
               type="file"
               accept=".csv,text/csv"
@@ -514,6 +545,41 @@ export function HallucinationCompareTab() {
               </tbody>
             </table>
           </div>
+          {catStats.length > 0 ? (
+            <div className="mt-5 space-y-2">
+              <p className="text-sm font-medium">유형별</p>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[640px] text-sm">
+                  <thead>
+                    <tr className="border-b text-left text-xs text-muted-foreground">
+                      <th className="py-2 pr-3 font-medium">유형</th>
+                      <th className="py-2 pr-3 font-medium">문장 수</th>
+                      {MODELS.map((m) => (
+                        <th key={m} className="py-2 pr-3 font-medium">{MODEL_LABEL[m]}: STT 통과</th>
+                      ))}
+                      {MODELS.map((m) => (
+                        <th key={`t-${m}`} className="py-2 pr-3 font-medium">{MODEL_LABEL[m]}: TTS 오류</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="tabular-nums">
+                    {catStats.map((c) => (
+                      <tr key={c.cat} className="border-b last:border-0">
+                        <td className="py-2 pr-3">{sampleCategoryLabel(c.cat)}</td>
+                        <td className="py-2 pr-3">{c.total}</td>
+                        {c.per.map((p) => (
+                          <td key={p.m} className="py-2 pr-3">{p.n ? `${pct(p.pass / p.n, 1)} (${p.n})` : "—"}</td>
+                        ))}
+                        {c.per.map((p) => (
+                          <td key={`t-${p.m}`} className="py-2 pr-3 font-semibold">{p.n ? p.tts : "—"}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 
@@ -536,6 +602,17 @@ export function HallucinationCompareTab() {
                 {l}
               </Button>
             ))}
+            {categories.length > 0 ? (
+              <Select value={catFilter} onValueChange={setCatFilter}>
+                <SelectTrigger className="h-8 w-auto min-w-36 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all" className="text-xs">모든 유형</SelectItem>
+                  {categories.map((c) => (
+                    <SelectItem key={c} value={c} className="text-xs">{sampleCategoryLabel(c)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : null}
           </div>
         </CardHeader>
         <CardContent className="space-y-3 px-4 sm:px-6">
@@ -547,6 +624,7 @@ export function HallucinationCompareTab() {
                 <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                   <span className="font-mono">no {row.no}</span>
                   <span>{row.voice}</span>
+                  {row.category ? <Badge variant="outline" className="text-[10px]">{sampleCategoryLabel(row.category)}</Badge> : null}
                   {row.june12 ? (
                     <Badge variant={row.june12.startsWith("TTS_") ? "destructive" : "outline"} className="text-[10px]">
                       6/12: {row.june12}
