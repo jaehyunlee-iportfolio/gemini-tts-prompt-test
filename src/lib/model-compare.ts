@@ -32,9 +32,12 @@ export const TARGET_VOICE_LABEL: Record<VoiceGroup, string> = {
   male: "Leo: 8살 남자 아이",
 };
 
+/**
+ * 3.8은 Stage에 `…-Default38` 번들만 있음 (2026-10-28 확인, Cheerful38/Gentle38은 "Voice profile not found").
+ * 3.8의 감정은 번들이 아니라 style 문구로 표현하므로 감정과 관계없이 Default38을 쓴다.
+ */
 export function bundleFor(model: ModelKey, voice: CompareVoice, emotion: CompareEmotion) {
-  const base = `GEMINI-${voice}-${emotion}`;
-  return model === "g38" ? `${base}38` : base;
+  return model === "g38" ? `GEMINI-${voice}-Default38` : `GEMINI-${voice}-${emotion}`;
 }
 
 export function isCompareVoice(v: string): v is CompareVoice {
