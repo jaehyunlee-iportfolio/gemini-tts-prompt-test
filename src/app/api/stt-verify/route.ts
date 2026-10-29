@@ -4,7 +4,7 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const OPENAI_TRANSCRIPTIONS = "https://api.openai.com/v1/audio/transcriptions";
-const DEFAULT_MODEL = "gpt-4o-transcribe";
+const DEFAULT_MODEL = "gpt-transcribe";
 
 type Body = {
   audioBase64?: string;

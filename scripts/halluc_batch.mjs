@@ -2,7 +2,7 @@
 /**
  * 할루시네이션 비교 배치 (2.5 Pro vs 3.8)를 브라우저 없이 실행한다.
  *
- * 문장마다 Spindle v2 Stage로 음성을 만들고 gpt-4o-transcribe로 받아 적어 원문과 비교한다.
+ * 문장마다 Spindle v2 Stage로 음성을 만들고 gpt-transcribe로 받아 적어 원문과 비교한다.
  * 결과 JSON은 사이트 "할루시네이션 비교" 탭의 파일 선택에 그대로 올리면 청취와 판정을 이어 갈 수 있다.
  * 중간에 멈춰도 같은 --out으로 다시 실행하면 남은 건만 처리한다.
  *
@@ -18,7 +18,7 @@ import { basename } from "node:path";
 
 const V2_SAVE_URL = "https://speech-stage.spindlebooks.com/api/v2/text-to-speech/synthesize/save";
 const STT_URL = "https://api.openai.com/v1/audio/transcriptions";
-const STT_MODEL = process.env.OPENAI_STT_MODEL || "gpt-4o-transcribe";
+const STT_MODEL = process.env.OPENAI_STT_MODEL || "gpt-transcribe";
 const STT_PASS_MIN = 0.88;
 const STT_REVIEW_MIN = 0.72;
 const VOICES = ["Sulafat", "Puck", "Rasalgethi", "Fenrir"];

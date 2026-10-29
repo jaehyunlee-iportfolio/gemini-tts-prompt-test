@@ -6,7 +6,7 @@ TTS v2 `spm` 파라미터 전 VP 스윕 — VP별 beginner/intermediate/advanced
   1. 각 bundleName에 대해 baseline(spm 미지정, rate 1.0) 생성 → ffprobe로 길이 실측
   2. spm=163 프로브로 spm 지원 여부 확인(baseSpm 미설정 번들은 500 "baseSpm is required")
   3. SPM 그리드 생성 → 실측 SPM(음절/길이), 역산 baseSpm(spm × D_spm / D_base) 계산
-  4. (옵션) gpt-4o-transcribe STT로 명료도 검증
+  4. (옵션) gpt-transcribe STT로 명료도 검증
 
 사용:
   python3 scripts/spm_sweep.py [--out DIR] [--stt] [--bundles NAME,NAME]
@@ -243,7 +243,7 @@ def norm_words(text: str) -> list[str]:
 
 
 def stt_transcribe(api_key: str, path: Path) -> str | None:
-    """gpt-4o-transcribe 전사 — curl 멀티파트 (표준 라이브러리 회피)"""
+    """gpt-transcribe 전사 — curl 멀티파트 (표준 라이브러리 회피)"""
     try:
         out = subprocess.run(
             [
@@ -251,8 +251,8 @@ def stt_transcribe(api_key: str, path: Path) -> str | None:
                 "https://api.openai.com/v1/audio/transcriptions",
                 "-H", f"Authorization: Bearer {api_key}",
                 "-F", f"file=@{path}",
-                "-F", "model=gpt-4o-transcribe",
-                "-F", "language=en",
+                "-F", "model=gpt-transcribe",
+                "-F", "languages[]=en",
             ],
             capture_output=True, text=True, timeout=120, check=True,
         ).stdout
@@ -290,7 +290,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=None, help="결과 출력 디렉토리")
     ap.add_argument("--audio-dir", default=None, help="mp3 저장 디렉토리")
-    ap.add_argument("--stt", action="store_true", help="gpt-4o-transcribe STT 검증 포함")
+    ap.add_argument("--stt", action="store_true", help="gpt-transcribe STT 검증 포함")
     ap.add_argument("--bundles", default=None, help="쉼표 구분 번들 지정(기본 전체)")
     args = ap.parse_args()
 

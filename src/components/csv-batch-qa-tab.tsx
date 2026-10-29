@@ -555,7 +555,7 @@ export function CsvBatchQaTab({ registryJson }: { registryJson: PromptRegistryJs
           컨테이너, 스트리밍 없음). STT는{" "}
           <code className="rounded bg-muted px-1">OPENAI_API_KEY</code>
           (선택 <code className="rounded bg-muted px-1">OPENAI_STT_MODEL</code>, 기본{" "}
-          <code className="rounded bg-muted px-1">gpt-4o-transcribe</code>).
+          <code className="rounded bg-muted px-1">gpt-transcribe</code>).
         </AlertDescription>
       </Alert>
 

@@ -3,7 +3,7 @@
 spm_sweep.py 결과 후처리:
   1. ffmpeg silencedetect로 선행·후행 무음을 재고 speech-only 길이·SPM 재계산
      (프로바이더별 꼬리 무음 0.3~0.9초 편차가 실측 SPM을 왜곡하므로)
-  2. gpt-4o-transcribe STT 재실행(누락분)
+  2. gpt-transcribe STT 재실행(누락분)
   3. rate 극단값(0.5~2.4 × 역산 baseSpm) 추가 스윕 — 저속 기계음·고속 붕괴·프로바이더
      상한(GCP speakingRate 2.0 등) 경계 탐지
 결과는 results.json에 병합 저장.
